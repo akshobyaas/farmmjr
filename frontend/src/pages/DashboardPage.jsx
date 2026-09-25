@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -30,10 +32,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">🌾</span>
-        <h1>{t("common.appName")}</h1>
-      </header>
+      <AppHeader icon="🌾" title={t("common.appName")} />
 
       <main className="app-main">
         <div className="status-card status-ok">
@@ -62,6 +61,7 @@ export default function DashboardPage() {
         </button>
         <p className="phase-note">{t("dashboard.phaseNote")}</p>
       </main>
+      <BottomNav />
     </div>
   );
 }

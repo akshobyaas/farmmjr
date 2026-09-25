@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchScanDetail } from "../api/scans";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 export default function ScanHistoryDetailPage() {
   const { id } = useParams();
@@ -27,14 +29,12 @@ export default function ScanHistoryDetailPage() {
   if (error) {
     return (
       <div className="dashboard-page">
-        <header className="app-header">
-          <span className="app-header-icon">📜</span>
-          <h1>Scan Result</h1>
-        </header>
+        <AppHeader icon="📜" title="Scan Result" />
         <main className="app-main">
           <p className="form-error" role="alert">{error}</p>
           <Link to="/scan/history" className="auth-switch">Back to Scan History</Link>
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -45,10 +45,7 @@ export default function ScanHistoryDetailPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">📜</span>
-        <h1>Scan Result</h1>
-      </header>
+      <AppHeader icon="📜" title="Scan Result" />
 
       <main className="app-main">
         <div className="status-card status-ok">
@@ -86,6 +83,7 @@ export default function ScanHistoryDetailPage() {
           <Link to="/scan/history">Back to Scan History</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

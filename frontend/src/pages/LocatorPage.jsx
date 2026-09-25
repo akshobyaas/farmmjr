@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchNearbyServices } from "../api/locator";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 // react-leaflet's default marker icon references image paths that don't
 // resolve correctly once bundled by Vite -- pointing it at the same
@@ -81,10 +83,7 @@ export default function LocatorPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header locator-header">
-        <span className="app-header-icon">📍</span>
-        <h1>Nearby Services</h1>
-      </header>
+      <AppHeader icon="📍" title="Nearby Services" className="locator-header" />
 
       <main className="app-main">
         <form className="locator-search-form" onSubmit={handlePlaceSubmit}>
@@ -190,6 +189,7 @@ export default function LocatorPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

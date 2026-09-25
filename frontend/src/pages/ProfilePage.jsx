@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 export default function ProfilePage() {
   const { getProfile, updateProfile } = useAuth();
@@ -55,64 +56,68 @@ export default function ProfilePage() {
     return <div className="loading-screen">{t("common.loading")}</div>;
   }
 
+  // Phase 21 -- Profile used to be the one protected page still styled like
+  // a logged-out auth screen (centered card, no header, no nav): it now
+  // shares the same header + bottom-nav shell as every other logged-in
+  // page, for a consistent experience.
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-title">{t("profile.title")}</h1>
-        <p className="auth-subtitle">{form?.username}</p>
+    <div className="dashboard-page">
+      <AppHeader icon="👤" title={t("profile.title")} />
 
-        {form && (
-          <form onSubmit={handleSubmit} noValidate>
-            <label className="form-label" htmlFor="first_name">{t("profile.firstName")}</label>
-            <input
-              id="first_name" name="first_name" type="text" className="form-input"
-              value={form.first_name} onChange={handleChange}
-            />
+      <main className="app-main">
+        <div className="status-card profile-card">
+          <p className="auth-subtitle">{form?.username}</p>
 
-            <label className="form-label" htmlFor="last_name">{t("profile.lastName")}</label>
-            <input
-              id="last_name" name="last_name" type="text" className="form-input"
-              value={form.last_name} onChange={handleChange}
-            />
+          {form && (
+            <form onSubmit={handleSubmit} noValidate>
+              <label className="form-label" htmlFor="first_name">{t("profile.firstName")}</label>
+              <input
+                id="first_name" name="first_name" type="text" className="form-input"
+                value={form.first_name} onChange={handleChange}
+              />
 
-            <label className="form-label" htmlFor="phone_number">{t("profile.phoneNumber")}</label>
-            <input
-              id="phone_number" name="phone_number" type="tel" className="form-input"
-              value={form.phone_number} onChange={handleChange}
-            />
+              <label className="form-label" htmlFor="last_name">{t("profile.lastName")}</label>
+              <input
+                id="last_name" name="last_name" type="text" className="form-input"
+                value={form.last_name} onChange={handleChange}
+              />
 
-            <label className="form-label" htmlFor="preferred_language">{t("profile.preferredLanguage")}</label>
-            <select
-              id="preferred_language" name="preferred_language" className="form-input"
-              value={form.preferred_language} onChange={handleChange}
-            >
-              <option value="en">English</option>
-              <option value="kn">ಕನ್ನಡ (Kannada)</option>
-              <option value="hi">हिन्दी (Hindi)</option>
-            </select>
+              <label className="form-label" htmlFor="phone_number">{t("profile.phoneNumber")}</label>
+              <input
+                id="phone_number" name="phone_number" type="tel" className="form-input"
+                value={form.phone_number} onChange={handleChange}
+              />
 
-            <p className="form-label" style={{ marginTop: 20, color: "var(--color-text-secondary)" }}>
-              {t("profile.emailNote", { email: form.email })}
-            </p>
+              <label className="form-label" htmlFor="preferred_language">{t("profile.preferredLanguage")}</label>
+              <select
+                id="preferred_language" name="preferred_language" className="form-input"
+                value={form.preferred_language} onChange={handleChange}
+              >
+                <option value="en">English</option>
+                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+              </select>
 
-            {error && <p className="form-error" role="alert">{error}</p>}
-            {success && (
-              <div className="status-card status-ok" style={{ marginTop: 16 }}>
-                <p className="status-message">✅ Profile updated successfully.</p>
-              </div>
-            )}
+              <p className="form-label" style={{ marginTop: 20, color: "var(--color-text-secondary)" }}>
+                {t("profile.emailNote", { email: form.email })}
+              </p>
 
-            <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? t("common.saving") : t("common.save")}
-            </button>
-          </form>
-        )}
-        {error && !form && <p className="form-error" role="alert">{error}</p>}
+              {error && <p className="form-error" role="alert">{error}</p>}
+              {success && (
+                <div className="status-card status-ok" style={{ marginTop: 16 }}>
+                  <p className="status-message">✅ Profile updated successfully.</p>
+                </div>
+              )}
 
-        <p className="auth-switch">
-          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
-        </p>
-      </div>
+              <button type="submit" className="btn-primary" disabled={submitting}>
+                {submitting ? t("common.saving") : t("common.save")}
+              </button>
+            </form>
+          )}
+          {error && !form && <p className="form-error" role="alert">{error}</p>}
+        </div>
+      </main>
+      <BottomNav />
     </div>
   );
 }

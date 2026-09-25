@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { sendChatMessage } from "../api/chatbot";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 let nextId = 1;
 
@@ -50,10 +52,7 @@ export default function ChatbotPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">💬</span>
-        <h1>Chatbot</h1>
-      </header>
+      <AppHeader icon="💬" title="Chatbot" />
 
       <main className="app-main chatbot-main">
         <div className="chatbot-messages">
@@ -95,6 +94,7 @@ export default function ChatbotPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

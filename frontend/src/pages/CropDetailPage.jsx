@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchCropDetail } from "../api/crops";
 import { localizeField } from "../i18n/localize";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 export default function CropDetailPage() {
   const { id } = useParams();
@@ -27,14 +29,12 @@ export default function CropDetailPage() {
   if (error) {
     return (
       <div className="dashboard-page">
-        <header className="app-header">
-          <span className="app-header-icon">🌾</span>
-          <h1>{t("crops.title")}</h1>
-        </header>
+        <AppHeader icon="🌾" title={t("crops.title")} />
         <main className="app-main">
           <p className="form-error" role="alert">{error}</p>
           <Link to="/crops" className="auth-switch">{t("crops.backToCropList")}</Link>
         </main>
+        <BottomNav />
       </div>
     );
   }
@@ -47,10 +47,7 @@ export default function CropDetailPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">🌾</span>
-        <h1>{cropName}</h1>
-      </header>
+      <AppHeader icon="🌾" title={cropName} />
 
       <main className="app-main crop-detail-main">
         <div className="status-card status-ok">
@@ -121,6 +118,7 @@ export default function CropDetailPage() {
           <Link to="/crops">{t("crops.backToCropList")}</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

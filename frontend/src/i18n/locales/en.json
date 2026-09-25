@@ -79,5 +79,13 @@
     "cropNotFound": "This crop could not be found.",
     "cropLoadError": "Could not load this crop. Please try again.",
     "cropsLoadError": "Could not load crops. Please try again."
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "crops": "Crops",
+    "scan": "Scan",
+    "weather": "Weather",
+    "profile": "Profile"
   }
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { fetchScanHistory } from "../api/scans";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -39,10 +41,7 @@ export default function ScanHistoryPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">📜</span>
-        <h1>Scan History</h1>
-      </header>
+      <AppHeader icon="📜" title="Scan History" />
 
       <main className="app-main">
         {loading && <p className="status-message">Loading your scans…</p>}
@@ -104,6 +103,7 @@ export default function ScanHistoryPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

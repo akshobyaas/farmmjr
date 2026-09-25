@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { searchVideos } from "../api/videos";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 function formatDate(isoString) {
   if (!isoString) return "";
@@ -51,10 +53,7 @@ export default function VideosPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header videos-header">
-        <span className="app-header-icon">▶️</span>
-        <h1>Learning Videos</h1>
-      </header>
+      <AppHeader icon="▶️" title="Learning Videos" className="videos-header" />
 
       <main className="app-main">
         <form className="videos-search-form" onSubmit={handleSubmit}>
@@ -110,6 +109,7 @@ export default function VideosPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }
