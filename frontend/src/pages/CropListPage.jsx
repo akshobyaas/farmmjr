@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchCrops } from "../api/crops";
 import { localizeField } from "../i18n/localize";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 export default function CropListPage() {
   const { t, i18n } = useTranslation();
@@ -31,10 +33,7 @@ export default function CropListPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">🌾</span>
-        <h1>{t("crops.title")}</h1>
-      </header>
+      <AppHeader icon="🌾" title={t("crops.title")} />
 
       <main className="app-main">
         <form onSubmit={handleSearchSubmit} className="crop-search-form">
@@ -69,6 +68,7 @@ export default function CropListPage() {
           <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

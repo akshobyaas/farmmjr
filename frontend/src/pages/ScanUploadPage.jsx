@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { uploadScan } from "../api/scans";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 // Server-side validation (scans/serializers.py) enforces the real limits;
 // this is just a fast, friendly client-side check so a farmer doesn't wait
@@ -98,10 +100,7 @@ export default function ScanUploadPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">🔍</span>
-        <h1>Scan a Crop</h1>
-      </header>
+      <AppHeader icon="🔍" title="Scan a Crop" />
 
       <main className="app-main">
         {!result && (
@@ -172,6 +171,7 @@ export default function ScanUploadPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

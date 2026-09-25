@@ -969,3 +969,88 @@ body {
   gap: 0.5rem;
   margin-top: 0.6rem;
 }
+
+/* ===== Phase 21 — UI Polish Pass ===== */
+
+/* index.css (leftover from the original Vite template) used to be the only
+   thing centering card text -- nothing in this file ever declared it, so
+   the whole app's "centered card" look was riding on unrelated boilerplate.
+   Made explicit here instead, and index.css has been cleaned of everything
+   that isn't actually part of this app's design (it was also capping the
+   page to 1126px and drawing a stray side border via #root, visible on any
+   screen wider than that, worse in OS dark mode since that border color
+   changed with prefers-color-scheme while the rest of the app didn't).  */
+body {
+  text-align: center;
+}
+
+/* A comfortable, phone-proportioned column even on a wide desktop screen --
+   this app's target user is on a phone, and letting content stretch
+   edge-to-edge on a laptop doesn't serve that design. */
+.dashboard-page,
+.auth-page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Every logged-in page now shares this header + bottom-nav shell, so leave
+   room at the bottom for the fixed nav instead of letting it cover the
+   last bit of content. */
+.app-main {
+  padding-bottom: 88px;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* The missing piece the design target always called for: persistent,
+   thumb-reachable navigation so a farmer never has to backtrack through
+   "Back to Dashboard" just to reach another section. Large (60px+) tap
+   targets, icon + short label, current section highlighted. */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  background: white;
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.bottom-nav-inner {
+  display: flex;
+  width: 100%;
+  max-width: 640px;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 60px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bottom-nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+}

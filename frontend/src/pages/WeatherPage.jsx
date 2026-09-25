@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchWeather } from "../api/weather";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 // Simple, dependency-free mapping from OpenWeatherMap's icon code prefix to
 // an emoji, since we don't want to pull in an icon font/library just for
@@ -69,10 +71,7 @@ export default function WeatherPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header weather-header">
-        <span className="app-header-icon">🌦️</span>
-        <h1>Weather</h1>
-      </header>
+      <AppHeader icon="🌦️" title="Weather" className="weather-header" />
 
       <main className="app-main">
         <form className="weather-search-form" onSubmit={handleCitySubmit}>
@@ -121,6 +120,7 @@ export default function WeatherPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }

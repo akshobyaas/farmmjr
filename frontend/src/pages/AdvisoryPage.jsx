@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { listAdvisoryQueries, createAdvisoryQuery, answerAdvisoryQuery } from "../api/advisory";
+import AppHeader from "../components/AppHeader";
+import BottomNav from "../components/BottomNav";
 
 function StatusBadge({ status }) {
   return (
@@ -85,10 +87,7 @@ export default function AdvisoryPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="app-header">
-        <span className="app-header-icon">📨</span>
-        <h1>{isAdmin ? "Advisory Queries" : "Ask an Expert"}</h1>
-      </header>
+      <AppHeader icon="📨" title={isAdmin ? "Advisory Queries" : "Ask an Expert"} />
 
       <main className="app-main advisory-main">
         {!isAdmin && (
@@ -201,6 +200,7 @@ export default function AdvisoryPage() {
           <Link to="/dashboard">Back to Dashboard</Link>
         </p>
       </main>
+      <BottomNav />
     </div>
   );
 }
