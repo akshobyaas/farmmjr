@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { fetchWeather } from "../api/weather";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -24,6 +25,7 @@ function iconFor(code) {
 }
 
 export default function WeatherPage() {
+  const { t } = useTranslation();
   const [cityInput, setCityInput] = useState("");
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export default function WeatherPage() {
       const data = await fetchWeather(params);
       setWeather(data);
     } catch (err) {
-      setError(err.response?.data?.detail || "Weather unavailable right now. Please try again later.");
+      setError(err.response?.data?.detail || t("weather.fetchError"));
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ export default function WeatherPage() {
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      setError("Your browser doesn't support location detection. Please type a place name instead.");
+      setError(t("common.geoUnsupported"));
       return;
     }
     setLoading(true);
@@ -64,38 +66,38 @@ export default function WeatherPage() {
       },
       () => {
         setLoading(false);
-        setError("Location permission denied. Please type a place name instead.");
+        setError(t("common.geoDenied"));
       }
     );
   };
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🌦️" title="Weather" className="weather-header" />
+      <AppHeader icon="🌦️" title={t("weather.title")} className="weather-header" />
 
       <main className="app-main">
         <form className="weather-search-form" onSubmit={handleCitySubmit}>
           <label htmlFor="weather-city" className="sr-only">
-            Place name
+            {t("locator.placeLabel")}
           </label>
           <input
             id="weather-city"
             type="text"
-            placeholder="Enter a place name (e.g. Mangaluru)"
+            placeholder={t("weather.placePlaceholder")}
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
             className="weather-city-input"
           />
           <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
-            Search
+            {t("common.search")}
           </button>
         </form>
 
         <button type="button" className="btn-secondary" onClick={handleUseMyLocation} disabled={loading}>
-          📍 Use My Location
+          {t("common.useMyLocation")}
         </button>
 
-        {loading && <p className="status-message">Loading weather…</p>}
+        {loading && <p className="status-message">{t("weather.loading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
 
         {!loading && !error && weather && (
@@ -108,16 +110,20 @@ export default function WeatherPage() {
             {weather.description && <p className="weather-description">{weather.description}</p>}
             <div className="weather-meta">
               {typeof weather.feels_like === "number" && (
-                <span>Feels like {Math.round(weather.feels_like)}°C</span>
+                <span>{t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}</span>
               )}
-              {typeof weather.humidity === "number" && <span>Humidity {weather.humidity}%</span>}
-              {typeof weather.wind_speed === "number" && <span>Wind {weather.wind_speed} m/s</span>}
+              {typeof weather.humidity === "number" && (
+                <span>{t("weather.humidity", { value: weather.humidity })}</span>
+              )}
+              {typeof weather.wind_speed === "number" && (
+                <span>{t("weather.wind", { value: weather.wind_speed })}</span>
+              )}
             </div>
           </div>
         )}
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />

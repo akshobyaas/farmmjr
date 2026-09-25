@@ -1,21 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { sendChatMessage } from "../api/chatbot";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 
 let nextId = 1;
 
-const INITIAL_MESSAGES = [
-  {
-    id: 0,
-    sender: "bot",
-    text: "Hi! Ask me about scanning crops, weather, crop guidance, learning videos, or nearby agri services.",
-  },
-];
-
 export default function ChatbotPage() {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState(() => [
+    { id: 0, sender: "bot", text: t("chatbot.greeting") },
+  ]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
@@ -42,7 +38,7 @@ export default function ChatbotPage() {
         {
           id: nextId++,
           sender: "bot",
-          text: "Could not reach the server. Please check your connection and try again.",
+          text: t("chatbot.connectionError"),
         },
       ]);
     } finally {
@@ -52,7 +48,7 @@ export default function ChatbotPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="💬" title="Chatbot" />
+      <AppHeader icon="💬" title={t("chatbot.title")} />
 
       <main className="app-main chatbot-main">
         <div className="chatbot-messages">
@@ -66,7 +62,7 @@ export default function ChatbotPage() {
           ))}
           {sending && (
             <div className="chat-bubble chat-bubble-bot chat-bubble-typing" aria-live="polite">
-              Thinking…
+              {t("chatbot.thinking")}
             </div>
           )}
           <div ref={bottomRef} />
@@ -74,24 +70,24 @@ export default function ChatbotPage() {
 
         <form className="chatbot-input-form" onSubmit={handleSubmit}>
           <label htmlFor="chatbot-input" className="sr-only">
-            Type a message
+            {t("chatbot.inputLabel")}
           </label>
           <input
             id="chatbot-input"
             type="text"
-            placeholder="Type your question…"
+            placeholder={t("chatbot.inputPlaceholder")}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="chatbot-text-input"
             disabled={sending}
           />
           <button type="submit" className="btn-primary" disabled={sending || !input.trim()}>
-            Send
+            {t("chatbot.sendButton")}
           </button>
         </form>
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />

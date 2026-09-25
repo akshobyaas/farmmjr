@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -31,6 +32,7 @@ const originIcon = new L.Icon({
 });
 
 export default function LocatorPage() {
+  const { t } = useTranslation();
   const [placeInput, setPlaceInput] = useState("");
   const [view, setView] = useState("list");
   const [origin, setOrigin] = useState(null);
@@ -50,7 +52,7 @@ export default function LocatorPage() {
         setResults(data.results);
       })
       .catch((err) => {
-        setError(err.response?.data?.detail || "Nearby services are unavailable right now. Please try again later.");
+        setError(err.response?.data?.detail || t("locator.fetchError"));
       })
       .finally(() => setLoading(false));
   };
@@ -63,7 +65,7 @@ export default function LocatorPage() {
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      setError("Your browser doesn't support location detection. Please type a place name instead.");
+      setError(t("common.geoUnsupported"));
       return;
     }
     setLoading(true);
@@ -76,43 +78,43 @@ export default function LocatorPage() {
       },
       () => {
         setLoading(false);
-        setError("Location permission denied. Please type a place name instead.");
+        setError(t("common.geoDenied"));
       }
     );
   };
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📍" title="Nearby Services" className="locator-header" />
+      <AppHeader icon="📍" title={t("locator.title")} className="locator-header" />
 
       <main className="app-main">
         <form className="locator-search-form" onSubmit={handlePlaceSubmit}>
           <label htmlFor="locator-place" className="sr-only">
-            Place name
+            {t("locator.placeLabel")}
           </label>
           <input
             id="locator-place"
             type="text"
-            placeholder="Enter a place name (e.g. Puttur, Dakshina Kannada)"
+            placeholder={t("locator.placePlaceholder")}
             value={placeInput}
             onChange={(e) => setPlaceInput(e.target.value)}
             className="locator-place-input"
           />
           <button type="submit" className="btn-primary" disabled={loading || !placeInput.trim()}>
-            Search
+            {t("common.search")}
           </button>
         </form>
 
         <button type="button" className="btn-secondary" onClick={handleUseMyLocation} disabled={loading}>
-          📍 Use My Location
+          {t("common.useMyLocation")}
         </button>
 
-        {loading && <p className="status-message">Finding nearby services…</p>}
+        {loading && <p className="status-message">{t("locator.loading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
 
         {!loading && !error && searched && results && results.length === 0 && (
           <p className="status-message">
-            No agricultural services found nearby. Try a different place name, or a nearby town.
+            {t("locator.noResults")}
           </p>
         )}
 
@@ -126,7 +128,7 @@ export default function LocatorPage() {
                 className={`locator-toggle-btn ${view === "list" ? "locator-toggle-active" : ""}`}
                 onClick={() => setView("list")}
               >
-                List
+                {t("locator.viewList")}
               </button>
               <button
                 type="button"
@@ -135,7 +137,7 @@ export default function LocatorPage() {
                 className={`locator-toggle-btn ${view === "map" ? "locator-toggle-active" : ""}`}
                 onClick={() => setView("map")}
               >
-                Map
+                {t("locator.viewMap")}
               </button>
             </div>
 
@@ -146,7 +148,8 @@ export default function LocatorPage() {
                     <p className="locator-card-name">{service.name}</p>
                     <p className="locator-card-category">{service.category}</p>
                     <p className="locator-card-meta">
-                      {service.distance_km} km away{service.address && ` · ${service.address}`}
+                      {t("locator.kmAway", { km: service.distance_km })}
+                      {service.address && ` · ${service.address}`}
                     </p>
                   </div>
                 ))}
@@ -166,7 +169,7 @@ export default function LocatorPage() {
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                   <Marker position={[origin.lat, origin.lon]} icon={originIcon}>
-                    <Popup>Your location</Popup>
+                    <Popup>{t("locator.yourLocation")}</Popup>
                   </Marker>
                   {results.map((service) => (
                     <Marker key={service.id} position={[service.lat, service.lon]} icon={defaultIcon}>
@@ -175,7 +178,7 @@ export default function LocatorPage() {
                         <br />
                         {service.category}
                         <br />
-                        {service.distance_km} km away
+                        {t("locator.kmAway", { km: service.distance_km })}
                       </Popup>
                     </Marker>
                   ))}
@@ -186,7 +189,7 @@ export default function LocatorPage() {
         )}
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />
