@@ -1,0 +1,83 @@
+{
+  "common": {
+    "appName": "ಸ್ಮಾರ್ಟ್ ಫಾರ್ಮಿಂಗ್",
+    "backToDashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+    "logOut": "ಲಾಗ್ ಔಟ್",
+    "save": "ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ",
+    "saving": "ಉಳಿಸಲಾಗುತ್ತಿದೆ…",
+    "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ…"
+  },
+  "dashboard": {
+    "welcome": "ಸ್ವಾಗತ, {{username}}!",
+    "roleLanguage": "ಪಾತ್ರ: {{role}} · ಭಾಷೆ: {{language}}",
+    "links": {
+      "profile": "ನನ್ನ ಪ್ರೊಫೈಲ್",
+      "crops": "ಬೆಳೆ ಮಾರ್ಗದರ್ಶನ",
+      "scan": "ಬೆಳೆಯನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ",
+      "scanHistory": "ಸ್ಕ್ಯಾನ್ ಇತಿಹಾಸ",
+      "weather": "ಹವಾಮಾನ",
+      "videos": "ಕಲಿಕಾ ವೀಡಿಯೊಗಳು",
+      "locator": "ಹತ್ತಿರದ ಸೇವೆಗಳು",
+      "chatbot": "ಚಾಟ್‌ಬಾಟ್",
+      "advisoryAsk": "ತಜ್ಞರನ್ನು ಕೇಳಿ",
+      "advisoryAdmin": "ಸಲಹಾ ಪ್ರಶ್ನೆಗಳು"
+    },
+    "phaseNote": "ಹಂತ 18 — ಬಹುಭಾಷಾ ಬೆಂಬಲ"
+  },
+  "login": {
+    "title": "ಮತ್ತೆ ಸ್ವಾಗತ",
+    "subtitle": "ಸ್ಮಾರ್ಟ್ ಫಾರ್ಮಿಂಗ್‌ಗೆ ಲಾಗ್ ಇನ್ ಮಾಡಿ",
+    "username": "ಬಳಕೆದಾರಹೆಸರು",
+    "password": "ಪಾಸ್‌ವರ್ಡ್",
+    "submit": "ಲಾಗ್ ಇನ್",
+    "submitting": "ಲಾಗ್ ಇನ್ ಆಗುತ್ತಿದೆ…",
+    "forgotPassword": "ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?",
+    "noAccount": "ಖಾತೆ ಇಲ್ಲವೇ?",
+    "registerHere": "ಇಲ್ಲಿ ನೋಂದಾಯಿಸಿ"
+  },
+  "register": {
+    "title": "ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಚಿಸಿ",
+    "subtitle": "ಸ್ಮಾರ್ಟ್ ಫಾರ್ಮಿಂಗ್ ಸೇರಿ",
+    "username": "ಬಳಕೆದಾರಹೆಸರು",
+    "email": "ಇಮೇಲ್",
+    "password": "ಪಾಸ್‌ವರ್ಡ್",
+    "confirmPassword": "ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
+    "preferredLanguage": "ಆದ್ಯತೆಯ ಭಾಷೆ",
+    "submit": "ನೋಂದಾಯಿಸಿ",
+    "submitting": "ಖಾತೆ ರಚಿಸಲಾಗುತ್ತಿದೆ…",
+    "haveAccount": "ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ?",
+    "loginHere": "ಇಲ್ಲಿ ಲಾಗ್ ಇನ್ ಮಾಡಿ",
+    "passwordHintLength": "ಕನಿಷ್ಠ 8 ಅಕ್ಷರಗಳು",
+    "passwordHintNotNumeric": "ಸಂಪೂರ್ಣ ಸಂಖ್ಯಾತ್ಮಕವಲ್ಲ"
+  },
+  "profile": {
+    "title": "ನಿಮ್ಮ ಪ್ರೊಫೈಲ್",
+    "firstName": "ಮೊದಲ ಹೆಸರು",
+    "lastName": "ಕೊನೆಯ ಹೆಸರು",
+    "phoneNumber": "ಫೋನ್ ಸಂಖ್ಯೆ",
+    "preferredLanguage": "ಆದ್ಯತೆಯ ಭಾಷೆ",
+    "emailNote": "ಇಮೇಲ್ ({{email}}) ಮತ್ತು ಬಳಕೆದಾರಹೆಸರನ್ನು ಇಲ್ಲಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+  },
+  "crops": {
+    "title": "ಬೆಳೆ ಮಾರ್ಗದರ್ಶನ",
+    "searchPlaceholder": "ಬೆಳೆಗಳನ್ನು ಹುಡುಕಿ (ಉದಾ. ಟೊಮ್ಯಾಟೊ)",
+    "searchButton": "ಹುಡುಕಿ",
+    "loadingCrops": "ಬೆಳೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…",
+    "noCropsFound": "ಯಾವುದೇ ಬೆಳೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಬೇರೆ ಹುಡುಕಾಟ ಪ್ರಯತ್ನಿಸಿ.",
+    "soilLabel": "ಮಣ್ಣು",
+    "climateLabel": "ಹವಾಮಾನ",
+    "plantingMethodLabel": "ನಾಟಿ ವಿಧಾನ",
+    "watchVideos": "▶️ {{name}} ಕುರಿತು ಸಂಬಂಧಿತ ವೀಡಿಯೊಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
+    "grownWithTitle": "ಜೊತೆಗೆ ಬೆಳೆಯಲಾಗುತ್ತದೆ",
+    "grownWithIntro": "ಈ ಪ್ರದೇಶವು ಸಾಂಪ್ರದಾಯಿಕವಾಗಿ {{name}} ಜೊತೆಗೆ ಈ ಬೆಳೆಗಳನ್ನು ಬೆಳೆಯುತ್ತದೆ:",
+    "lifecycleTitle": "ಜೀವನ ಚಕ್ರ",
+    "fertilizerTitle": "ಗೊಬ್ಬರ ಮತ್ತು ನೀರಾವರಿ",
+    "organicTitle": "ಸಾವಯವ ಗೊಬ್ಬರ ವಿಧಾನಗಳು",
+    "materialsLabel": "ಸಾಮಗ್ರಿಗಳು",
+    "stepsLabel": "ಹಂತಗಳು",
+    "backToCropList": "ಬೆಳೆ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ",
+    "cropNotFound": "ಈ ಬೆಳೆ ಕಂಡುಬಂದಿಲ್ಲ.",
+    "cropLoadError": "ಈ ಬೆಳೆಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    "cropsLoadError": "ಬೆಳೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+  }
+}

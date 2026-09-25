@@ -1,0 +1,83 @@
+{
+  "common": {
+    "appName": "Smart Farming",
+    "backToDashboard": "Back to Dashboard",
+    "logOut": "Log Out",
+    "save": "Save Changes",
+    "saving": "Saving…",
+    "loading": "Loading…"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{username}}!",
+    "roleLanguage": "Role: {{role}} · Language: {{language}}",
+    "links": {
+      "profile": "My Profile",
+      "crops": "Crop Guidance",
+      "scan": "Scan a Crop",
+      "scanHistory": "Scan History",
+      "weather": "Weather",
+      "videos": "Learning Videos",
+      "locator": "Nearby Services",
+      "chatbot": "Chatbot",
+      "advisoryAsk": "Ask an Expert",
+      "advisoryAdmin": "Advisory Queries"
+    },
+    "phaseNote": "Phase 18 — Multilingual Support"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Log in to Smart Farming",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Log In",
+    "submitting": "Logging in…",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "registerHere": "Register here"
+  },
+  "register": {
+    "title": "Create Your Account",
+    "subtitle": "Join Smart Farming",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "preferredLanguage": "Preferred Language",
+    "submit": "Register",
+    "submitting": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "loginHere": "Log in here",
+    "passwordHintLength": "At least 8 characters",
+    "passwordHintNotNumeric": "Not entirely numeric"
+  },
+  "profile": {
+    "title": "Your Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "preferredLanguage": "Preferred Language",
+    "emailNote": "Email ({{email}}) and username cannot be changed here."
+  },
+  "crops": {
+    "title": "Crop Guidance",
+    "searchPlaceholder": "Search crops (e.g. Tomato)",
+    "searchButton": "Search",
+    "loadingCrops": "Loading crops…",
+    "noCropsFound": "No crops found. Try a different search.",
+    "soilLabel": "Soil",
+    "climateLabel": "Climate",
+    "plantingMethodLabel": "Planting Method",
+    "watchVideos": "▶️ Watch related videos about {{name}}",
+    "grownWithTitle": "Grown With",
+    "grownWithIntro": "This region traditionally grows {{name}} alongside:",
+    "lifecycleTitle": "Lifecycle",
+    "fertilizerTitle": "Fertilizer & Irrigation",
+    "organicTitle": "Organic Manure Methods",
+    "materialsLabel": "Materials",
+    "stepsLabel": "Steps",
+    "backToCropList": "Back to Crop List",
+    "cropNotFound": "This crop could not be found.",
+    "cropLoadError": "Could not load this crop. Please try again.",
+    "cropsLoadError": "Could not load crops. Please try again."
+  }
+}

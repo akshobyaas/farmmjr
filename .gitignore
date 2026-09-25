@@ -1,0 +1,23 @@
+# --- Secrets ---
+.env
+*.env.local
+
+# --- Backend (Python/Django) ---
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+
+# --- Frontend (Node/React) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- OS / editor ---
+.DS_Store
+*.log
+.vscode/
+.idea/

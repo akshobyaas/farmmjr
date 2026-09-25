@@ -1,0 +1,83 @@
+{
+  "common": {
+    "appName": "स्मार्ट फार्मिंग",
+    "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+    "logOut": "लॉग आउट",
+    "save": "परिवर्तन सहेजें",
+    "saving": "सहेजा जा रहा है…",
+    "loading": "लोड हो रहा है…"
+  },
+  "dashboard": {
+    "welcome": "स्वागत है, {{username}}!",
+    "roleLanguage": "भूमिका: {{role}} · भाषा: {{language}}",
+    "links": {
+      "profile": "मेरी प्रोफ़ाइल",
+      "crops": "फसल मार्गदर्शन",
+      "scan": "फसल स्कैन करें",
+      "scanHistory": "स्कैन इतिहास",
+      "weather": "मौसम",
+      "videos": "सीखने के वीडियो",
+      "locator": "नज़दीकी सेवाएं",
+      "chatbot": "चैटबॉट",
+      "advisoryAsk": "विशेषज्ञ से पूछें",
+      "advisoryAdmin": "सलाह प्रश्न"
+    },
+    "phaseNote": "चरण 18 — बहुभाषी सहायता"
+  },
+  "login": {
+    "title": "वापसी पर स्वागत है",
+    "subtitle": "स्मार्ट फार्मिंग में लॉग इन करें",
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "submit": "लॉग इन करें",
+    "submitting": "लॉग इन हो रहा है…",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "noAccount": "खाता नहीं है?",
+    "registerHere": "यहां पंजीकरण करें"
+  },
+  "register": {
+    "title": "अपना खाता बनाएं",
+    "subtitle": "स्मार्ट फार्मिंग से जुड़ें",
+    "username": "उपयोगकर्ता नाम",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "preferredLanguage": "पसंदीदा भाषा",
+    "submit": "पंजीकरण करें",
+    "submitting": "खाता बनाया जा रहा है…",
+    "haveAccount": "पहले से खाता है?",
+    "loginHere": "यहां लॉग इन करें",
+    "passwordHintLength": "कम से कम 8 अक्षर",
+    "passwordHintNotNumeric": "पूरी तरह अंकों में नहीं"
+  },
+  "profile": {
+    "title": "आपकी प्रोफ़ाइल",
+    "firstName": "पहला नाम",
+    "lastName": "अंतिम नाम",
+    "phoneNumber": "फ़ोन नंबर",
+    "preferredLanguage": "पसंदीदा भाषा",
+    "emailNote": "ईमेल ({{email}}) और उपयोगकर्ता नाम यहां नहीं बदला जा सकता।"
+  },
+  "crops": {
+    "title": "फसल मार्गदर्शन",
+    "searchPlaceholder": "फसलें खोजें (जैसे टमाटर)",
+    "searchButton": "खोजें",
+    "loadingCrops": "फसलें लोड हो रही हैं…",
+    "noCropsFound": "कोई फसल नहीं मिली। कृपया अलग खोज आज़माएं।",
+    "soilLabel": "मिट्टी",
+    "climateLabel": "जलवायु",
+    "plantingMethodLabel": "रोपण विधि",
+    "watchVideos": "▶️ {{name}} से संबंधित वीडियो देखें",
+    "grownWithTitle": "साथ में उगाई जाती है",
+    "grownWithIntro": "यह क्षेत्र पारंपरिक रूप से {{name}} के साथ ये फसलें उगाता है:",
+    "lifecycleTitle": "जीवन चक्र",
+    "fertilizerTitle": "उर्वरक और सिंचाई",
+    "organicTitle": "जैविक खाद विधियां",
+    "materialsLabel": "सामग्री",
+    "stepsLabel": "चरण",
+    "backToCropList": "फसल सूची पर वापस जाएं",
+    "cropNotFound": "यह फसल नहीं मिली।",
+    "cropLoadError": "यह फसल लोड नहीं हो सकी। कृपया पुनः प्रयास करें।",
+    "cropsLoadError": "फसलें लोड नहीं हो सकीं। कृपया पुनः प्रयास करें।"
+  }
+}
