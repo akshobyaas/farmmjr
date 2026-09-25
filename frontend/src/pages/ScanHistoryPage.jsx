@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { fetchScanHistory } from "../api/scans";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -13,6 +14,7 @@ function formatDate(isoString) {
 }
 
 export default function ScanHistoryPage() {
+  const { t } = useTranslation();
   const [results, setResults] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
@@ -31,9 +33,9 @@ export default function ScanHistoryPage() {
         setHasNext(Boolean(data.next));
         setHasPrevious(Boolean(data.previous));
       })
-      .catch(() => setError("Could not load your scan history. Please try again."))
+      .catch(() => setError(t("scan.historyLoadError")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadPage(page);
@@ -41,21 +43,25 @@ export default function ScanHistoryPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📜" title="Scan History" />
+      <AppHeader icon="📜" title={t("scan.historyTitle")} />
 
       <main className="app-main">
-        {loading && <p className="status-message">Loading your scans…</p>}
+        {loading && <p className="status-message">{t("scan.historyLoading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
 
         {!loading && !error && results.length === 0 && (
           <p className="status-message">
-            You haven't scanned any crops yet. <Link to="/scan">Scan one now</Link>.
+            {t("scan.historyEmpty")} <Link to="/scan">{t("scan.scanNowLink")}</Link>.
           </p>
         )}
 
         {!loading && !error && results.length > 0 && (
           <>
-            <p className="status-message">{count} scan{count === 1 ? "" : "s"} total</p>
+            <p className="status-message">
+              {count === 1
+                ? t("scan.totalCount", { count })
+                : t("scan.totalCountPlural", { count })}
+            </p>
             <div className="scan-history-list">
               {results.map((scan) => (
                 <Link key={scan.id} to={`/scan/history/${scan.id}`} className="scan-history-item">
@@ -66,7 +72,7 @@ export default function ScanHistoryPage() {
                     <p className="scan-history-disease">
                       {scan.disease_name
                         ? `${scan.disease_name}${scan.crop_name ? ` — ${scan.crop_name}` : ""}`
-                        : "Prediction unavailable"}
+                        : t("scan.predictionUnavailable")}
                     </p>
                     <p className="scan-history-meta">
                       {typeof scan.confidence === "number" && `${(scan.confidence * 100).toFixed(1)}% · `}
@@ -84,23 +90,23 @@ export default function ScanHistoryPage() {
                 disabled={!hasPrevious}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Previous
+                {t("common.previous")}
               </button>
-              <span className="scan-history-page-label">Page {page}</span>
+              <span className="scan-history-page-label">{t("scan.pageLabel", { page })}</span>
               <button
                 type="button"
                 className="btn-secondary"
                 disabled={!hasNext}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next
+                {t("common.next")}
               </button>
             </div>
           </>
         )}
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />

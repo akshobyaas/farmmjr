@@ -1,20 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { listAdvisoryQueries, createAdvisoryQuery, answerAdvisoryQuery } from "../api/advisory";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   return (
     <span className={`advisory-status-badge advisory-status-${status}`}>
-      {status === "answered" ? "Answered" : "Pending"}
+      {status === "answered" ? t("advisory.statusAnswered") : t("advisory.statusPending")}
     </span>
   );
 }
 
 export default function AdvisoryPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const isAdmin = user?.role === "admin";
 
   const [queries, setQueries] = useState([]);
@@ -38,11 +40,11 @@ export default function AdvisoryPage() {
       const data = await listAdvisoryQueries(isAdmin && filter !== "all" ? filter : undefined);
       setQueries(data);
     } catch {
-      setError("Could not load advisory queries. Please try again.");
+      setError(t("advisory.loadError"));
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, filter]);
+  }, [isAdmin, filter, t]);
 
   useEffect(() => {
     loadQueries();
@@ -59,10 +61,10 @@ export default function AdvisoryPage() {
     try {
       await createAdvisoryQuery(text);
       setQuestion("");
-      setFormSuccess("Your question was sent to our expert.");
+      setFormSuccess(t("advisory.sendSuccess"));
       loadQueries();
     } catch {
-      setFormError("Could not send your question. Please try again.");
+      setFormError(t("advisory.sendError"));
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +81,7 @@ export default function AdvisoryPage() {
       setDrafts((prev) => ({ ...prev, [id]: "" }));
       loadQueries();
     } catch {
-      setAnswerError("Could not send the answer. Please try again.");
+      setAnswerError(t("advisory.answerError"));
     } finally {
       setAnswering(null);
     }
@@ -87,25 +89,25 @@ export default function AdvisoryPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📨" title={isAdmin ? "Advisory Queries" : "Ask an Expert"} />
+      <AppHeader icon="📨" title={isAdmin ? t("advisory.titleAdmin") : t("advisory.titleAsk")} />
 
       <main className="app-main advisory-main">
         {!isAdmin && (
           <form className="advisory-form" onSubmit={handleAsk}>
             <label htmlFor="advisory-question" className="sr-only">
-              Your question
+              {t("advisory.questionLabel")}
             </label>
             <textarea
               id="advisory-question"
               className="advisory-textarea"
-              placeholder="Ask our expert a question about your crops…"
+              placeholder={t("advisory.questionPlaceholder")}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               disabled={submitting}
               rows={3}
             />
             <button type="submit" className="btn-primary" disabled={submitting || !question.trim()}>
-              {submitting ? "Sending…" : "Ask Expert"}
+              {submitting ? t("advisory.sending") : t("advisory.askButton")}
             </button>
             {formError && (
               <p className="form-error" role="alert">
@@ -127,19 +129,19 @@ export default function AdvisoryPage() {
               className={`advisory-toggle-btn ${filter === "pending" ? "advisory-toggle-active" : ""}`}
               onClick={() => setFilter("pending")}
             >
-              Pending
+              {t("advisory.filterPending")}
             </button>
             <button
               type="button"
               className={`advisory-toggle-btn ${filter === "all" ? "advisory-toggle-active" : ""}`}
               onClick={() => setFilter("all")}
             >
-              All
+              {t("advisory.filterAll")}
             </button>
           </div>
         )}
 
-        {loading && <p>Loading…</p>}
+        {loading && <p>{t("common.loading")}</p>}
         {error && (
           <p className="form-error" role="alert">
             {error}
@@ -153,7 +155,7 @@ export default function AdvisoryPage() {
 
         {!loading && !error && queries.length === 0 && (
           <p className="status-message">
-            {isAdmin ? "No queries here yet." : "You haven't asked anything yet."}
+            {isAdmin ? t("advisory.noQueriesAdmin") : t("advisory.noQueriesFarmer")}
           </p>
         )}
 
@@ -162,7 +164,7 @@ export default function AdvisoryPage() {
             <li key={q.id} className="advisory-card">
               <div className="advisory-card-top">
                 {isAdmin && <span className="advisory-card-farmer">{q.farmer_username}</span>}
-                <StatusBadge status={q.status} />
+                <StatusBadge status={q.status} t={t} />
               </div>
               <p className="advisory-card-question">{q.question}</p>
 
@@ -171,12 +173,12 @@ export default function AdvisoryPage() {
               {isAdmin && q.status === "pending" && (
                 <div className="advisory-answer-form">
                   <label htmlFor={`answer-${q.id}`} className="sr-only">
-                    Your answer to {q.farmer_username}
+                    {t("advisory.answerLabel", { name: q.farmer_username })}
                   </label>
                   <textarea
                     id={`answer-${q.id}`}
                     className="advisory-textarea"
-                    placeholder="Write your answer…"
+                    placeholder={t("advisory.answerPlaceholder")}
                     value={drafts[q.id] || ""}
                     onChange={(e) => setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))}
                     disabled={answering === q.id}
@@ -188,7 +190,7 @@ export default function AdvisoryPage() {
                     onClick={() => handleAnswer(q.id)}
                     disabled={answering === q.id || !(drafts[q.id] || "").trim()}
                   >
-                    {answering === q.id ? "Sending…" : "Send Answer"}
+                    {answering === q.id ? t("advisory.sending") : t("advisory.sendAnswerButton")}
                   </button>
                 </div>
               )}
@@ -197,7 +199,7 @@ export default function AdvisoryPage() {
         </ul>
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />

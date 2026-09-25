@@ -20,7 +20,7 @@ export default function CropListPage() {
       .then((data) => setCrops(data))
       .catch(() => setError(t("crops.cropsLoadError")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadCrops("");

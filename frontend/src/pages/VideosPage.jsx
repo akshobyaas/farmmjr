@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { searchVideos } from "../api/videos";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -14,6 +15,7 @@ function formatDate(isoString) {
 }
 
 export default function VideosPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const prefill = searchParams.get("q") || "";
 
@@ -31,11 +33,11 @@ export default function VideosPage() {
     searchVideos(query.trim())
       .then((data) => setResults(data.results))
       .catch((err) => {
-        setError(err.response?.data?.detail || "Learning videos are unavailable right now. Please try again later.");
+        setError(err.response?.data?.detail || t("videos.fetchError"));
         setResults(null);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   // Auto-run the search once if arriving with a pre-filled query, e.g. the
   // "Watch related videos" link on a crop's detail page.
@@ -53,31 +55,31 @@ export default function VideosPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="▶️" title="Learning Videos" className="videos-header" />
+      <AppHeader icon="▶️" title={t("videos.title")} className="videos-header" />
 
       <main className="app-main">
         <form className="videos-search-form" onSubmit={handleSubmit}>
           <label htmlFor="videos-query" className="sr-only">
-            Crop name or topic
+            {t("videos.queryLabel")}
           </label>
           <input
             id="videos-query"
             type="text"
-            placeholder="Search a crop or topic (e.g. Arecanut bud rot)"
+            placeholder={t("videos.queryPlaceholder")}
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             className="videos-query-input"
           />
           <button type="submit" className="btn-primary" disabled={loading || !queryInput.trim()}>
-            Search
+            {t("common.search")}
           </button>
         </form>
 
-        {loading && <p className="status-message">Loading videos…</p>}
+        {loading && <p className="status-message">{t("videos.loading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
 
         {!loading && !error && searched && results && results.length === 0 && (
-          <p className="status-message">No videos found for that search. Try a different crop or topic.</p>
+          <p className="status-message">{t("videos.noResults")}</p>
         )}
 
         {!loading && !error && results && results.length > 0 && (
@@ -106,7 +108,7 @@ export default function VideosPage() {
         )}
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />

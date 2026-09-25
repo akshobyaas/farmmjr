@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { fetchScanDetail } from "../api/scans";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 
 export default function ScanHistoryDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [scan, setScan] = useState(null);
   const [error, setError] = useState("");
@@ -19,20 +21,20 @@ export default function ScanHistoryDetailPage() {
           // A 403 here (IsScanOwner) reads the same as "not found" to the
           // farmer -- we never confirm or deny that some OTHER user's scan
           // ID exists, that would itself be a minor information leak.
-          setError("This scan could not be found.");
+          setError(t("scan.notFound"));
         } else {
-          setError("Could not load this scan. Please try again.");
+          setError(t("scan.loadError"));
         }
       });
-  }, [id]);
+  }, [id, t]);
 
   if (error) {
     return (
       <div className="dashboard-page">
-        <AppHeader icon="📜" title="Scan Result" />
+        <AppHeader icon="📜" title={t("scan.resultTitle")} />
         <main className="app-main">
           <p className="form-error" role="alert">{error}</p>
-          <Link to="/scan/history" className="auth-switch">Back to Scan History</Link>
+          <Link to="/scan/history" className="auth-switch">{t("scan.backToHistory")}</Link>
         </main>
         <BottomNav />
       </div>
@@ -40,12 +42,12 @@ export default function ScanHistoryDetailPage() {
   }
 
   if (!scan) {
-    return <div className="loading-screen">Loading scan…</div>;
+    return <div className="loading-screen">{t("scan.detailLoading")}</div>;
   }
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📜" title="Scan Result" />
+      <AppHeader icon="📜" title={t("scan.resultTitle")} />
 
       <main className="app-main">
         <div className="status-card status-ok">
@@ -61,26 +63,26 @@ export default function ScanHistoryDetailPage() {
               </h2>
               {typeof scan.confidence === "number" && (
                 <p className="scan-confidence">
-                  Confidence: {(scan.confidence * 100).toFixed(1)}%
+                  {t("scan.confidence", { pct: (scan.confidence * 100).toFixed(1) })}
                 </p>
               )}
               {scan.predicted_disease.symptoms && (
-                <p><strong>Symptoms:</strong> {scan.predicted_disease.symptoms}</p>
+                <p><strong>{t("scan.symptomsLabel")}:</strong> {scan.predicted_disease.symptoms}</p>
               )}
               {scan.predicted_disease.prevention && (
-                <p><strong>Prevention:</strong> {scan.predicted_disease.prevention}</p>
+                <p><strong>{t("scan.preventionLabel")}:</strong> {scan.predicted_disease.prevention}</p>
               )}
               {scan.predicted_disease.treatment_info && (
-                <p><strong>Treatment:</strong> {scan.predicted_disease.treatment_info}</p>
+                <p><strong>{t("scan.treatmentLabel")}:</strong> {scan.predicted_disease.treatment_info}</p>
               )}
             </div>
           ) : (
-            <p className="status-message">Prediction unavailable for this scan.</p>
+            <p className="status-message">{t("scan.predictionUnavailableDetail")}</p>
           )}
         </div>
 
         <p className="auth-switch">
-          <Link to="/scan/history">Back to Scan History</Link>
+          <Link to="/scan/history">{t("scan.backToHistory")}</Link>
         </p>
       </main>
       <BottomNav />

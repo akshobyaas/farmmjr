@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { uploadScan } from "../api/scans";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -10,6 +11,7 @@ import BottomNav from "../components/BottomNav";
 const MAX_PREVIEW_SIZE_BYTES = 5 * 1024 * 1024;
 
 export default function ScanUploadPage() {
+  const { t } = useTranslation();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [error, setError] = useState("");
@@ -38,7 +40,7 @@ export default function ScanUploadPage() {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
 
     if (selected.size > MAX_PREVIEW_SIZE_BYTES) {
-      setError("Image too large. Maximum size is 5MB.");
+      setError(t("scan.tooLarge"));
       setFile(null);
       setPreviewUrl(null);
       return;
@@ -52,13 +54,13 @@ export default function ScanUploadPage() {
 
   const extractErrorMessage = (err) => {
     if (!err.response) {
-      return "Could not reach the server. Check your connection and try again.";
+      return t("scan.networkError");
     }
     if (err.response.status === 401) {
-      return "Your session has expired. Please log in again.";
+      return t("scan.sessionExpired");
     }
     if (err.response.status === 429) {
-      return "Too many uploads. Please wait a minute and try again.";
+      return t("scan.tooManyUploads");
     }
     const imageError = err.response.data?.image;
     if (Array.isArray(imageError) && imageError.length > 0) {
@@ -67,13 +69,13 @@ export default function ScanUploadPage() {
     if (typeof imageError === "string") {
       return imageError;
     }
-    return "Could not upload the image. Please try again.";
+    return t("scan.genericUploadError");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError("Please choose a photo of the crop first.");
+      setError(t("scan.noFileChosen"));
       return;
     }
     setError("");
@@ -100,7 +102,7 @@ export default function ScanUploadPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🔍" title="Scan a Crop" />
+      <AppHeader icon="🔍" title={t("scan.uploadTitle")} />
 
       <main className="app-main">
         {!result && (
@@ -110,7 +112,7 @@ export default function ScanUploadPage() {
                 <img src={previewUrl} alt="Selected crop preview" className="scan-preview-image" />
               ) : (
                 <span className="scan-upload-placeholder">
-                  📷 Tap to choose a photo of the crop leaf
+                  {t("scan.tapToChoose")}
                 </span>
               )}
             </label>
@@ -125,14 +127,14 @@ export default function ScanUploadPage() {
             {error && <p className="form-error" role="alert">{error}</p>}
 
             <button type="submit" className="btn-primary" disabled={submitting || !file}>
-              {submitting ? "Uploading…" : "Upload Photo"}
+              {submitting ? t("scan.uploading") : t("scan.uploadButton")}
             </button>
           </form>
         )}
 
         {result && (
           <div className="status-card status-ok">
-            <p className="status-title">✅ Uploaded</p>
+            <p className="status-title">{t("scan.uploadedTitle")}</p>
             {result.scan?.image && (
               <img src={result.scan.image} alt="Uploaded crop scan" className="scan-preview-image" />
             )}
@@ -146,29 +148,29 @@ export default function ScanUploadPage() {
                 </h2>
                 {typeof result.scan.confidence === "number" && (
                   <p className="scan-confidence">
-                    Confidence: {(result.scan.confidence * 100).toFixed(1)}%
+                    {t("scan.confidence", { pct: (result.scan.confidence * 100).toFixed(1) })}
                   </p>
                 )}
                 {result.scan.predicted_disease.symptoms && (
-                  <p><strong>Symptoms:</strong> {result.scan.predicted_disease.symptoms}</p>
+                  <p><strong>{t("scan.symptomsLabel")}:</strong> {result.scan.predicted_disease.symptoms}</p>
                 )}
                 {result.scan.predicted_disease.prevention && (
-                  <p><strong>Prevention:</strong> {result.scan.predicted_disease.prevention}</p>
+                  <p><strong>{t("scan.preventionLabel")}:</strong> {result.scan.predicted_disease.prevention}</p>
                 )}
                 {result.scan.predicted_disease.treatment_info && (
-                  <p><strong>Treatment:</strong> {result.scan.predicted_disease.treatment_info}</p>
+                  <p><strong>{t("scan.treatmentLabel")}:</strong> {result.scan.predicted_disease.treatment_info}</p>
                 )}
               </div>
             )}
 
             <button type="button" className="btn-secondary" onClick={handleScanAnother} style={{ marginTop: 16 }}>
-              Scan Another
+              {t("scan.scanAnotherButton")}
             </button>
           </div>
         )}
 
         <p className="auth-switch">
-          <Link to="/dashboard">Back to Dashboard</Link>
+          <Link to="/dashboard">{t("common.backToDashboard")}</Link>
         </p>
       </main>
       <BottomNav />
