@@ -1210,3 +1210,65 @@ body {
   background: var(--color-primary-tint);
   box-shadow: 0 3px 8px rgba(30, 122, 52, 0.18);
 }
+
+/* ===== Phone-frame demo mockup (desktop/tablet browsers only) =====
+   This app is designed for a phone screen; on an actual phone it already
+   IS a phone, so it renders full-bleed exactly as before. But when shown
+   on a wider screen (a laptop during a guide demo, presentation slides,
+   screen recordings) it used to just be a column of content on a blank
+   page. This wraps that same content in a phone-shaped mockup frame --
+   bezel, rounded corners, a notch, drop shadow -- purely cosmetic, no
+   markup changes: #root is the one mount point every page renders into,
+   so framing it here covers every screen in the app automatically.
+   `transform` on #root is load-bearing, not decorative: it makes #root the
+   containing block for its `position: fixed` descendants (the bottom nav,
+   and the notch/frame pseudo-elements below), so they stay pinned to the
+   phone frame's own edges instead of the real browser window's. */
+@media (min-width: 640px) {
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: radial-gradient(circle at 50% 0%, #EFF4EC 0%, #DCE4D8 60%, #CBD5C6 100%);
+  }
+
+  #root {
+    position: relative;
+    width: 390px;
+    height: min(844px, calc(100vh - 80px));
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 46px;
+    border: 12px solid #14171A;
+    box-shadow:
+      0 40px 70px rgba(10, 15, 12, 0.35),
+      0 10px 24px rgba(10, 15, 12, 0.2),
+      0 0 0 2px rgba(255, 255, 255, 0.06) inset;
+    background: var(--color-bg);
+    transform: translateZ(0);
+    scrollbar-width: none;
+  }
+
+  #root::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* the notch -- fixed relative to #root (see comment above), so it stays
+     pinned to the top of the frame regardless of how far the page inside
+     has scrolled */
+  #root::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 24px;
+    background: #14171A;
+    border-radius: 0 0 16px 16px;
+    z-index: 999;
+    pointer-events: none;
+  }
+}
