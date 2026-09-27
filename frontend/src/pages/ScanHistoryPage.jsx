@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchScanHistory } from "../api/scans";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 function formatDate(isoString) {
@@ -43,7 +44,7 @@ export default function ScanHistoryPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📜" title={t("scan.historyTitle")} />
+      <AppHeader icon={<Icon name="history" />} title={t("scan.historyTitle")} />
 
       <main className="app-main">
         {loading && <p className="status-message">{t("scan.historyLoading")}</p>}

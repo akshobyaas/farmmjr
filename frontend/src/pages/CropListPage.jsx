@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { fetchCrops } from "../api/crops";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 export default function CropListPage() {
@@ -33,7 +34,7 @@ export default function CropListPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🌾" title={t("crops.title")} />
+      <AppHeader icon={<Icon name="leaf" />} title={t("crops.title")} />
 
       <main className="app-main">
         <form onSubmit={handleSearchSubmit} className="crop-search-form">
@@ -58,8 +59,10 @@ export default function CropListPage() {
           {crops.map((crop) => (
             <Link key={crop.id} to={`/crops/${crop.id}`} className="crop-card">
               <h3 className="crop-card-name">{localizeField(crop, "name", i18n.language)}</h3>
-              <p className="crop-card-detail">🌱 {localizeField(crop, "soil_type", i18n.language)}</p>
-              <p className="crop-card-detail">☀️ {localizeField(crop, "climate", i18n.language)}</p>
+              <div className="crop-card-tags">
+                <span className="chip">🌱 {localizeField(crop, "soil_type", i18n.language)}</span>
+                <span className="chip">☀️ {localizeField(crop, "climate", i18n.language)}</span>
+              </div>
             </Link>
           ))}
         </div>

@@ -6,6 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { fetchNearbyServices } from "../api/locator";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 // react-leaflet's default marker icon references image paths that don't
@@ -85,7 +86,7 @@ export default function LocatorPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="📍" title={t("locator.title")} className="locator-header" />
+      <AppHeader icon={<Icon name="pin" />} title={t("locator.title")} className="locator-header" />
 
       <main className="app-main">
         <form className="locator-search-form" onSubmit={handlePlaceSubmit}>

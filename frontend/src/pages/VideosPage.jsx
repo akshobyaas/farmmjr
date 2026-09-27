@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { searchVideos } from "../api/videos";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 function formatDate(isoString) {
@@ -55,7 +56,7 @@ export default function VideosPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="▶️" title={t("videos.title")} className="videos-header" />
+      <AppHeader icon={<Icon name="play" />} title={t("videos.title")} className="videos-header" />
 
       <main className="app-main">
         <form className="videos-search-form" onSubmit={handleSubmit}>
