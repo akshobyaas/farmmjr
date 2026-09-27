@@ -1,13 +1,33 @@
+/* ===== Design refresh — India-focused, warmer, more visual pass over the
+   Phase 21 design system. Every class name below is unchanged from before
+   (nothing here should ever break a test that queries by role/text/class),
+   only the visual values changed: new palette, soft shadows instead of flat
+   borders, rounder corners, gradient hero headers, a floating bottom-nav
+   pill, and colour-cycling accents on the tile/card grids so the app reads
+   as one deliberate system instead of a flat form-and-list app. ===== */
+
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap");
+
 :root {
-  --color-primary: #2E7D32;
-  --color-primary-light: #66BB6A;
+  --color-primary: #1E7A34;
+  --color-primary-dark: #145C27;
+  --color-primary-light: #7FCB93;
+  --color-primary-tint: #E7F3EA;
   --color-alert: #C62828;
-  --color-bg: #FAF8F3;
-  --color-text: #2B2B26;
-  --color-text-secondary: #8A8578;
-  --color-border: #E4E0D6;
-  --color-sky: #3B82C4;
-  --color-gold: #F2A93B;
+  --color-bg: #F5F6F2;
+  --color-bg-grad-start: #E9F5EC;
+  --color-bg-grad-mid: #F1F6F0;
+  --color-text: #1B231C;
+  --color-text-secondary: #5B6660;
+  --color-border: #E4E7E0;
+  --color-sky: #2F8FC2;
+  --color-sky-light: #A9DCEE;
+  --color-gold: #C2790E;
+  --color-gold-light: #F0C877;
+  --radius-card: 20px;
+  --radius-btn: 16px;
+  --shadow-card: 0 6px 16px rgba(27, 35, 28, 0.07);
+  --shadow-lift: 0 12px 24px rgba(27, 35, 28, 0.12);
 }
 
 * {
@@ -18,7 +38,7 @@ body {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: "Poppins", "Noto Sans", sans-serif;
+  font-family: "Manrope", "Poppins", "Noto Sans", sans-serif;
 }
 
 .app-shell {
@@ -28,22 +48,43 @@ body {
 }
 
 .app-header {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 140%);
   color: white;
-  padding: 16px 20px;
+  padding: 20px 22px 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  border-radius: 0 0 28px 28px;
+  box-shadow: 0 10px 22px rgba(30, 122, 52, 0.28);
 }
 
 .app-header-icon {
-  font-size: 24px;
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
 }
 
 .app-header h1 {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 800;
   margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.weather-header {
+  background: linear-gradient(135deg, var(--color-sky) 0%, var(--color-sky-light) 140%);
+  box-shadow: 0 10px 22px rgba(47, 143, 194, 0.3);
+}
+
+.videos-header {
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 140%);
+  box-shadow: 0 10px 22px rgba(194, 121, 14, 0.28);
 }
 
 .app-main {
@@ -54,21 +95,24 @@ body {
   justify-content: center;
   gap: 16px;
   padding: 24px;
+  padding-bottom: 104px;
   text-align: center;
 }
 
 .status-card {
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 24px;
+  border: none;
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 22px 24px;
   min-width: 280px;
   max-width: 400px;
 }
 
 .status-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px;
 }
 
@@ -78,8 +122,16 @@ body {
   margin: 0;
 }
 
+.status-ok {
+  border-left-color: var(--color-primary);
+}
+
 .status-ok .status-title {
   color: var(--color-primary);
+}
+
+.status-error {
+  border-left-color: var(--color-alert);
 }
 
 .status-error .status-title {
@@ -99,22 +151,25 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: linear-gradient(165deg, var(--color-bg-grad-start) 0%, var(--color-bg-grad-mid) 45%, var(--color-bg) 100%);
 }
 
 .auth-card {
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border: none;
+  border-radius: 24px;
+  box-shadow: var(--shadow-lift);
   padding: 32px 28px;
   width: 100%;
   max-width: 400px;
 }
 
 .auth-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
   margin: 0 0 4px;
   color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 .auth-subtitle {
@@ -126,27 +181,28 @@ body {
 .form-label {
   display: block;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 16px 0 6px;
   color: var(--color-text);
+  text-align: left;
 }
 
 .form-input {
   width: 100%;
-  min-height: 48px;
-  font-size: 18px;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  min-height: 50px;
+  font-size: 17px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 14px;
   font-family: inherit;
-  background: white;
+  background: #fff;
   color: var(--color-text);
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 .form-input:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
-  border-color: var(--color-primary);
 }
 
 .password-hints {
@@ -154,6 +210,7 @@ body {
   padding: 0;
   margin: 8px 0 0;
   font-size: 14px;
+  text-align: left;
 }
 
 .hint-ok {
@@ -172,21 +229,24 @@ body {
 
 .btn-primary {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
   min-width: 120px;
   margin-top: 24px;
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 500;
+  border-radius: var(--radius-btn);
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
+  box-shadow: 0 8px 18px rgba(30, 122, 52, 0.32);
 }
 
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn-primary:not(:disabled):active {
@@ -194,16 +254,18 @@ body {
 }
 
 .btn-secondary {
-  min-height: 48px;
+  min-height: 50px;
   min-width: 120px;
   background: white;
   color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 500;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
   padding: 0 20px;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.06);
 }
 
 .auth-switch {
@@ -215,7 +277,7 @@ body {
 
 .auth-switch a {
   color: var(--color-primary);
-  font-weight: 500;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -223,6 +285,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(165deg, var(--color-bg-grad-start) 0%, var(--color-bg-grad-mid) 35%, var(--color-bg) 100%);
 }
 
 .loading-screen {
@@ -247,25 +310,52 @@ body {
 
 .quick-link-card {
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 16px;
-  min-height: 48px;
+  border: none;
+  border-radius: 18px;
+  padding: 18px 16px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-primary);
   text-decoration: none;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .quick-link-card:hover {
-  background: var(--color-bg);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
+}
+
+/* Colour-cycle the tiles, like the reference kit's quick-action grid, so
+   the dashboard reads as a set of distinct destinations rather than a
+   plain repeated list item. */
+.quick-link-card:not(.quick-link-disabled):nth-child(4n+1) {
+  background: #CFE4FA;
+  color: #143A5C;
+}
+
+.quick-link-card:not(.quick-link-disabled):nth-child(4n+2) {
+  background: #CDEDD3;
+  color: #14431F;
+}
+
+.quick-link-card:not(.quick-link-disabled):nth-child(4n+3) {
+  background: #FBD9C8;
+  color: #7A3A1E;
+}
+
+.quick-link-card:not(.quick-link-disabled):nth-child(4n+4) {
+  background: #FBEAB8;
+  color: #7A4A0A;
 }
 
 .quick-link-disabled {
+  background: white;
   color: var(--color-text-secondary);
   cursor: not-allowed;
   flex-direction: column;
@@ -303,22 +393,56 @@ body {
 }
 
 .crop-card {
+  position: relative;
+  overflow: hidden;
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 16px;
+  border: none;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 20px 16px 16px;
   text-decoration: none;
   color: var(--color-text);
   text-align: left;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+/* A colour-coded top strip in place of a photo thumbnail -- cycles through
+   the app's warm/cool accent set so each crop tile is instantly tellable
+   apart at a glance, the way the reference kit's photo tiles read. */
+.crop-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.crop-card:nth-child(4n+1)::before {
+  background: var(--color-primary-light);
+}
+
+.crop-card:nth-child(4n+2)::before {
+  background: var(--color-gold-light);
+}
+
+.crop-card:nth-child(4n+3)::before {
+  background: #8FBEE8;
+}
+
+.crop-card:nth-child(4n+4)::before {
+  background: #EFAA8B;
 }
 
 .crop-card:hover {
-  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
 }
 
 .crop-card-name {
   color: var(--color-primary);
   font-size: 18px;
+  font-weight: 800;
   margin: 0 0 8px;
 }
 
@@ -341,7 +465,7 @@ body {
 
 .crop-section-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text);
   margin-bottom: 10px;
   text-align: left;
@@ -361,7 +485,7 @@ body {
 
 .lifecycle-stage-name {
   display: block;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text);
 }
 
@@ -373,8 +497,9 @@ body {
 
 .fertilizer-card {
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   padding: 14px 16px;
   margin-bottom: 10px;
   text-align: left;
@@ -386,7 +511,7 @@ body {
 }
 
 .fertilizer-stage {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
 }
 
@@ -406,16 +531,17 @@ body {
   justify-content: center;
   min-height: 220px;
   background: white;
-  border: 2px dashed var(--color-border);
-  border-radius: 12px;
+  border: 2px dashed var(--color-primary-light);
+  border-radius: 20px;
   cursor: pointer;
   overflow: hidden;
   padding: 16px;
   text-align: center;
+  box-shadow: var(--shadow-card);
 }
 
 .scan-upload-dropzone:hover {
-  border-color: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
 .scan-upload-placeholder {
@@ -426,7 +552,7 @@ body {
 .scan-preview-image {
   max-width: 100%;
   max-height: 260px;
-  border-radius: 8px;
+  border-radius: 14px;
   object-fit: contain;
 }
 
@@ -456,7 +582,7 @@ body {
 }
 
 .scan-confidence {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
 }
 
@@ -475,21 +601,23 @@ body {
   align-items: center;
   gap: 14px;
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   padding: 12px;
   text-decoration: none;
   color: var(--color-text);
+  transition: box-shadow 0.15s ease;
 }
 
 .scan-history-item:hover {
-  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lift);
 }
 
 .scan-history-thumbnail {
   width: 56px;
   height: 56px;
-  border-radius: 6px;
+  border-radius: 12px;
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -503,7 +631,7 @@ body {
 
 .scan-history-disease {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
   margin: 0;
 }
@@ -542,10 +670,6 @@ body {
 
 /* ===== Phase 13 — Weather ===== */
 
-.weather-header {
-  background-color: var(--color-sky);
-}
-
 .weather-search-form {
   display: flex;
   gap: 8px;
@@ -557,27 +681,30 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 14px;
   font-size: 16px;
   font-family: inherit;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 .weather-card {
-  background: white;
-  border: 1px solid var(--color-border);
-  border-top: 4px solid var(--color-sky);
-  border-radius: 8px;
+  background: linear-gradient(160deg, var(--color-sky) 0%, #5FB6DE 45%, var(--color-sky-light) 85%);
+  border: none;
+  border-top: none;
+  border-radius: var(--radius-card);
+  box-shadow: 0 14px 26px rgba(47, 143, 194, 0.3);
   padding: 24px;
   width: 100%;
   max-width: 320px;
   text-align: center;
+  color: white;
 }
 
 .weather-location {
   font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0 0 4px;
 }
 
@@ -587,15 +714,15 @@ body {
 }
 
 .weather-temp {
-  font-size: 36px;
-  font-weight: 600;
-  color: var(--color-sky);
+  font-size: 40px;
+  font-weight: 800;
+  color: white;
   margin: 4px 0;
 }
 
 .weather-description {
   font-size: 16px;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   text-transform: capitalize;
   margin: 0 0 12px;
 }
@@ -606,31 +733,28 @@ body {
   justify-content: center;
   gap: 12px;
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ===== Phase 14 — Learning videos ===== */
-
-.videos-header {
-  background-color: var(--color-gold);
-}
 
 .video-link-card {
   display: block;
   width: 100%;
   max-width: 400px;
   background: white;
-  border: 1px solid var(--color-border);
+  border: none;
   border-left: 4px solid var(--color-gold);
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   padding: 14px 16px;
   text-decoration: none;
   color: var(--color-text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .video-link-card:hover {
-  border-color: var(--color-gold);
+  box-shadow: var(--shadow-lift);
 }
 
 .videos-search-form {
@@ -644,10 +768,11 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 14px;
   font-size: 16px;
   font-family: inherit;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 .videos-grid {
@@ -662,15 +787,17 @@ body {
   display: flex;
   flex-direction: column;
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   text-decoration: none;
   color: var(--color-text);
+  transition: box-shadow 0.15s ease;
 }
 
 .video-card:hover {
-  border-color: var(--color-gold);
+  box-shadow: var(--shadow-lift);
 }
 
 .video-thumbnail {
@@ -686,7 +813,7 @@ body {
 
 .video-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -713,17 +840,18 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 14px;
   font-size: 16px;
   font-family: inherit;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 .locator-view-toggle {
   display: flex;
   gap: 4px;
-  background: var(--color-border);
-  border-radius: 8px;
+  background: var(--color-primary-tint);
+  border-radius: 12px;
   padding: 4px;
   width: fit-content;
 }
@@ -732,10 +860,10 @@ body {
   border: none;
   background: transparent;
   padding: 8px 20px;
-  border-radius: 6px;
+  border-radius: 9px;
   font-size: 15px;
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
   min-height: 36px;
@@ -744,6 +872,7 @@ body {
 .locator-toggle-active {
   background: white;
   color: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(27, 35, 28, 0.1);
 }
 
 .locator-list {
@@ -756,14 +885,15 @@ body {
 
 .locator-card {
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   padding: 14px 16px;
 }
 
 .locator-card-name {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text);
   margin: 0 0 4px;
 }
@@ -783,9 +913,9 @@ body {
 .locator-map-wrap {
   width: 100%;
   max-width: 700px;
-  border-radius: 8px;
+  border-radius: 18px;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
 }
 
 .locator-map {
@@ -818,25 +948,26 @@ body {
 
 .chat-bubble {
   max-width: 80%;
-  padding: 0.6rem 0.9rem;
-  border-radius: 1rem;
+  padding: 0.65rem 1rem;
+  border-radius: 1.1rem;
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-word;
+  box-shadow: 0 2px 6px rgba(27, 35, 28, 0.06);
 }
 
 .chat-bubble-user {
   align-self: flex-end;
   background: var(--color-primary);
   color: #fff;
-  border-bottom-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.3rem;
 }
 
 .chat-bubble-bot {
   align-self: flex-start;
   background: #eef1ee;
   color: #1f2a1f;
-  border-bottom-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.3rem;
 }
 
 .chat-bubble-typing {
@@ -853,10 +984,11 @@ body {
 
 .chatbot-text-input {
   flex: 1;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #c7ccc7;
-  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border: none;
+  border-radius: 0.8rem;
   font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 /* ===== Phase 17 — Admin/Expert Advisory Module ===== */
@@ -874,12 +1006,13 @@ body {
 }
 
 .advisory-textarea {
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #c7ccc7;
-  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border: none;
+  border-radius: 0.8rem;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
+  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
 .advisory-filter-tabs {
@@ -889,11 +1022,12 @@ body {
 
 .advisory-toggle-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid var(--color-primary);
+  border: none;
   border-radius: 999px;
-  background: #fff;
+  background: var(--color-primary-tint);
   color: var(--color-primary);
   font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -912,10 +1046,11 @@ body {
 }
 
 .advisory-card {
-  border: 1px solid #dfe3df;
-  border-radius: 0.75rem;
-  padding: 0.9rem;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
   background: #fff;
+  box-shadow: var(--shadow-card);
 }
 
 .advisory-card-top {
@@ -926,7 +1061,7 @@ body {
 }
 
 .advisory-card-farmer {
-  font-weight: 600;
+  font-weight: 700;
   color: #3a453a;
 }
 
@@ -934,7 +1069,7 @@ body {
   font-size: 0.8rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .advisory-status-pending {
@@ -943,7 +1078,7 @@ body {
 }
 
 .advisory-status-answered {
-  background: #e3f1e4;
+  background: var(--color-primary-tint);
   color: var(--color-primary);
 }
 
@@ -955,10 +1090,10 @@ body {
 
 .advisory-response {
   margin: 0;
-  padding: 0.6rem 0.8rem;
-  background: #f4f7f4;
+  padding: 0.65rem 0.9rem;
+  background: var(--color-primary-tint);
   border-left: 3px solid var(--color-primary);
-  border-radius: 0.25rem;
+  border-radius: 0.4rem;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -995,40 +1130,38 @@ body {
   box-sizing: border-box;
 }
 
-/* Every logged-in page now shares this header + bottom-nav shell, so leave
-   room at the bottom for the fixed nav instead of letting it cover the
-   last bit of content. */
-.app-main {
-  padding-bottom: 88px;
-}
-
 .profile-card {
   width: 100%;
   max-width: 400px;
 }
 
+/* ===== Design refresh — floating pill bottom nav ===== */
+
 /* The missing piece the design target always called for: persistent,
    thumb-reachable navigation so a farmer never has to backtrack through
    "Back to Dashboard" just to reach another section. Large (60px+) tap
-   targets, icon + short label, current section highlighted. */
+   targets, icon + short label, current section highlighted with a filled
+   circle badge -- floats above the content as a rounded pill instead of a
+   flat full-width bar, matching the rest of the redesigned card system. */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 14px;
+  left: 16px;
+  right: 16px;
+  max-width: 610px;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   background: white;
-  border-top: 1px solid var(--color-border);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  border-radius: 24px;
+  box-shadow: 0 12px 26px rgba(27, 35, 28, 0.16);
   z-index: 20;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
 }
 
 .bottom-nav-inner {
   display: flex;
   width: 100%;
-  max-width: 640px;
 }
 
 .bottom-nav-item {
@@ -1038,19 +1171,32 @@ body {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: 60px;
+  min-height: 56px;
   padding: 6px 4px;
   text-decoration: none;
   color: var(--color-text-secondary);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 16px;
 }
 
 .bottom-nav-icon {
-  font-size: 22px;
+  font-size: 19px;
   line-height: 1;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .bottom-nav-item.active {
   color: var(--color-primary);
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  background: var(--color-primary-tint);
+  box-shadow: 0 3px 8px rgba(30, 122, 52, 0.18);
 }
