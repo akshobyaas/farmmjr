@@ -688,6 +688,16 @@ body {
   box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
 }
 
+/* .btn-primary defaults to width:100% for its normal standalone use; inside
+   this flex row that fights the input's flex:1 and collapses it to a sliver,
+   so give the button a fixed, content-driven width here instead. */
+.weather-search-form .btn-primary {
+  width: auto;
+  min-width: 100px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
 .weather-card {
   background: linear-gradient(160deg, var(--color-sky) 0%, #5FB6DE 45%, var(--color-sky-light) 85%);
   border: none;

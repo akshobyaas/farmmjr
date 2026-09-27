@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -6,8 +6,16 @@ export default function VerifyEmailPage() {
   const { uid, token } = useParams();
   const { confirmEmailVerification } = useAuth();
   const [status, setStatus] = useState("verifying"); // verifying | success | error
+  const hasRequestedRef = useRef(false);
 
   useEffect(() => {
+    // Guard against firing the confirm request twice (e.g. React StrictMode's
+    // dev-mode double-invoke of effects). The confirmation token is single-use,
+    // so a second call would fail with 400 even though the first one already
+    // succeeded — without this guard that false failure is what the user sees.
+    if (hasRequestedRef.current) return;
+    hasRequestedRef.current = true;
+
     confirmEmailVerification(uid, token)
       .then(() => setStatus("success"))
       .catch(() => setStatus("error"));
