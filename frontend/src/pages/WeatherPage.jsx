@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchWeather } from "../api/weather";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 // Simple, dependency-free mapping from OpenWeatherMap's icon code prefix to
@@ -73,7 +74,7 @@ export default function WeatherPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🌦️" title={t("weather.title")} className="weather-header" />
+      <AppHeader icon={<Icon name="cloudSun" />} title={t("weather.title")} className="weather-header" />
 
       <main className="app-main">
         <form className="weather-search-form" onSubmit={handleCitySubmit}>

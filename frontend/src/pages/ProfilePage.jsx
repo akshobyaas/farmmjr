@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 export default function ProfilePage() {
@@ -62,7 +63,7 @@ export default function ProfilePage() {
   // page, for a consistent experience.
   return (
     <div className="dashboard-page">
-      <AppHeader icon="👤" title={t("profile.title")} />
+      <AppHeader icon={<Icon name="user" />} title={t("profile.title")} />
 
       <main className="app-main">
         <div className="status-card profile-card">

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { fetchCropDetail } from "../api/crops";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 export default function CropDetailPage() {
@@ -29,7 +30,7 @@ export default function CropDetailPage() {
   if (error) {
     return (
       <div className="dashboard-page">
-        <AppHeader icon="🌾" title={t("crops.title")} />
+        <AppHeader icon={<Icon name="leaf" />} title={t("crops.title")} />
         <main className="app-main">
           <p className="form-error" role="alert">{error}</p>
           <Link to="/crops" className="auth-switch">{t("crops.backToCropList")}</Link>
@@ -47,7 +48,7 @@ export default function CropDetailPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🌾" title={cropName} />
+      <AppHeader icon={<Icon name="leaf" />} title={cropName} />
 
       <main className="app-main crop-detail-main">
         <div className="status-card status-ok">

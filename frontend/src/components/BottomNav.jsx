@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Icon from "./Icon";
 
 /**
  * Phase 21 — UI Polish Pass.
@@ -14,11 +15,11 @@ import { useTranslation } from "react-i18next";
  * always knows which section they're in.
  */
 const ITEMS = [
-  { to: "/dashboard", icon: "🏠", labelKey: "nav.home", end: true },
-  { to: "/crops", icon: "🌾", labelKey: "nav.crops" },
-  { to: "/scan", icon: "🔍", labelKey: "nav.scan" },
-  { to: "/weather", icon: "🌦️", labelKey: "nav.weather" },
-  { to: "/profile", icon: "👤", labelKey: "nav.profile" },
+  { to: "/dashboard", icon: "home", labelKey: "nav.home", end: true },
+  { to: "/crops", icon: "leaf", labelKey: "nav.crops" },
+  { to: "/scan", icon: "search", labelKey: "nav.scan" },
+  { to: "/weather", icon: "cloudSun", labelKey: "nav.weather" },
+  { to: "/profile", icon: "user", labelKey: "nav.profile" },
 ];
 
 export default function BottomNav() {
@@ -34,7 +35,9 @@ export default function BottomNav() {
             end={item.end}
             className={({ isActive }) => `bottom-nav-item${isActive ? " active" : ""}`}
           >
-            <span className="bottom-nav-icon" aria-hidden="true">{item.icon}</span>
+            <span className="bottom-nav-icon" aria-hidden="true">
+              <Icon name={item.icon} size={19} />
+            </span>
             <span className="bottom-nav-label">{t(item.labelKey)}</span>
           </NavLink>
         ))}

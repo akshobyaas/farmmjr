@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 export default function DashboardPage() {
@@ -32,7 +33,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🌾" title={t("common.appName")} />
+      <AppHeader icon={<Icon name="leaf" />} title={t("common.appName")} />
 
       <main className="app-main">
         <div className="status-card status-ok">

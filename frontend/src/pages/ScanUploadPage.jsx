@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { uploadScan } from "../api/scans";
 import AppHeader from "../components/AppHeader";
+import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 // Server-side validation (scans/serializers.py) enforces the real limits;
@@ -102,7 +103,7 @@ export default function ScanUploadPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon="🔍" title={t("scan.uploadTitle")} />
+      <AppHeader icon={<Icon name="search" />} title={t("scan.uploadTitle")} />
 
       <main className="app-main">
         {!result && (
