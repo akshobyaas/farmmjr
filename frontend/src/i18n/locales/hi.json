@@ -16,19 +16,35 @@
   "dashboard": {
     "welcome": "स्वागत है, {{username}}!",
     "roleLanguage": "भूमिका: {{role}} · भाषा: {{language}}",
+    "quickActionsTitle": "त्वरित कार्य",
+    "highlights": {
+      "weatherTitle": "आज का मौसम",
+      "weatherDesc": "अपने क्षेत्र की वर्तमान स्थिति देखें",
+      "recentTitle": "हाल की गतिविधि",
+      "recentDesc": "अपने नवीनतम फसल स्कैन देखें"
+    },
     "links": {
       "profile": "मेरी प्रोफ़ाइल",
+      "profileDesc": "अपनी जानकारी और प्राथमिकताएं अपडेट करें",
       "crops": "फसल मार्गदर्शन",
+      "cropsDesc": "मिट्टी, जलवायु और फसल चक्र मार्गदर्शन",
       "scan": "फसल स्कैन करें",
+      "scanDesc": "फसल रोगों का तुरंत पता लगाएं",
       "scanHistory": "स्कैन इतिहास",
+      "scanHistoryDesc": "अपने पिछले स्कैन परिणाम देखें",
       "weather": "मौसम",
+      "weatherDesc": "अपने क्षेत्र की मौसम स्थिति देखें",
       "videos": "सीखने के वीडियो",
+      "videosDesc": "खेती की सलाह और वीडियो देखें",
       "locator": "नज़दीकी सेवाएं",
+      "locatorDesc": "नज़दीकी कृषि सेवाएं खोजें",
       "chatbot": "चैटबॉट",
+      "chatbotDesc": "त्वरित खेती संबंधी उत्तर पाएं",
       "advisoryAsk": "विशेषज्ञ से पूछें",
-      "advisoryAdmin": "सलाह प्रश्न"
-    },
-    "phaseNote": "चरण 18 — बहुभाषी सहायता"
+      "advisoryAskDesc": "अपने सवालों पर विशेषज्ञ सलाह पाएं",
+      "advisoryAdmin": "सलाह प्रश्न",
+      "advisoryAdminDesc": "किसानों के सवालों की समीक्षा करें और जवाब दें"
+    }
   },
   "login": {
     "title": "वापसी पर स्वागत है",

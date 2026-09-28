@@ -16,19 +16,35 @@
   "dashboard": {
     "welcome": "Welcome, {{username}}!",
     "roleLanguage": "Role: {{role}} · Language: {{language}}",
+    "quickActionsTitle": "Quick Actions",
+    "highlights": {
+      "weatherTitle": "Today's Weather",
+      "weatherDesc": "See current conditions for your area",
+      "recentTitle": "Recent Activity",
+      "recentDesc": "View your latest crop scans"
+    },
     "links": {
       "profile": "My Profile",
+      "profileDesc": "Update your details and preferences",
       "crops": "Crop Guidance",
+      "cropsDesc": "Soil, climate & lifecycle guidance",
       "scan": "Scan a Crop",
+      "scanDesc": "Detect crop diseases instantly",
       "scanHistory": "Scan History",
+      "scanHistoryDesc": "Review your past scan results",
       "weather": "Weather",
+      "weatherDesc": "Check conditions for your area",
       "videos": "Learning Videos",
+      "videosDesc": "Watch farming tips & tutorials",
       "locator": "Nearby Services",
+      "locatorDesc": "Find nearby agri services",
       "chatbot": "Chatbot",
+      "chatbotDesc": "Get quick farming answers",
       "advisoryAsk": "Ask an Expert",
-      "advisoryAdmin": "Advisory Queries"
-    },
-    "phaseNote": "Phase 18 — Multilingual Support"
+      "advisoryAskDesc": "Get expert advice on your questions",
+      "advisoryAdmin": "Advisory Queries",
+      "advisoryAdminDesc": "Review and answer farmer questions"
+    }
   },
   "login": {
     "title": "Welcome Back",
