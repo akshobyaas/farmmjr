@@ -2,40 +2,35 @@
 
 AI-Based Crop Disease Detection and Smart Farming Guidance System — B.E. Major Project, NIE, Dept. of ISE, Batch 27.
 
-## Current Status: Phase 8 ✅ Complete — Phase 9 (CNN Model) Next
+## Current Status: All 23 phases complete (Deployment on hold)
 
-Phases 1–8 are fully complete (backend + frontend + tests, all verified). Phase 9 (CNN model
-training) is next — see `PROJECT_STATUS.md` (in the handoff package root) for the full phase plan.
+Phases 1–21 of the original plan, plus several follow-up passes (expanded automated testing, a live
+end-to-end testing pass, two full visual redesigns, UI polish, and a dashboard redesign) are all
+built and verified. **Phase 22 (Deployment) is intentionally on hold** — everything below runs
+locally. Phase 23 (final documentation/presentation prep) is the only phase not yet started.
 
-### What's built (Phases 1–7, all complete)
-- Django + DRF backend, React (Vite) frontend, connected via REST API
-- `.env`-based secrets, CORS locked down, rate limiting on every endpoint
-- Full JWT auth: register, login, logout (with real token blacklisting), refresh, `/me/`
-- Email verification required before login; full forgot-password flow — both using single-use, self-expiring tokens
-- Object-level authorization (`IsProfileOwner`) — proven via direct testing that one user cannot access another's profile
-- Public crop guidance catalog: 7 crops with soil/climate/planting info, lifecycle timeline, fertilizer schedule, organic manure methods
-- 21 automated frontend tests (Vitest + React Testing Library), all passing
-- 40+ manual backend API tests across all phases (see each phase's detailed notes in `PROJECT_STATUS.md`)
+### What's built
 
-### What's built (Phase 8, now complete)
-- `ScanUploadView` — authenticated image upload endpoint (`POST /api/scans/upload/`)
-- Real image validation: Pillow actually parses the file (not just checking extension/MIME claim)
-- File size capped at 5MB, enforced both in Django settings and the serializer
-- **Filenames are never trusted from the client** — every upload is renamed server-side to a random UUID + the verified extension
-- Per-user upload rate limiting (10/minute)
-- `ScanUploadPage.jsx` — file picker with image preview, upload, and plain-language error handling, wired into the dashboard at `/scan`
-- 5 new automated frontend tests (26 total); 9 direct backend test cases run against a live server
-
-**What Was Actually Tested (Phase 8):**
-1. Valid JPEG upload → 201, placeholder message, `scan` object returned. ✅
-2. Uploaded file renamed server-side to a random UUID (confirmed on disk, not the original filename). ✅
-3. Oversized valid image (13.7MB) → 400, "Image too large. Maximum size is 5MB." ✅
-4. Non-image file renamed to `.jpg` → 400, "This file is not a valid image." (Pillow catches it regardless of extension). ✅
-5. No auth token → 401. ✅
-6. Path-traversal filename (`../../../../etc/passwd.jpg`) → accepted as a valid image but saved under a safe UUID name; no file escaped `media/`. ✅
-7. 12 rapid uploads as one user → first 5 succeeded, then 429 (`scan_upload` throttle, 10/min). ✅
-8. Regression pass: `/api/ping/`, login, cross-user profile access (403), crop list — all still correct. ✅
-9. Frontend: preview render, successful upload shows the placeholder message, oversized file rejected client-side before any API call, server validation errors and network failures both shown in plain language without crashing. ✅ (`npm test` — 26/26 passing)
+- **Secure accounts** — JWT auth (short-lived access tokens, rotating/blacklisted refresh tokens),
+  email verification and password reset via single-use self-expiring tokens, rate limiting on every
+  endpoint, object-level authorization (a user's token cannot read another user's profile).
+- **Crop guidance catalog** — soil/climate/planting info, lifecycle timeline, fertilizer schedule,
+  and organic manure methods for each crop, publicly browsable.
+- **AI crop disease detection** — upload a leaf photo, get a real CNN prediction (not a placeholder)
+  with a confidence score, plus symptoms/prevention/treatment guidance for the detected disease.
+- **Scan history** — every scan a farmer runs is saved and browsable later, with pagination.
+- **Weather** — city search or "use my location," backed by a Django proxy in front of
+  OpenWeatherMap (the browser never sees the API key; the app degrades to a plain-language message
+  if no key is configured).
+- **Learning videos** — searches YouTube's Data API through the same proxy pattern.
+- **Nearby agriculture services locator** — list and map view (Leaflet) of nearby services.
+- **Chatbot** — a basic FAQ-matching assistant for quick farming questions.
+- **Admin/Expert advisory module** — farmers ask questions, an admin-role user answers them.
+- **Multi-language support** — English, Kannada, and Hindi, covering UI chrome and all core pages.
+- **A from-scratch Minimal visual theme** — one accent color, hairline borders, one typeface, flat
+  icons, no gradients or shadows; applied consistently across every screen from a single CSS file.
+- **200 automated tests** (97 backend, 103 frontend), all passing, plus repeated live end-to-end
+  testing with a real headless browser against the real running app.
 
 ---
 
@@ -61,15 +56,23 @@ python -c "from django.core.management.utils import get_random_secret_key; print
 
 python manage.py migrate
 python manage.py createsuperuser        # create your own admin login
-python manage.py seed_demo_data         # populates 7 crops + 2 pre-verified test farmers
+python manage.py seed_demo_data         # populates 4 crops + 3 pre-verified test accounts
 python manage.py runserver
 ```
 
-Backend now runs at `http://localhost:8000`. Emails print to this terminal (console backend).
+Backend now runs at `http://localhost:8000`. Emails print to this terminal (console backend) — there
+is no real SMTP configured. The CNN model loads at server startup, so the first boot takes roughly
+15–20 seconds; wait for "Starting development server" in the log.
+
+**Optional API keys** (the app runs fully without them; Weather and Learning Videos just show a
+plain-language "service unavailable" message until these are set in `backend/.env`):
+- `OPENWEATHER_API_KEY` — free key at https://openweathermap.org/api
+- `YOUTUBE_API_KEY` — free key at https://console.cloud.google.com/apis/credentials (enable "YouTube Data API v3")
 
 Test accounts from the seed command (pre-verified, ready to log in immediately):
-- `farmer_ravi` / `FarmerPass#123` (Kannada preference)
-- `farmer_asha` / `FarmerPass#123` (Hindi preference)
+- `farmer_ravi` / `FarmerPass#123` (farmer role, Kannada preference)
+- `farmer_asha` / `FarmerPass#123` (farmer role, Hindi preference)
+- `admin_expert` / `AdminPass#123` (admin role — answers advisory questions)
 
 ### Frontend Setup
 
@@ -88,19 +91,24 @@ Two terminals — one for Django, one for Vite. Both must be running simultaneou
 ### Running Tests
 
 ```bash
-cd frontend
-npm test
+cd backend
+venv\Scripts\activate           # or: source venv/bin/activate
+python manage.py test           # 97 tests, all passing
 ```
 
-Should show 7 test files, 26 tests, all passing.
+```bash
+cd frontend
+npm test                        # 22 test files / 103 tests, all passing
+npm run build                   # production build
+```
 
 ---
 
-## Full Auth API Reference
+## Full API Reference
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/api/ping/` | GET | Health check (Phase 1) |
+| `/api/ping/` | GET | Health check |
 | `/api/auth/register/` | POST | Create account |
 | `/api/auth/login/` | POST | Get access + refresh tokens (blocked until email verified) |
 | `/api/auth/login/refresh/` | POST | Exchange refresh token for a new access token |
@@ -113,7 +121,16 @@ Should show 7 test files, 26 tests, all passing.
 | `/api/auth/password-reset/confirm/` | POST | Set new password via emailed link |
 | `/api/crops/` | GET | List all crops (public, supports `?search=`) |
 | `/api/crops/<id>/` | GET | Full crop detail (public) |
-| `/api/scans/upload/` | POST | Upload a crop image (authenticated, Phase 8 — tested, see checklist above) |
+| `/api/diseases/<id>/` | GET | Disease detail (public) |
+| `/api/scans/upload/` | POST | Upload a crop image for AI disease detection (authenticated) |
+| `/api/scans/history/` | GET | Paginated list of the caller's past scans (authenticated) |
+| `/api/scans/history/<id>/` | GET | Full detail of one past scan (authenticated, owner-only) |
+| `/api/weather/` | GET | Current conditions by city name or lat/lon (authenticated, proxied) |
+| `/api/videos/search/` | GET | Search farming-related YouTube videos (authenticated, proxied) |
+| `/api/locator/nearby/` | GET | Nearby agriculture services (authenticated, proxied) |
+| `/api/chatbot/message/` | POST | Send a message, get an FAQ-matched or fallback reply (authenticated) |
+| `/api/advisory/queries/` | GET, POST | List (own, or all if admin) / ask a question (authenticated) |
+| `/api/advisory/queries/<id>/` | GET, PATCH | View / answer a specific question (authenticated, owner-or-admin) |
 
 ---
 
@@ -122,50 +139,58 @@ Should show 7 test files, 26 tests, all passing.
 ```
 smart-farming-project/
 ├── backend/
-│   ├── config/              # Settings, URLs
-│   ├── core/                 # Health-check app (Phase 1)
-│   ├── accounts/              # Custom User model + full auth API (Phase 2-3-5-6)
-│   │   ├── serializers.py, views.py, permissions.py, tokens.py, utils.py, throttles.py, urls.py
-│   ├── crops/                 # Crop content + public browsing API (Phase 2, 7)
-│   │   ├── serializers.py, views.py, urls.py
-│   │   └── management/commands/seed_demo_data.py
-│   ├── scans/                  # ScanHistory + secure upload (Phase 2, 8)
-│   │   ├── serializers.py, views.py, throttles.py, urls.py
-│   ├── advisory/               # AdvisoryQuery — schema ready, logic comes in Phase 17
+│   ├── config/              # Settings, root URL routing
+│   ├── core/                # Health-check endpoint
+│   ├── accounts/             # Custom User model + full auth API
+│   ├── crops/                 # Crop/disease content + public browsing API, seed_demo_data command
+│   ├── scans/                  # Scan upload (CNN inference), scan history
+│   ├── weather/                # OpenWeatherMap proxy
+│   ├── videos/                  # YouTube Data API proxy
+│   ├── locator/                  # Nearby-services proxy
+│   ├── chatbot/                   # FAQ-matching chat endpoint
+│   ├── advisory/                   # Farmer ↔ admin Q&A
+│   ├── media/                       # Uploaded scan images (gitignored)
 │   ├── .env.example
 │   └── requirements.txt
-├── frontend/                   # React (Vite)
+├── frontend/
 │   └── src/
-│       ├── api/                # axios.js, tokenStorage.js, crops.js
+│       ├── api/                 # axios client, token storage, per-feature API helpers
 │       ├── context/AuthContext.jsx
-│       ├── components/ProtectedRoute.jsx (+ .test.jsx)
-│       └── pages/
-│           ├── LoginPage.jsx (+ .test.jsx), RegisterPage.jsx
-│           ├── DashboardPage.jsx, ProfilePage.jsx (+ .test.jsx)
-│           ├── CropListPage.jsx (+ .test.jsx), CropDetailPage.jsx (+ .test.jsx)
-│           ├── ForgotPasswordPage.jsx (+ .test.jsx), ResetPasswordPage.jsx
-│           ├── VerifyEmailPage.jsx, ResendVerificationPage.jsx
-│           └── ScanUploadPage.jsx (+ .test.jsx)
+│       ├── components/           # Icon.jsx, BottomNav.jsx, ProtectedRoute.jsx, AppHeader
+│       ├── i18n/locales/          # en.json, kn.json, hi.json
+│       ├── App.css                # The entire visual design system (one file, every page)
+│       └── pages/                 # One page + matching *.test.jsx per feature
 └── .gitignore
 ```
 
-## Key Security Decisions (cumulative, all phases)
+## Key Security Decisions
 
-- Custom `User` model set up in Phase 2, before any migration existed — swapping later is painful.
-- JWT access tokens are short-lived (15 min); refresh tokens rotate on every use and are blacklisted afterward.
-- Reset/verification tokens are single-use **by construction** (folded into a hash with the password/verification state), not via a "used tokens" database table.
-- Object-level authorization (`IsProfileOwner`) is separate from authentication — proven by directly testing that one user's token cannot access another user's profile by ID substitution.
-- Public endpoints (crop catalog) are GET-only by construction (`ListAPIView`/`RetrieveAPIView`), not by a permission check that could be misconfigured later.
-- Image uploads are validated by actually parsing the file with Pillow (not trusting file extension or browser-claimed MIME type), and filenames are always replaced server-side with a random UUID.
-- Known accepted trade-off: JWT tokens live in `localStorage`, not httpOnly cookies (documented in `tokenStorage.js`) — simpler while the team learns, flagged honestly rather than hidden.
+- Custom `User` model set up before any migration existed — swapping later is painful.
+- JWT access tokens are short-lived (15 min); refresh tokens rotate on every use and are blacklisted
+  afterward. Known accepted trade-off: tokens live in `localStorage`, not httpOnly cookies — simpler
+  while the team learns, flagged honestly rather than hidden.
+- Reset/verification tokens are single-use **by construction** (folded into a hash with the
+  password/verification state), not via a "used tokens" database table.
+- Object-level authorization (`IsProfileOwner` and equivalents) is separate from authentication —
+  proven by directly testing that one user's token cannot access another user's resources by ID
+  substitution.
+- Public endpoints (crop catalog) are GET-only by construction (`ListAPIView`/`RetrieveAPIView`),
+  not by a permission check that could be misconfigured later.
+- Image uploads are validated by actually parsing the file with Pillow (not trusting the file
+  extension or browser-claimed MIME type), and filenames are always replaced server-side with a
+  random UUID.
+- Every third-party API call (weather, videos, locator) goes through a Django proxy — the browser
+  never sees an API key, and every proxy degrades gracefully (400/503) instead of a raw 500.
+- Mass-assignment protection throughout: server-controlled fields (role, verification status, etc.)
+  are always left out of client-writable serializers.
 
-See `PROJECT_STATUS.md` (in the handoff package root) for the full phase-by-phase history, and
-`Development_Phase_Plan.md` (in `reference-docs/`) for the complete 23-phase roadmap.
+## Known Limitations
 
-## Next Up: Phase 9 — CNN Model: Dataset & First Training Run
-
-This is different work than everything so far — it happens in a separate `ml-training/` directory
-(NOT inside `backend/`), using notebooks rather than Django code: a PlantVillage subset (4–5 crops
-to start), transfer learning with MobileNetV2, real accuracy/precision/recall/F1 numbers from an
-actual training run, and a versioned saved model + label mapping. See `Development_Phase_Plan.md`
-for the full task/security/testing checklist.
+- No real SMTP — verification/reset emails print to the console in dev.
+- `DEBUG=True` and the production-only security settings (SSL/HSTS/secure cookies) are correctly
+  dormant until deployment; no hosting target has been chosen yet.
+- OpenWeatherMap/YouTube API keys aren't bundled — Weather and Learning Videos work fully once a key
+  is added to `.env`, and degrade gracefully without one.
+- A handful of auth-flow pages (register, resend-verification, reset-password, verify-email) still
+  have some hardcoded English strings outside the otherwise-complete multi-language coverage.
+- Advisory answers have no notification — a farmer has to return to "Ask an Expert" to check.
