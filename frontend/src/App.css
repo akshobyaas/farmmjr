@@ -1,40 +1,36 @@
-/* ===== Design refresh — India-focused, warmer, more visual pass over the
-   Phase 21 design system. Every class name below is unchanged from before
-   (nothing here should ever break a test that queries by role/text/class),
-   only the visual values changed: new palette, soft shadows instead of flat
-   borders, rounder corners, gradient hero headers, a floating bottom-nav
-   pill, and colour-cycling accents on the tile/card grids so the app reads
-   as one deliberate system instead of a flat form-and-list app. ===== */
+/* ===== Minimal theme pass — one accent color, hairline borders, one
+   typeface, flat icons, no gradients/shadows. Every class name below is
+   unchanged from before (nothing here should ever break a test that
+   queries by role/text/class), only the visual values changed. ===== */
 
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --color-primary: #1E7A34;
-  --color-primary-dark: #145C27;
-  --color-primary-light: #7FCB93;
-  --color-primary-tint: #E7F3EA;
-  --color-alert: #C62828;
-  /* Polish pass: warmer off-white in place of the previous cooler
-     near-gray, and a restrained amber pair reserved for cautionary
-     content (e.g. a moderate-severity disease banner) -- kept distinct
-     from --color-alert, which stays for genuine errors/validation so
-     that distinction (caution vs. failure) is never lost. */
-  --color-bg: #FAF8F3;
-  --color-bg-grad-start: #F2F4EC;
-  --color-bg-grad-mid: #F7F5EF;
+  --color-primary: #2F9E44;
+  --color-primary-dark: #257A36;
+  --color-primary-light: #9FD9A8;
+  --color-primary-tint: #EAF7EC;
+  --color-alert: #D64545;
+  /* Minimal pass: plain white page background in place of the previous
+     warm cream gradient -- the gradient vars are kept (other rules still
+     reference them) but all three stops are now the same flat white, so
+     those gradients render as a solid color with no decoration. */
+  --color-bg: #FFFFFF;
+  --color-bg-grad-start: #FFFFFF;
+  --color-bg-grad-mid: #FFFFFF;
   --color-warning: #B8720E;
   --color-warning-tint: #FBF1DD;
-  --color-text: #1B231C;
-  --color-text-secondary: #5B6660;
-  --color-border: #E4E7E0;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
   --color-sky: #2F8FC2;
   --color-sky-light: #A9DCEE;
   --color-gold: #C2790E;
   --color-gold-light: #F0C877;
-  --radius-card: 20px;
-  --radius-btn: 16px;
-  --shadow-card: 0 6px 16px rgba(27, 35, 28, 0.07);
-  --shadow-lift: 0 12px 24px rgba(27, 35, 28, 0.12);
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --shadow-card: none;
+  --shadow-lift: none;
 }
 
 * {
@@ -45,7 +41,7 @@ body {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: "Manrope", "Poppins", "Noto Sans", sans-serif;
+  font-family: "Inter", "Noto Sans", sans-serif;
 }
 
 .app-shell {
@@ -55,43 +51,45 @@ body {
 }
 
 .app-header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 140%);
-  color: white;
-  padding: 20px 22px 24px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 20px 22px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-radius: 0 0 28px 28px;
-  box-shadow: 0 10px 22px rgba(30, 122, 52, 0.28);
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
 }
 
 .app-header-icon {
   font-size: 22px;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.22);
-  border-radius: 14px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  border-radius: 12px;
 }
 
 .app-header h1 {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 19px;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .weather-header {
-  background: linear-gradient(135deg, var(--color-sky) 0%, var(--color-sky-light) 140%);
-  box-shadow: 0 10px 22px rgba(47, 143, 194, 0.3);
+  background: var(--color-bg);
+  box-shadow: none;
 }
 
 .videos-header {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 140%);
-  box-shadow: 0 10px 22px rgba(194, 121, 14, 0.28);
+  background: var(--color-bg);
+  box-shadow: none;
 }
 
 .app-main {
@@ -119,7 +117,7 @@ body {
 
 .status-title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 8px;
 }
 
@@ -174,7 +172,7 @@ body {
 .auth-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 24px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-lift);
   padding: 32px 28px;
   width: 100%;
@@ -182,8 +180,8 @@ body {
 }
 
 .auth-title {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
   margin: 0 0 4px;
   color: var(--color-text);
   letter-spacing: -0.01em;
@@ -210,11 +208,11 @@ body {
   font-size: 17px;
   padding: 10px 16px;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: 10px;
   font-family: inherit;
   background: #fff;
   color: var(--color-text);
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 .form-input:focus {
@@ -253,11 +251,11 @@ body {
   color: white;
   border: none;
   border-radius: var(--radius-btn);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(30, 122, 52, 0.32);
+  box-shadow: none;
 }
 
 .btn-primary:disabled {
@@ -273,16 +271,16 @@ body {
 .btn-secondary {
   min-height: 50px;
   min-width: 120px;
-  background: var(--color-primary-tint);
-  color: var(--color-primary-dark);
-  border: 1px solid var(--color-primary-light);
+  background: #fff;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-btn);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   padding: 0 20px;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.06);
+  box-shadow: none;
 }
 
 .auth-switch {
@@ -293,8 +291,8 @@ body {
 }
 
 .auth-switch a {
-  color: var(--color-primary);
-  font-weight: 700;
+  color: var(--color-primary-dark);
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -343,7 +341,7 @@ body {
 .quick-link-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 14px 16px;
   min-height: 64px;
   display: flex;
@@ -353,21 +351,21 @@ body {
   text-decoration: none;
   color: var(--color-text);
   box-shadow: var(--shadow-card);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .quick-link-card:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
   transform: translateY(-1px);
 }
 
 .quick-link-icon {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: var(--color-primary-tint);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -382,8 +380,8 @@ body {
 
 .quick-link-label {
   font-size: 15px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .quick-link-desc {
@@ -408,7 +406,7 @@ body {
   border-radius: 10px;
 }
 
-/* ===== India-focused polish — dashboard profile summary & highlights ===== */
+/* ===== Dashboard profile summary & highlights ===== */
 
 .dashboard-profile-card {
   display: flex;
@@ -419,11 +417,11 @@ body {
 
 .dashboard-profile-avatar {
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   background: var(--color-primary-tint);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -454,19 +452,19 @@ body {
   text-decoration: none;
   color: var(--color-text);
   text-align: left;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .dashboard-highlight-card:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
   transform: translateY(-1px);
 }
 
 .dashboard-highlight-icon {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -479,7 +477,7 @@ body {
 
 .dashboard-highlight-activity .dashboard-highlight-icon {
   background: var(--color-primary-tint);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .dashboard-highlight-text {
@@ -490,14 +488,14 @@ body {
 }
 
 .dashboard-highlight-title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--color-text);
   line-height: 1.25;
 }
 
 .dashboard-highlight-desc {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   line-height: 1.25;
 }
@@ -505,9 +503,11 @@ body {
 .dashboard-section-title {
   width: 100%;
   max-width: 500px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   text-align: left;
   margin: 4px 0 -2px;
 }
@@ -545,46 +545,46 @@ body {
   text-decoration: none;
   color: var(--color-text);
   text-align: left;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
-/* A colour-coded top strip in place of a photo thumbnail -- cycles through
-   the app's warm/cool accent set so each crop tile is instantly tellable
-   apart at a glance, the way the reference kit's photo tiles read. */
+/* A plain neutral top edge in place of the previous colour-cycling strip --
+   minimal keeps every card the same, so nothing here competes with the one
+   accent color used elsewhere for things that are actually actionable. */
 .crop-card::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
+  height: 4px;
 }
 
 .crop-card:nth-child(4n+1)::before {
-  background: var(--color-primary-light);
+  background: var(--color-border);
 }
 
 .crop-card:nth-child(4n+2)::before {
-  background: var(--color-gold-light);
+  background: var(--color-border);
 }
 
 .crop-card:nth-child(4n+3)::before {
-  background: #8FBEE8;
+  background: var(--color-border);
 }
 
 .crop-card:nth-child(4n+4)::before {
-  background: #EFAA8B;
+  background: var(--color-border);
 }
 
 .crop-card:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
   transform: translateY(-1px);
 }
 
 .crop-card-name {
-  color: var(--color-primary);
-  font-size: 18px;
-  font-weight: 800;
+  color: var(--color-primary-dark);
+  font-size: 17px;
+  font-weight: 700;
   margin: 0 0 8px;
 }
 
@@ -601,13 +601,13 @@ body {
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.3;
   padding: 6px 12px;
   border-radius: 999px;
   background: var(--color-primary-tint);
   color: var(--color-primary-dark);
-  border: 1px solid var(--color-primary-light);
+  border: 1px solid transparent;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -615,7 +615,7 @@ body {
 .chip-amber {
   background: var(--color-warning-tint);
   color: var(--color-warning);
-  border-color: var(--color-warning-tint);
+  border-color: transparent;
 }
 
 /* Stacked, not side-by-side: soil/climate descriptions are sentence-length,
@@ -648,8 +648,8 @@ body {
 }
 
 .crop-section-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   color: var(--color-text);
   margin-bottom: 10px;
   text-align: left;
@@ -659,7 +659,7 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-left: 3px solid var(--color-primary-light);
+  border-left: 2px solid var(--color-border);
 }
 
 .lifecycle-stage {
@@ -682,7 +682,7 @@ body {
 .fertilizer-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   padding: 14px 16px;
   margin-bottom: 10px;
@@ -695,8 +695,8 @@ body {
 }
 
 .fertilizer-stage {
-  font-weight: 700;
-  color: var(--color-primary);
+  font-weight: 600;
+  color: var(--color-primary-dark);
 }
 
 /* ===== Phase 8 — Crop scan upload ===== */
@@ -715,8 +715,8 @@ body {
   justify-content: center;
   min-height: 220px;
   background: white;
-  border: 2px dashed var(--color-primary-light);
-  border-radius: 20px;
+  border: 2px dashed var(--color-border);
+  border-radius: 16px;
   cursor: pointer;
   overflow: hidden;
   padding: 16px;
@@ -736,7 +736,7 @@ body {
 .scan-preview-image {
   max-width: 100%;
   max-height: 260px;
-  border-radius: 14px;
+  border-radius: 12px;
   object-fit: contain;
 }
 
@@ -766,8 +766,8 @@ body {
 }
 
 .scan-confidence {
-  font-weight: 700;
-  color: var(--color-primary);
+  font-weight: 600;
+  color: var(--color-primary-dark);
 }
 
 /* ===== Phase 12 — Scan history & dashboard integration ===== */
@@ -786,22 +786,22 @@ body {
   gap: 14px;
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   padding: 12px;
   text-decoration: none;
   color: var(--color-text);
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .scan-history-item:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
 }
 
 .scan-history-thumbnail {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -815,8 +815,8 @@ body {
 
 .scan-history-disease {
   font-size: 15px;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-weight: 600;
+  color: var(--color-primary-dark);
   margin: 0;
 }
 
@@ -865,11 +865,11 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: none;
-  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   font-size: 16px;
   font-family: inherit;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 /* .btn-primary defaults to width:100% for its normal standalone use; inside
@@ -883,40 +883,40 @@ body {
 }
 
 .weather-card {
-  background: linear-gradient(160deg, var(--color-sky) 0%, #5FB6DE 45%, var(--color-sky-light) 85%);
-  border: none;
+  background: #fff;
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: var(--radius-card);
-  box-shadow: 0 14px 26px rgba(47, 143, 194, 0.3);
+  box-shadow: none;
   padding: 24px;
   width: 100%;
   max-width: 320px;
   text-align: center;
-  color: white;
+  color: var(--color-text);
 }
 
 .weather-location {
-  font-size: 16px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
   margin: 0 0 4px;
 }
 
 .weather-icon {
-  font-size: 48px;
+  font-size: 44px;
   margin: 4px 0;
 }
 
 .weather-temp {
-  font-size: 40px;
-  font-weight: 800;
-  color: white;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-text);
   margin: 4px 0;
 }
 
 .weather-description {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  color: var(--color-text-secondary);
   text-transform: capitalize;
   margin: 0 0 12px;
 }
@@ -926,8 +926,8 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
 }
 
 /* ===== Phase 14 — Learning videos ===== */
@@ -938,17 +938,17 @@ body {
   max-width: 400px;
   background: white;
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-gold);
-  border-radius: 16px;
+  border-left: 4px solid var(--color-border);
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   padding: 14px 16px;
   text-decoration: none;
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .video-link-card:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
 }
 
 .videos-search-form {
@@ -962,11 +962,11 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: none;
-  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   font-size: 16px;
   font-family: inherit;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 .videos-grid {
@@ -982,16 +982,16 @@ body {
   flex-direction: column;
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   overflow: hidden;
   text-decoration: none;
   color: var(--color-text);
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .video-card:hover {
-  box-shadow: var(--shadow-lift);
+  border-color: var(--color-primary);
 }
 
 .video-thumbnail {
@@ -1007,7 +1007,7 @@ body {
 
 .video-title {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1034,18 +1034,18 @@ body {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: none;
-  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   font-size: 16px;
   font-family: inherit;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 .locator-view-toggle {
   display: flex;
   gap: 4px;
   background: var(--color-primary-tint);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 4px;
   width: fit-content;
 }
@@ -1054,10 +1054,10 @@ body {
   border: none;
   background: transparent;
   padding: 8px 20px;
-  border-radius: 9px;
+  border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-secondary);
   cursor: pointer;
   min-height: 36px;
@@ -1065,8 +1065,8 @@ body {
 
 .locator-toggle-active {
   background: white;
-  color: var(--color-primary);
-  box-shadow: 0 2px 6px rgba(27, 35, 28, 0.1);
+  color: var(--color-primary-dark);
+  box-shadow: none;
 }
 
 .locator-list {
@@ -1080,21 +1080,21 @@ body {
 .locator-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   padding: 14px 16px;
 }
 
 .locator-card-name {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
   margin: 0 0 4px;
 }
 
 .locator-card-category {
   font-size: 14px;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   margin: 0 0 4px;
 }
 
@@ -1107,9 +1107,10 @@ body {
 .locator-map-wrap {
   width: 100%;
   max-width: 700px;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
 }
 
 .locator-map {
@@ -1147,7 +1148,7 @@ body {
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-word;
-  box-shadow: 0 2px 6px rgba(27, 35, 28, 0.06);
+  box-shadow: none;
 }
 
 .chat-bubble-user {
@@ -1159,30 +1160,31 @@ body {
 
 .chat-bubble-bot {
   align-self: flex-start;
-  background: #eef1ee;
-  color: #1f2a1f;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   border-bottom-left-radius: 0.3rem;
 }
 
 .chat-bubble-typing {
   font-style: italic;
-  color: #5a655a;
+  color: var(--color-text-secondary);
 }
 
 .chatbot-input-form {
   display: flex;
   gap: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #dfe3df;
+  border-top: 1px solid var(--color-border);
 }
 
 .chatbot-text-input {
   flex: 1;
   padding: 0.65rem 0.9rem;
-  border: none;
-  border-radius: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
   font-size: 1rem;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 /* ===== Phase 17 — Admin/Expert Advisory Module ===== */
@@ -1201,12 +1203,12 @@ body {
 
 .advisory-textarea {
   padding: 0.65rem 0.9rem;
-  border: none;
-  border-radius: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
-  box-shadow: 0 4px 10px rgba(27, 35, 28, 0.05);
+  box-shadow: none;
 }
 
 .advisory-filter-tabs {
@@ -1219,9 +1221,9 @@ body {
   border: none;
   border-radius: 999px;
   background: var(--color-primary-tint);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -1241,7 +1243,7 @@ body {
 
 .advisory-card {
   border: 1px solid var(--color-border);
-  border-radius: 1rem;
+  border-radius: 0.875rem;
   padding: 0.9rem 1rem;
   background: #fff;
   box-shadow: var(--shadow-card);
@@ -1255,15 +1257,15 @@ body {
 }
 
 .advisory-card-farmer {
-  font-weight: 700;
-  color: #3a453a;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .advisory-status-badge {
   font-size: 0.8rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .advisory-status-pending {
@@ -1273,7 +1275,7 @@ body {
 
 .advisory-status-answered {
   background: var(--color-primary-tint);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .advisory-card-question {
@@ -1329,28 +1331,29 @@ body {
   max-width: 400px;
 }
 
-/* ===== Design refresh — floating pill bottom nav ===== */
+/* ===== Bottom nav ===== */
 
-/* The missing piece the design target always called for: persistent,
-   thumb-reachable navigation so a farmer never has to backtrack through
-   "Back to Dashboard" just to reach another section. Large (60px+) tap
-   targets, icon + short label, current section highlighted with a filled
-   circle badge -- floats above the content as a rounded pill instead of a
-   flat full-width bar, matching the rest of the redesigned card system. */
+/* Persistent, thumb-reachable navigation so a farmer never has to backtrack
+   through "Back to Dashboard" just to reach another section. Large (60px+)
+   tap targets, icon + short label, current section highlighted with a
+   filled badge behind the icon -- flush to the bottom edge with a single
+   hairline top border, not a floating shadowed pill, consistent with the
+   rest of the minimal system. */
 .bottom-nav {
   position: fixed;
-  bottom: 14px;
-  left: 16px;
-  right: 16px;
-  max-width: 610px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 640px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 12px 26px rgba(27, 35, 28, 0.16);
+  background: #fff;
+  border-radius: 0;
+  border-top: 1px solid var(--color-border);
+  box-shadow: none;
   z-index: 20;
-  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
 }
 
 .bottom-nav-inner {
@@ -1369,30 +1372,30 @@ body {
   padding: 6px 4px;
   text-decoration: none;
   color: var(--color-text-secondary);
-  font-size: 11.5px;
-  font-weight: 600;
-  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
 }
 
 .bottom-nav-icon {
   font-size: 19px;
   line-height: 1;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .bottom-nav-item.active {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .bottom-nav-item.active .bottom-nav-icon {
   background: var(--color-primary-tint);
-  box-shadow: 0 3px 8px rgba(30, 122, 52, 0.18);
+  box-shadow: none;
 }
 
 /* ===== Phone-frame demo mockup (desktop/tablet browsers only) =====
@@ -1407,7 +1410,9 @@ body {
    `transform` on #root is load-bearing, not decorative: it makes #root the
    containing block for its `position: fixed` descendants (the bottom nav,
    and the notch/frame pseudo-elements below), so they stay pinned to the
-   phone frame's own edges instead of the real browser window's. */
+   phone frame's own edges instead of the real browser window's.
+   Left unchanged by the minimal theme pass -- this is presentation-device
+   chrome for desktop demo viewing, not part of the app's own visual system. */
 @media (min-width: 640px) {
   body {
     min-height: 100vh;
