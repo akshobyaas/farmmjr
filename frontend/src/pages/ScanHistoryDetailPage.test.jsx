@@ -50,6 +50,26 @@ describe("ScanHistoryDetailPage", () => {
     expect(scansApi.fetchScanDetail).toHaveBeenCalledWith("5");
   });
 
+  it("nudges the farmer to Ask an Expert when the prediction confidence is low", async () => {
+    scansApi.fetchScanDetail.mockResolvedValue({ ...mockScan, confidence: 0.384 });
+    renderWithRoute("5");
+
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent(/not very sure/i);
+    });
+    expect(screen.getByRole("link", { name: /ask expert/i })).toBeInTheDocument();
+  });
+
+  it("does not show the low-confidence nudge for a confident prediction", async () => {
+    scansApi.fetchScanDetail.mockResolvedValue(mockScan); // confidence: 0.848
+    renderWithRoute("5");
+
+    await waitFor(() => {
+      expect(screen.getByText(/Brown Spot — Rice/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: /ask expert/i })).not.toBeInTheDocument();
+  });
+
   it("shows a fallback message when a scan has no prediction", async () => {
     scansApi.fetchScanDetail.mockResolvedValue({ ...mockScan, predicted_disease: null, confidence: null });
     renderWithRoute("5");

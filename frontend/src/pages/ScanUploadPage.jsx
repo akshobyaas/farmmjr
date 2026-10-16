@@ -5,6 +5,7 @@ import { uploadScan } from "../api/scans";
 import AppHeader from "../components/AppHeader";
 import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
+import LowConfidenceNudge from "../components/LowConfidenceNudge";
 
 // Server-side validation (scans/serializers.py) enforces the real limits;
 // this is just a fast, friendly client-side check so a farmer doesn't wait
@@ -163,6 +164,8 @@ export default function ScanUploadPage() {
                 )}
               </div>
             )}
+
+            <LowConfidenceNudge scan={result.scan} />
 
             <button type="button" className="btn-secondary" onClick={handleScanAnother} style={{ marginTop: 16 }}>
               {t("scan.scanAnotherButton")}

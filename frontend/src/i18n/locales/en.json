@@ -183,7 +183,9 @@
     "loadError": "Could not load this scan. Please try again.",
     "backToHistory": "Back to Scan History",
     "detailLoading": "Loading scan…",
-    "predictionUnavailableDetail": "Prediction unavailable for this scan."
+    "predictionUnavailableDetail": "Prediction unavailable for this scan.",
+    "lowConfidenceWarning": "We're not very sure about this one. An expert can help confirm it.",
+    "lowConfidenceQuestionPrefill": "My crop scan predicted {{disease}} but with only {{pct}}% confidence. Can you help confirm what's wrong?"
   },
   "videos": {
     "title": "Learning Videos",

@@ -331,6 +331,40 @@ body {
   color: var(--color-primary-dark);
 }
 
+/* Low-confidence-prediction nudge toward "Ask an Expert" (scan upload
+   result + scan-history detail). Pale amber, same warning tokens the
+   advisory "pending" badge already uses, so a low-confidence result reads
+   as "worth double-checking", not as an error. */
+.low-confidence-nudge {
+  background: var(--color-warning-tint);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-warning);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  margin-top: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.low-confidence-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+/* .btn-secondary is written for a <button>; this composes with it on the
+   <Link> here so the anchor actually centers its label and ignores the
+   underline a bare link would otherwise get. */
+.low-confidence-ask-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  text-decoration: none;
+}
+
 .auth-switch {
   text-align: center;
   font-size: 15px;

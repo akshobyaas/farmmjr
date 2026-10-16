@@ -106,6 +106,58 @@ describe("ScanUploadPage", () => {
     expect(screen.getByText(/propiconazole/i)).toBeInTheDocument();
   });
 
+  it("nudges the farmer to Ask an Expert when the prediction confidence is low", async () => {
+    scansApi.uploadScan.mockResolvedValue({
+      message: "Prediction: Blast (Rice) — 38.4% confidence.",
+      scan: {
+        id: 2,
+        image: "http://localhost:8000/media/scans/2026/09/def456.jpg",
+        confidence: 0.384,
+        predicted_disease: { id: 7, name: "Blast", crop_name: "Rice" },
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    await selectFile(makeImageFile());
+    await userEvent.click(screen.getByRole("button", { name: /upload photo/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent(/not very sure/i);
+    });
+    expect(screen.getByRole("link", { name: /ask expert/i })).toBeInTheDocument();
+  });
+
+  it("does not show the low-confidence nudge for a confident prediction", async () => {
+    scansApi.uploadScan.mockResolvedValue({
+      message: "Prediction: Brown Spot (Rice) — 84.8% confidence.",
+      scan: {
+        id: 1,
+        image: "http://localhost:8000/media/scans/2026/09/abc123.jpg",
+        confidence: 0.848,
+        predicted_disease: { id: 6, name: "Brown Spot", crop_name: "Rice" },
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    await selectFile(makeImageFile());
+    await userEvent.click(screen.getByRole("button", { name: /upload photo/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Brown Spot — Rice")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: /ask expert/i })).not.toBeInTheDocument();
+  });
+
   it("shows the server's validation message for an oversized or invalid file", async () => {
     scansApi.uploadScan.mockRejectedValue({
       response: { status: 400, data: { image: ["This file is not a valid image."] } },

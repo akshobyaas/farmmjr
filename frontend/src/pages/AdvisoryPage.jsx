@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { listAdvisoryQueries, createAdvisoryQuery, answerAdvisoryQuery } from "../api/advisory";
@@ -18,6 +18,7 @@ function StatusBadge({ status, t }) {
 export default function AdvisoryPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
   const isAdmin = user?.role === "admin";
 
   const [queries, setQueries] = useState([]);
@@ -25,7 +26,12 @@ export default function AdvisoryPage() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("pending"); // admin only: "pending" | "all"
 
-  const [question, setQuestion] = useState("");
+  // A low-confidence scan result (LowConfidenceNudge.jsx) links here with
+  // `state: { prefill }` so the farmer doesn't have to re-describe what the
+  // app already knows -- lazy initializer so this only ever reads the
+  // location state this page was first navigated here with, not on every
+  // render.
+  const [question, setQuestion] = useState(() => location.state?.prefill || "");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
