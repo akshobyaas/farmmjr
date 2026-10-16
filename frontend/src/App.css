@@ -48,12 +48,6 @@ body {
   line-height: 1.5;
 }
 
-.app-shell {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .app-header {
   background: var(--color-bg);
   color: var(--color-text);
@@ -651,12 +645,6 @@ body {
   margin: 0 0 8px;
 }
 
-.crop-card-detail {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  margin: 4px 0;
-}
-
 /* ===== Pill chips — compact filter/status/tag labels ===== */
 
 .chip {
@@ -673,12 +661,6 @@ body {
   border: 1px solid transparent;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-.chip-amber {
-  background: var(--color-warning-tint);
-  color: var(--color-warning);
-  border-color: transparent;
 }
 
 /* Stacked, not side-by-side: soil/climate descriptions are sentence-length,
