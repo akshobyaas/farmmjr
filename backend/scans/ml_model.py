@@ -1,11 +1,22 @@
 """
 Phase 10 — AI Integration.
 
-Loads the CNN trained in Phase 9 (ml-training/model_v1.h5) once per process
+Loads the CNN trained in Phase 9 (ml-training/model_v2.h5) once per process
 and runs inference on uploaded scan images. Kept out of views.py on purpose:
 model loading and image preprocessing is a different concern from HTTP
-handling, and this makes both easier to find, test, and swap out later
-(e.g. a retrained model_v2.h5).
+handling, and this makes both easier to find, test, and swap out later.
+
+v2 extends v1's Pepper + Rice coverage (7 classes) with Arecanut Yellow Leaf
+Disease and Mahali/Koleroga (2 classes, 9 total) -- see
+ml-training/phase9_v2_cnn_training.ipynb and training_report.md. Cocoa was
+scoped for this retrain too but didn't make it in: the only available public
+Cocoa dataset turned out to be in YOLO object-detection format (images/ +
+labels/, not a folder per class), which the training pipeline's simple
+folder-to-class mapping can't read -- a real follow-up, not done here.
+Arecanut Foot Rot and Cocoa VSD/Black Pod remain unsupported; no public
+dataset exists for Foot Rot or VSD, and Cocoa needs the label-parsing fix
+above. v1's files (model_v1.h5/labels_v1.json) are kept in ml-training/ as a
+fallback and are no longer loaded by this module.
 """
 import json
 import logging
@@ -19,7 +30,7 @@ logger = logging.getLogger(__name__)
 IMG_SIZE = (224, 224)
 
 # Maps the exact class label strings the model was trained on (see
-# CLASS_FOLDER_MAP in ml-training/phase9_cnn_training.ipynb) to the
+# CLASS_FOLDER_MAP in ml-training/phase9_v2_cnn_training.ipynb) to the
 # (crop name, disease name) exactly as seeded in the database
 # (crops/management/commands/seed_demo_data.py). Kept as an explicit table
 # rather than parsed from the label string, so wording can differ between
@@ -32,6 +43,9 @@ LABEL_TO_DISEASE = {
     "Rice___Blast": ("Rice", "Blast"),
     "Rice___Brown_Spot": ("Rice", "Brown Spot"),
     "Rice___Tungro": ("Rice", "Tungro"),
+    # v2 additions (Arecanut) -- see the module docstring above for scope.
+    "Arecanut___Yellow_Leaf_Disease": ("Arecanut", "Yellow Leaf Disease (YLD)"),
+    "Arecanut___Mahali_Koleroga": ("Arecanut", "Mahali / Koleroga (Bud Rot)"),
 }
 
 _model = None
@@ -44,7 +58,7 @@ def _model_dir() -> Path:
 
 def is_model_available() -> bool:
     d = _model_dir()
-    return (d / "model_v1.h5").exists() and (d / "labels_v1.json").exists()
+    return (d / "model_v2.h5").exists() and (d / "labels_v2.json").exists()
 
 
 def warm_up():
@@ -73,10 +87,10 @@ def _load():
     # neither tensorflow installed nor a model file to load.
 
     d = _model_dir()
-    _model = tf.keras.models.load_model(d / "model_v1.h5")
-    with open(d / "labels_v1.json") as f:
+    _model = tf.keras.models.load_model(d / "model_v2.h5")
+    with open(d / "labels_v2.json") as f:
         _labels = json.load(f)
-    logger.info("Loaded Phase 9 CNN model with %d classes.", len(_labels))
+    logger.info("Loaded Phase 9 v2 CNN model with %d classes.", len(_labels))
 
 
 def predict(image_path: str):
