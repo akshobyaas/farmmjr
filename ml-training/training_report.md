@@ -1,24 +1,28 @@
-# Phase 9 — Training Report
+# Phase 9 v2 — Training Report
 
-Test accuracy: 0.9119
+Adds Arecanut (Yellow Leaf Disease, Mahali/Koleroga) to v1's Pepper + Rice coverage — 9 classes total. Cocoa Black Pod was scoped for this retrain but did not make it in: the only available public Cocoa dataset turned out to be in YOLO object-detection format (images/ + labels/, not a folder per class), which this pipeline cannot read — a real follow-up, not an oversight. Arecanut Foot Rot, Cocoa Black Pod, and Cocoa VSD all remain uncovered.
 
-Test loss: 0.2460
+Test accuracy: 0.9368
+
+Test loss: 0.1793
 
 ## Classification Report
 
 ```
-                              precision    recall  f1-score   support
+                                precision    recall  f1-score   support
 
-           Pepper___Foot_Rot      0.841     0.967     0.899        60
-      Pepper___Pollu_Disease      0.937     0.983     0.959        60
-       Pepper___Slow_Decline      1.000     0.800     0.889        60
-Rice___Bacterial_Leaf_Blight      0.864     0.950     0.905        60
-                Rice___Blast      0.904     0.783     0.839        60
-           Rice___Brown_Spot      0.885     0.900     0.893        60
-               Rice___Tungro      0.984     1.000     0.992        60
+    Arecanut___Mahali_Koleroga      1.000     0.867     0.929        15
+Arecanut___Yellow_Leaf_Disease      0.889     1.000     0.941         8
+             Pepper___Foot_Rot      0.879     0.967     0.921        60
+        Pepper___Pollu_Disease      0.937     0.983     0.959        60
+         Pepper___Slow_Decline      1.000     0.850     0.919        60
+  Rice___Bacterial_Leaf_Blight      0.933     0.933     0.933        60
+                  Rice___Blast      0.898     0.883     0.891        60
+             Rice___Brown_Spot      0.934     0.950     0.942        60
+                 Rice___Tungro      0.984     1.000     0.992        60
 
-                    accuracy                          0.912       420
-                   macro avg      0.916     0.912     0.911       420
-                weighted avg      0.916     0.912     0.911       420
+                      accuracy                          0.937       443
+                     macro avg      0.939     0.937     0.936       443
+                  weighted avg      0.939     0.937     0.937       443
 
 ```
