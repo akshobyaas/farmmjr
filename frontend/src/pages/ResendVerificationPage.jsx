@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 // Pulls a readable message out of a DRF error response -- the backend
 // returns different shapes depending on which check failed
@@ -136,8 +137,8 @@ export default function ResendVerificationPage() {
               />
 
               <label className="form-label" htmlFor="change-password">Password</label>
-              <input
-                id="change-password" type="password" className="form-input"
+              <PasswordInput
+                id="change-password"
                 value={changePassword} onChange={(e) => setChangePassword(e.target.value)}
                 autoComplete="current-password" required
               />

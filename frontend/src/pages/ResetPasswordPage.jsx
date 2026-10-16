@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 export default function ResetPasswordPage() {
   const { uid, token } = useParams();
@@ -62,15 +63,15 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <label className="form-label" htmlFor="new_password">New Password</label>
-          <input
-            id="new_password" type="password" className="form-input"
+          <PasswordInput
+            id="new_password"
             value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
             autoComplete="new-password" required
           />
 
           <label className="form-label" htmlFor="confirm">Confirm New Password</label>
-          <input
-            id="confirm" type="password" className="form-input"
+          <PasswordInput
+            id="confirm"
             value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)}
             autoComplete="new-password" required
           />

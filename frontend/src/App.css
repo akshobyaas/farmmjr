@@ -219,6 +219,41 @@ body {
   outline-offset: 1px;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field-input {
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
 .password-hints {
   list-style: none;
   padding: 0;

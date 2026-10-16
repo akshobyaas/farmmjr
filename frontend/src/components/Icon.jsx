@@ -14,6 +14,9 @@
  * (AppHeader call sites + BottomNav items). Inline body-copy glyphs
  * (✅⚠️🌿💧 status marks, the weather-condition emoji map) are left as-is —
  * out of scope for this pass.
+ *
+ * `eye`/`eyeOff` added later (password show/hide toggle) — same line-icon
+ * style, used by PasswordInput.jsx.
  */
 const PATHS = {
   home: (
@@ -65,6 +68,19 @@ const PATHS = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M10 8.5v7l6-3.5-6-3.5Z" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  eyeOff: (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-2.2 3.1M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4-.8" />
+      <path d="M9.5 9.8a3 3 0 0 0 4.2 4.2" />
     </>
   ),
 };
