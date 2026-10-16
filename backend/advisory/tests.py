@@ -4,12 +4,18 @@ Phase 20 — formal automated test suite for the advisory app.
 Converts Phase 17's 20-point live-server authorization sweep into a
 permanent regression suite: ownership, the owner-vs-admin answer split,
 mass-assignment protection, and the disabled PUT method.
+
+Low-confidence expert-notification tests (`AdvisoryNotifyAdminsTests`)
+were added after Phase 20 -- see advisory/utils.py.
 """
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from crops.models import Crop, Disease
+from scans.models import ScanHistory
 from .models import AdvisoryQuery
 
 User = get_user_model()
@@ -20,6 +26,14 @@ def make_user(username, email, role=User.Role.FARMER):
     user.is_verified = True
     user.save(update_fields=["is_verified"])
     return user
+
+
+def make_scan(user, confidence, with_disease=True):
+    disease = None
+    if with_disease:
+        crop = Crop.objects.create(name=f"Rice-{user.username}")
+        disease = Disease.objects.create(crop=crop, name="Brown Spot")
+    return ScanHistory.objects.create(user=user, predicted_disease=disease, confidence=confidence)
 
 
 class AdvisoryCreateTests(APITestCase):
@@ -155,3 +169,92 @@ class AdvisoryListTests(APITestCase):
         ids = [q["id"] for q in response.data]
         self.assertIn(self.mine.id, ids)
         self.assertNotIn(self.theirs.id, ids)
+
+
+class AdvisoryScanLinkOwnershipTests(APITestCase):
+    """`scan` is the optional link set by the low-confidence nudge; a
+    farmer must never be able to attach a scan that isn't theirs."""
+
+    def setUp(self):
+        self.farmer = make_user("farmer_ravi", "ravi@example.com")
+        self.other_farmer = make_user("farmer_asha", "asha@example.com")
+        self.my_scan = make_scan(self.farmer, confidence=0.3)
+        self.their_scan = make_scan(self.other_farmer, confidence=0.3)
+        self.url = reverse("advisory-list-create")
+
+    def test_farmer_can_attach_their_own_scan(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "What's wrong?", "scan": self.my_scan.id}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = AdvisoryQuery.objects.get()
+        self.assertEqual(query.scan_id, self.my_scan.id)
+
+    def test_farmer_cannot_attach_another_farmers_scan(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(
+            self.url, {"question": "What's wrong?", "scan": self.their_scan.id}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(AdvisoryQuery.objects.exists())
+
+    def test_scan_is_optional(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "No scan attached."}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = AdvisoryQuery.objects.get()
+        self.assertIsNone(query.scan)
+
+
+class AdvisoryNotifyAdminsTests(APITestCase):
+    """A question only pages the admin/expert when it's linked to a scan
+    whose own stored confidence is below the threshold -- see
+    advisory/utils.py (should_notify_admins, notify_admins_of_pending_query)."""
+
+    def setUp(self):
+        self.farmer = make_user("farmer_ravi", "ravi@example.com")
+        self.admin1 = make_user("admin_one", "admin1@example.com", role=User.Role.ADMIN)
+        self.admin2 = make_user("admin_two", "admin2@example.com", role=User.Role.ADMIN)
+        self.url = reverse("advisory-list-create")
+        mail.outbox.clear()
+
+    def test_low_confidence_scan_question_emails_every_admin(self):
+        scan = make_scan(self.farmer, confidence=0.384)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(
+            self.url, {"question": "Is this blast?", "scan": scan.id}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertCountEqual(sent.to, [self.admin1.email, self.admin2.email])
+        self.assertIn("Brown Spot", sent.body)
+        self.assertIn("38.4%", sent.body)
+        self.assertIn("Is this blast?", sent.body)
+
+    def test_confident_scan_question_does_not_notify(self):
+        scan = make_scan(self.farmer, confidence=0.848)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "Just curious.", "scan": scan.id}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_question_without_a_scan_does_not_notify(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "General question."}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_scan_with_no_stored_confidence_does_not_notify(self):
+        scan = make_scan(self.farmer, confidence=None)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "Unprocessed scan.", "scan": scan.id}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_no_admin_accounts_does_not_crash_the_submission(self):
+        User.objects.filter(role=User.Role.ADMIN).delete()
+        scan = make_scan(self.farmer, confidence=0.3)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(self.url, {"question": "Anyone there?", "scan": scan.id}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 0)

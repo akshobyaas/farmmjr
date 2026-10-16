@@ -15,10 +15,13 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.6;
  * model's confidence is low. Nudges the farmer toward "Ask an Expert"
  * instead of silently showing an uncertain prediction as if it were
  * reliable -- with the question pre-filled from the scan, since asking the
- * farmer to re-describe what the app already knows is a needless hurdle on
- * a feature deliberately kept to just a free-text box (no linked-scan
- * field in AdvisoryQuery, no notification system yet -- see NEXT_STEPS.md
- * for why those are out of scope for this pass).
+ * farmer to re-describe what the app already knows is a needless hurdle.
+ *
+ * Also passes the scan's id through router state as `scanId`. AdvisoryPage
+ * forwards it in the POST body, which is what makes the backend actually
+ * email the admin/expert (AdvisoryQuery.scan -- see advisory/utils.py's
+ * should_notify_admins): a question submitted via this nudge gets a scan
+ * attached and pages an admin; a normal typed-in question doesn't.
  */
 export default function LowConfidenceNudge({ scan }) {
   const { t } = useTranslation();
@@ -36,7 +39,11 @@ export default function LowConfidenceNudge({ scan }) {
   return (
     <div className="low-confidence-nudge" role="status">
       <p className="low-confidence-text">{t("scan.lowConfidenceWarning")}</p>
-      <Link to="/advisory" state={{ prefill }} className="btn-secondary low-confidence-ask-link">
+      <Link
+        to="/advisory"
+        state={{ prefill, scanId: scan.id }}
+        className="btn-secondary low-confidence-ask-link"
+      >
         {t("advisory.askButton")}
       </Link>
     </div>

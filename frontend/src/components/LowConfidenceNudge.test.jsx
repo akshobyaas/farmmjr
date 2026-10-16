@@ -32,6 +32,7 @@ describe("LowConfidenceNudge", () => {
 
   it("shows the warning and an Ask Expert link when confidence is below the threshold", () => {
     renderNudge({
+      id: 42,
       confidence: 0.42,
       predicted_disease: { name: "Brown Spot", crop_name: "Rice" },
     });
@@ -43,16 +44,20 @@ describe("LowConfidenceNudge", () => {
 
   it("links to /advisory regardless of which disease was predicted", () => {
     renderNudge({
+      id: 42,
       confidence: 0.4215,
       predicted_disease: { name: "Brown Spot", crop_name: "Rice" },
     });
 
-    // The pre-filled question text (disease name + confidence) is carried
-    // as router `state` on this link, not rendered into the DOM here, so
-    // it isn't directly assertable from this component in isolation --
-    // covered end-to-end by AdvisoryPage.test.jsx's "arrives pre-filled
-    // from a low-confidence scan nudge" test, which actually navigates
-    // with that state and reads the resulting form field.
+    // The pre-filled question text and the scan id (disease name +
+    // confidence, and `scanId` -- the latter is what makes the backend
+    // notify an admin/expert once submitted, see advisory/utils.py) are
+    // carried as router `state` on this link, not rendered into the DOM
+    // here, so neither is directly assertable from this component in
+    // isolation -- covered end-to-end by AdvisoryPage.test.jsx's
+    // "arrives pre-filled from a low-confidence scan nudge" and
+    // "attaches the nudge's scan id..." tests, which actually navigate
+    // with that state and read the resulting form/submission.
     expect(screen.getByRole("link", { name: /ask expert/i })).toHaveAttribute("href", "/advisory");
   });
 
