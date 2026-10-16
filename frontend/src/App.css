@@ -1527,8 +1527,24 @@ body {
    so framing it here covers every screen in the app automatically.
    `transform` on #root is load-bearing, not decorative: it makes #root the
    containing block for its `position: fixed` descendants (the bottom nav,
-   and the notch/frame pseudo-elements below), so they stay pinned to the
-   phone frame's own edges instead of the real browser window's.
+   and the notch/frame pseudo-element below), so `bottom: 0`/`top: 0` on
+   them resolve against the phone frame's own edges instead of the real
+   browser window's.
+   FIXED (reported as "the nav bar moves when I scroll"): that containing-
+   block change alone doesn't make them stay visually pinned -- it only
+   changes what they're positioned *relative to*. If the element that
+   establishes the containing block (#root) is itself the thing that
+   scrolls, its `position: fixed` descendants scroll right along with it,
+   exactly like `position: absolute` children of any `overflow: auto`
+   box do. #root used to be the scrolling element (`overflow-y: auto`),
+   which is why the bottom nav visibly slid up with the page content.
+   Fix: #root no longer scrolls (`overflow: hidden`) -- it's just the
+   frame. Every page's own top-level wrapper (`.dashboard-page`/
+   `.auth-page`/`.loading-screen`, one of which is the sole child #root
+   ever renders) scrolls instead, below. Since #root itself now stays put,
+   its `position: fixed` descendants stay visually pinned to its edges no
+   matter how far the page inside has scrolled -- which is what the
+   original comment described, just naming the wrong element as the fix.
    Left unchanged by the minimal theme pass -- this is presentation-device
    chrome for desktop demo viewing, not part of the app's own visual system. */
 @media (min-width: 640px) {
@@ -1545,8 +1561,7 @@ body {
     position: relative;
     width: 390px;
     height: min(844px, calc(100vh - 80px));
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     border-radius: 46px;
     border: 12px solid #14171A;
     box-shadow:
@@ -1555,10 +1570,27 @@ body {
       0 0 0 2px rgba(255, 255, 255, 0.06) inset;
     background: var(--color-bg);
     transform: translateZ(0);
+  }
+
+  /* The actual scrolling container, inside the now-static #root frame --
+     every page renders exactly one of these three as its outermost
+     element. `min-height: 0` overrides each class's own `min-height:
+     100vh` (correct for full-bleed real-phone rendering, wrong here --
+     it would make the page scroll far past its own content) so
+     `height: 100%` against #root's fixed frame height wins instead. */
+  .dashboard-page,
+  .auth-page,
+  .loading-screen {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
   }
 
-  #root::-webkit-scrollbar {
+  .dashboard-page::-webkit-scrollbar,
+  .auth-page::-webkit-scrollbar,
+  .loading-screen::-webkit-scrollbar {
     display: none;
   }
 
