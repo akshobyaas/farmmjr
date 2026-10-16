@@ -27,8 +27,8 @@
   --color-sky-light: #A9DCEE;
   --color-gold: #C2790E;
   --color-gold-light: #F0C877;
-  --radius-card: 14px;
-  --radius-btn: 10px;
+  --radius-card: 16px;
+  --radius-btn: 12px;
   --shadow-card: none;
   --shadow-lift: none;
 }
@@ -42,6 +42,10 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: "Inter", "Noto Sans", sans-serif;
+  /* Polish pass: more generous line-height for a calmer, easier-to-read
+     page (descriptions/status text especially) -- the browser default of
+     ~1.2 reads cramped once there's real paragraph-length content. */
+  line-height: 1.5;
 }
 
 .app-shell {
@@ -208,11 +212,12 @@ body {
   font-size: 17px;
   padding: 10px 16px;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   font-family: inherit;
   background: #fff;
   color: var(--color-text);
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
 }
 
 .form-input:focus {
@@ -256,12 +261,20 @@ body {
   font-family: inherit;
   cursor: pointer;
   box-shadow: none;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* Desktop/demo-mockup polish: the button previously gave zero feedback
+   until actually pressed, which read as unfinished whenever the app is
+   shown on a cursor-driven screen (the phone-frame demo mockup included). */
+.btn-primary:not(:disabled):hover {
+  background-color: var(--color-primary-dark);
 }
 
 .btn-primary:not(:disabled):active {
@@ -281,6 +294,12 @@ body {
   cursor: pointer;
   padding: 0 20px;
   box-shadow: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .auth-switch {
@@ -294,6 +313,11 @@ body {
   color: var(--color-primary-dark);
   font-weight: 600;
   text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.auth-switch a:hover {
+  opacity: 0.75;
 }
 
 /* A text control that reads as a link (used for "Wrong email? Change it"
@@ -309,6 +333,11 @@ body {
   color: var(--color-primary-dark);
   text-decoration: underline;
   cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.link-button:hover {
+  opacity: 0.75;
 }
 
 .form-hint {
@@ -384,12 +413,13 @@ body {
   text-decoration: none;
   color: var(--color-text);
   box-shadow: var(--shadow-card);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
 }
 
 .quick-link-card:hover {
   border-color: var(--color-primary);
-  transform: translateY(-1px);
+  background: var(--color-primary-tint);
+  transform: translateY(-2px);
 }
 
 .quick-link-icon {
@@ -485,12 +515,12 @@ body {
   text-decoration: none;
   color: var(--color-text);
   text-align: left;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .dashboard-highlight-card:hover {
   border-color: var(--color-primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .dashboard-highlight-icon {
@@ -578,7 +608,7 @@ body {
   text-decoration: none;
   color: var(--color-text);
   text-align: left;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 /* A plain neutral top edge in place of the previous colour-cycling strip --
@@ -611,7 +641,7 @@ body {
 
 .crop-card:hover {
   border-color: var(--color-primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .crop-card-name {
@@ -715,9 +745,9 @@ body {
 .fertilizer-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 14px 16px;
+  padding: 16px 18px;
   margin-bottom: 10px;
   text-align: left;
 }
@@ -755,6 +785,7 @@ body {
   padding: 16px;
   text-align: center;
   box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease;
 }
 
 .scan-upload-dropzone:hover {
@@ -819,16 +850,17 @@ body {
   gap: 14px;
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 12px;
+  padding: 14px;
   text-decoration: none;
   color: var(--color-text);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .scan-history-item:hover {
   border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .scan-history-thumbnail {
@@ -899,10 +931,16 @@ body {
   min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.weather-city-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 /* .btn-primary defaults to width:100% for its normal standalone use; inside
@@ -972,16 +1010,18 @@ body {
   background: white;
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 14px 16px;
+  padding: 16px 18px;
   text-decoration: none;
   color: var(--color-text);
   font-weight: 500;
+  transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .video-link-card:hover {
   border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .videos-search-form {
@@ -996,10 +1036,16 @@ body {
   min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.videos-query-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .videos-grid {
@@ -1015,16 +1061,17 @@ body {
   flex-direction: column;
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   overflow: hidden;
   text-decoration: none;
   color: var(--color-text);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .video-card:hover {
   border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .video-thumbnail {
@@ -1035,7 +1082,7 @@ body {
 }
 
 .video-info {
-  padding: 10px 12px;
+  padding: 12px 14px;
 }
 
 .video-title {
@@ -1068,10 +1115,16 @@ body {
   min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.locator-place-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .locator-view-toggle {
@@ -1094,6 +1147,7 @@ body {
   color: var(--color-text-secondary);
   cursor: pointer;
   min-height: 36px;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .locator-toggle-active {
@@ -1113,9 +1167,9 @@ body {
 .locator-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 
 .locator-card-name {
@@ -1218,6 +1272,12 @@ body {
   border-radius: 0.65rem;
   font-size: 1rem;
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.chatbot-text-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 /* ===== Phase 17 — Admin/Expert Advisory Module ===== */
@@ -1242,6 +1302,12 @@ body {
   font-family: inherit;
   resize: vertical;
   box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.advisory-textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .advisory-filter-tabs {
@@ -1258,6 +1324,7 @@ body {
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .advisory-toggle-active {
@@ -1276,8 +1343,8 @@ body {
 
 .advisory-card {
   border: 1px solid var(--color-border);
-  border-radius: 0.875rem;
-  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  padding: 1rem 1.125rem;
   background: #fff;
   box-shadow: var(--shadow-card);
 }
@@ -1408,6 +1475,7 @@ body {
   font-size: 11px;
   font-weight: 500;
   border-radius: 12px;
+  transition: color 0.15s ease;
 }
 
 .bottom-nav-icon {
