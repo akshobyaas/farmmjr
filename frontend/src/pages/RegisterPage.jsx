@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 function getPasswordHints(password) {
   return {
@@ -78,8 +79,8 @@ export default function RegisterPage() {
           />
 
           <label className="form-label" htmlFor="password">{t("register.password")}</label>
-          <input
-            id="password" name="password" type="password" className="form-input"
+          <PasswordInput
+            id="password" name="password"
             value={form.password} onChange={handleChange} autoComplete="new-password" required
           />
           {form.password.length > 0 && (
@@ -94,8 +95,8 @@ export default function RegisterPage() {
           )}
 
           <label className="form-label" htmlFor="password_confirm">{t("register.confirmPassword")}</label>
-          <input
-            id="password_confirm" name="password_confirm" type="password" className="form-input"
+          <PasswordInput
+            id="password_confirm" name="password_confirm"
             value={form.password_confirm} onChange={handleChange} autoComplete="new-password" required
           />
 

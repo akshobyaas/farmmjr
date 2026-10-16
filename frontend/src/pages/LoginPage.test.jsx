@@ -31,6 +31,26 @@ describe("LoginPage", () => {
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
   });
 
+  it("lets the user reveal and re-hide their password while typing it", async () => {
+    useAuth.mockReturnValue({ login: vi.fn() });
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>
+    );
+
+    const passwordField = screen.getByLabelText(/^password$/i);
+    await userEvent.type(passwordField, "SecurePass#2026");
+    expect(passwordField).toHaveAttribute("type", "password");
+
+    await userEvent.click(screen.getByRole("button", { name: /show password/i }));
+    expect(passwordField).toHaveAttribute("type", "text");
+    expect(passwordField).toHaveValue("SecurePass#2026");
+
+    await userEvent.click(screen.getByRole("button", { name: /hide password/i }));
+    expect(passwordField).toHaveAttribute("type", "password");
+  });
+
   it("submits credentials and navigates to dashboard on success", async () => {
     const mockLogin = vi.fn().mockResolvedValue(undefined);
     useAuth.mockReturnValue({ login: mockLogin });

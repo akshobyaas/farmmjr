@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -57,10 +58,8 @@ export default function LoginPage() {
           />
 
           <label className="form-label" htmlFor="password">{t("login.password")}</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
-            className="form-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
