@@ -209,6 +209,12 @@ class ProfileAuthorizationTests(APITestCase):
     def test_mass_assignment_cannot_self_promote_to_admin(self):
         self.client.force_authenticate(self.user)
         response = self.client.patch(self.own_url, {"role": "admin"}, format="json")
+        # `role` is read_only on ProfileSerializer, so DRF silently drops it
+        # from a PATCH rather than rejecting the request — the call should
+        # still succeed normally, just without changing role. Without this
+        # assertion the test would pass even if the endpoint started
+        # returning an unrelated error for every request.
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertEqual(self.user.role, User.Role.FARMER)
 
