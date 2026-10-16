@@ -240,6 +240,70 @@ class EmailVerificationTests(APITestCase):
         return urlsafe_base64_encode(force_bytes(user.pk))
 
 
+class ChangeUnverifiedEmailTests(APITestCase):
+    def setUp(self):
+        cache.clear()  # this endpoint reuses the password-reset throttle scope
+        self.user = make_user(email="typo@example.com", is_verified=False)
+        self.other_verified = make_user(
+            username="farmer_asha", email="asha@example.com", is_verified=True,
+        )
+        self.url = reverse("verify-email-change-email")
+
+    def _post(self, **overrides):
+        payload = {
+            "username": "farmer_ravi", "password": "FarmerPass#123",
+            "new_email": "corrected@example.com",
+        }
+        payload.update(overrides)
+        return self.client.post(self.url, payload, format="json")
+
+    def test_correct_credentials_update_email_and_send_a_new_verification_link(self):
+        from django.core import mail
+
+        mail.outbox = []
+        response = self._post()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "corrected@example.com")
+        self.assertFalse(self.user.is_verified)  # still needs to click the new link
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["corrected@example.com"])
+
+    def test_wrong_password_gives_a_generic_error_and_changes_nothing(self):
+        response = self._post(password="WrongPass#123")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "typo@example.com")
+
+    def test_unknown_username_gives_the_identical_generic_error(self):
+        wrong_password = self._post(password="WrongPass#123")
+        unknown_user = self._post(username="nobody_here")
+        self.assertEqual(wrong_password.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(unknown_user.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(wrong_password.data["non_field_errors"], unknown_user.data["non_field_errors"])
+
+    def test_already_verified_account_is_rejected_and_changes_nothing(self):
+        response = self._post(username="farmer_asha", password="FarmerPass#123", new_email="new@example.com")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.other_verified.refresh_from_db()
+        self.assertEqual(self.other_verified.email, "asha@example.com")
+
+    def test_email_already_used_by_another_account_is_rejected(self):
+        response = self._post(new_email="asha@example.com")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "typo@example.com")
+
+    def test_mass_assignment_cannot_change_role_or_verification_status_through_this_endpoint(self):
+        response = self._post(role="admin", is_verified=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.role, User.Role.FARMER)
+        self.assertFalse(self.user.is_verified)
+
+
 class PasswordResetTests(APITestCase):
     def setUp(self):
         cache.clear()  # password-reset/request/ is throttled (3/min)

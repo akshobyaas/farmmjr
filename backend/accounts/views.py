@@ -8,7 +8,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import (
     RegisterSerializer, UserPublicSerializer, ProfileSerializer, CustomTokenObtainPairSerializer,
-    ResendVerificationSerializer, EmailVerificationConfirmSerializer,
+    ResendVerificationSerializer, EmailVerificationConfirmSerializer, ChangeUnverifiedEmailSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
 )
 from .permissions import IsProfileOwner
@@ -132,6 +132,30 @@ class VerifyEmailConfirmView(APIView):
         user.is_verified = True
         user.save(update_fields=["is_verified"])
         return Response({"message": "Email verified successfully. You can now log in."}, status=status.HTTP_200_OK)
+
+
+class ChangeUnverifiedEmailView(APIView):
+    """
+    Corrects a typo'd registration email before the account is verified.
+    Requires username + password (not the old email) to prove ownership --
+    see ChangeUnverifiedEmailSerializer. Reuses the password-reset throttle
+    scope since this is the same class of sensitive, unauthenticated,
+    account-mutating endpoint.
+    """
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [PasswordResetRateThrottle]
+
+    def post(self, request):
+        serializer = ChangeUnverifiedEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        user.email = serializer.validated_data["new_email"]
+        user.save(update_fields=["email"])
+        send_verification_email(user)
+        return Response(
+            {"message": "Email updated. A new verification link has been sent to the new address."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PasswordResetRequestView(APIView):

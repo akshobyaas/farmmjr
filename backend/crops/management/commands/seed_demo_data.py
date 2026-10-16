@@ -11,6 +11,15 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        # Test accounts are seeded unconditionally (each individually
+        # idempotent via its own existence check) so they always exist even
+        # on a database that already has crop data. Previously this call was
+        # placed after the crop-exists early return below, which meant any
+        # account added to _seed_test_accounts() after the first-ever seed
+        # run would silently never be created on an existing database -- the
+        # exact bug that caused the admin_expert demo account to go missing.
+        self._seed_test_accounts()
+
         if Crop.objects.exists():
             self.stdout.write(self.style.WARNING("Crops already exist — skipping seed to avoid duplicates."))
             return
@@ -258,18 +267,35 @@ class Command(BaseCommand):
         )
         husk_compost.crops.set([arecanut, pepper, cocoa])
 
+        self.stdout.write(self.style.SUCCESS(
+            f"Seeded {Crop.objects.count()} crops, {Disease.objects.count()} diseases, "
+            f"{Recommendation.objects.count()} recommendations, "
+            f"{OrganicManureMethod.objects.count()} organic manure methods."
+        ))
+
+    def _seed_test_accounts(self):
+        """
+        Ensures the 3 demo accounts exist, independent of crop-seeding state.
+        Each check is individually idempotent, so this is always safe to
+        call on every run of this command -- including on a database that
+        already has crops and would otherwise skip the rest of handle().
+        """
+        created = []
+
         if not User.objects.filter(username="farmer_ravi").exists():
             User.objects.create_user(
                 username="farmer_ravi", password="FarmerPass#123",
                 role="farmer", preferred_language="kn", email="ravi@test.com",
                 is_verified=True,  # pre-verified so demo login works immediately
             )
+            created.append("farmer_ravi")
         if not User.objects.filter(username="farmer_asha").exists():
             User.objects.create_user(
                 username="farmer_asha", password="FarmerPass#123",
                 role="farmer", preferred_language="hi", email="asha@test.com",
                 is_verified=True,
             )
+            created.append("farmer_asha")
         if not User.objects.filter(username="admin_expert").exists():
             # Phase 17 -- an admin/expert demo account so advisory answering
             # can actually be tested/demoed without needing a superuser login.
@@ -278,10 +304,11 @@ class Command(BaseCommand):
                 role="admin", preferred_language="en", email="expert@test.com",
                 is_verified=True,
             )
+            created.append("admin_expert")
 
-        self.stdout.write(self.style.SUCCESS(
-            f"Seeded {Crop.objects.count()} crops, {Disease.objects.count()} diseases, "
-            f"{Recommendation.objects.count()} recommendations, "
-            f"{OrganicManureMethod.objects.count()} organic manure methods, "
-            f"2 test farmer accounts, 1 test admin/expert account."
-        ))
+        if created:
+            self.stdout.write(self.style.SUCCESS(
+                f"Seeded test accounts: {', '.join(created)}."
+            ))
+        else:
+            self.stdout.write("Test accounts already present -- nothing to seed.")
