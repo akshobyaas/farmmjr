@@ -160,6 +160,45 @@ class EmailVerificationConfirmSerializer(serializers.Serializer):
         return attrs
 
 
+class ChangeUnverifiedEmailSerializer(serializers.Serializer):
+    """
+    Lets someone who typo'd their email at registration correct it before
+    they've verified. Requires the account's username + password rather
+    than the (possibly wrong, possibly unreachable) old email address to
+    prove ownership -- deliberately NOT ModelSerializer-based, so there is
+    no way for extra fields (role, is_verified, etc.) to be mass-assigned
+    through this endpoint even by accident.
+    """
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+    new_email = serializers.EmailField()
+
+    def validate_new_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("An account with this email already exists.")
+        return value
+
+    def validate(self, attrs):
+        from django.contrib.auth import authenticate
+
+        user = authenticate(username=attrs["username"], password=attrs["password"])
+        if user is None:
+            # Same generic phrasing SimpleJWT uses for bad login credentials --
+            # does not reveal whether the username exists.
+            raise serializers.ValidationError("No active account found with the given credentials.")
+        if user.is_verified:
+            # The caller has already proven they know the correct password at
+            # this point, so a specific message here reveals nothing an
+            # attacker couldn't already infer -- same reasoning
+            # CustomTokenObtainPairSerializer uses for its verification gate.
+            raise serializers.ValidationError(
+                "This account is already verified. Update your email from your profile instead."
+            )
+
+        attrs["user"] = user
+        return attrs
+
+
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

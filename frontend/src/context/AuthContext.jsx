@@ -87,6 +87,13 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const changeUnverifiedEmail = async (username, password, newEmail) => {
+    const { data } = await api.post("auth/verify-email/change-email/", {
+      username, password, new_email: newEmail,
+    });
+    return data;
+  };
+
   const getProfile = async () => {
     const { data } = await api.get(`auth/profile/${user.id}/`);
     return data;
@@ -103,7 +110,7 @@ export function AuthProvider({ children }) {
       value={{
         user, loading, login, register, logout,
         requestPasswordReset, confirmPasswordReset,
-        resendVerification, confirmEmailVerification,
+        resendVerification, confirmEmailVerification, changeUnverifiedEmail,
         getProfile, updateProfile,
       }}
     >
