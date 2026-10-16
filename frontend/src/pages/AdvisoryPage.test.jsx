@@ -43,7 +43,8 @@ describe("AdvisoryPage — farmer view", () => {
     await waitFor(() => {
       expect(screen.getByText(/question was sent to our expert/i)).toBeInTheDocument();
     });
-    expect(advisoryApi.createAdvisoryQuery).toHaveBeenCalledWith("How do I treat pollu disease?");
+    // No nudge state on this visit, so no scan id is attached.
+    expect(advisoryApi.createAdvisoryQuery).toHaveBeenCalledWith("How do I treat pollu disease?", null);
   });
 
   it("arrives pre-filled when linked here from a low-confidence scan nudge", async () => {
@@ -55,7 +56,7 @@ describe("AdvisoryPage — farmer view", () => {
         initialEntries={[
           {
             pathname: "/advisory",
-            state: { prefill: "My crop scan predicted Brown Spot but with only 42.0% confidence." },
+            state: { prefill: "My crop scan predicted Brown Spot but with only 42.0% confidence.", scanId: 42 },
           },
         ]}
       >
@@ -68,6 +69,49 @@ describe("AdvisoryPage — farmer view", () => {
     expect(screen.getByPlaceholderText(/ask our expert/i)).toHaveValue(
       "My crop scan predicted Brown Spot but with only 42.0% confidence."
     );
+  });
+
+  it("attaches the nudge's scan id on the submitted question, then stops attaching it for later questions", async () => {
+    useAuth.mockReturnValue({ user: farmerUser });
+    advisoryApi.listAdvisoryQueries.mockResolvedValue([]);
+    advisoryApi.createAdvisoryQuery.mockResolvedValue({
+      id: 1,
+      question: "My crop scan predicted Brown Spot but with only 42.0% confidence.",
+      status: "pending",
+      created_at: "2026-09-24T10:00:00Z",
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/advisory",
+            state: { prefill: "My crop scan predicted Brown Spot but with only 42.0% confidence.", scanId: 42 },
+          },
+        ]}
+      >
+        <AdvisoryPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(advisoryApi.listAdvisoryQueries).toHaveBeenCalled());
+    await userEvent.click(screen.getByRole("button", { name: /ask expert/i }));
+
+    await waitFor(() => {
+      expect(advisoryApi.createAdvisoryQuery).toHaveBeenCalledWith(
+        "My crop scan predicted Brown Spot but with only 42.0% confidence.",
+        42
+      );
+    });
+
+    // A second, unrelated question typed in afterward shouldn't still claim
+    // to be about that scan.
+    await userEvent.type(screen.getByPlaceholderText(/ask our expert/i), "A separate question.");
+    await userEvent.click(screen.getByRole("button", { name: /ask expert/i }));
+
+    await waitFor(() => {
+      expect(advisoryApi.createAdvisoryQuery).toHaveBeenLastCalledWith("A separate question.", null);
+    });
   });
 
   it("starts with an empty question box on a normal visit (no nudge state)", async () => {

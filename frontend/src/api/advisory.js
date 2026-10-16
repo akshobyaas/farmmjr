@@ -6,8 +6,9 @@ export async function listAdvisoryQueries(status) {
   return data;
 }
 
-export async function createAdvisoryQuery(question) {
-  const { data } = await api.post("advisory/queries/", { question });
+export async function createAdvisoryQuery(question, scanId) {
+  const payload = scanId != null ? { question, scan: scanId } : { question };
+  const { data } = await api.post("advisory/queries/", payload);
   return data;
 }
 

@@ -8,6 +8,7 @@ from .serializers import (
 )
 from .permissions import IsQueryOwnerOrAdmin, IsAdminExpert
 from .throttles import AdvisoryRateThrottle
+from .utils import notify_admins_of_pending_query, should_notify_admins
 
 
 class AdvisoryQueryListCreateView(generics.ListCreateAPIView):
@@ -37,7 +38,13 @@ class AdvisoryQueryListCreateView(generics.ListCreateAPIView):
         return qs.filter(farmer=user)
 
     def perform_create(self, serializer):
-        serializer.save(farmer=self.request.user)
+        query = serializer.save(farmer=self.request.user)
+        # Only a question that came through the low-confidence "Ask an
+        # Expert" nudge (i.e. has a scan attached, re-verified server-side
+        # against that scan's own confidence) pages the admin/expert --
+        # see advisory/utils.py for why this isn't fired for every query.
+        if should_notify_admins(query):
+            notify_admins_of_pending_query(query)
 
 
 class AdvisoryQueryDetailView(generics.RetrieveUpdateAPIView):

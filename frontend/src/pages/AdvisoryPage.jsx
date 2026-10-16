@@ -27,11 +27,17 @@ export default function AdvisoryPage() {
   const [filter, setFilter] = useState("pending"); // admin only: "pending" | "all"
 
   // A low-confidence scan result (LowConfidenceNudge.jsx) links here with
-  // `state: { prefill }` so the farmer doesn't have to re-describe what the
-  // app already knows -- lazy initializer so this only ever reads the
-  // location state this page was first navigated here with, not on every
-  // render.
+  // `state: { prefill, scanId }` so the farmer doesn't have to re-describe
+  // what the app already knows -- lazy initializers so these only ever
+  // read the location state this page was first navigated here with, not
+  // on every render.
   const [question, setQuestion] = useState(() => location.state?.prefill || "");
+  // Attached to only the next submitted question, then cleared -- a
+  // follow-up question typed in later during the same visit shouldn't
+  // keep claiming to be about this scan. Sending it is what makes the
+  // backend notify the admin/expert (AdvisoryQuery.scan -- see
+  // advisory/utils.py's should_notify_admins).
+  const [pendingScanId, setPendingScanId] = useState(() => location.state?.scanId ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
@@ -66,8 +72,9 @@ export default function AdvisoryPage() {
     setFormError("");
     setFormSuccess("");
     try {
-      await createAdvisoryQuery(text);
+      await createAdvisoryQuery(text, pendingScanId);
       setQuestion("");
+      setPendingScanId(null);
       setFormSuccess(t("advisory.sendSuccess"));
       loadQueries();
     } catch {
