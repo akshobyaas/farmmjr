@@ -46,6 +46,44 @@ describe("AdvisoryPage — farmer view", () => {
     expect(advisoryApi.createAdvisoryQuery).toHaveBeenCalledWith("How do I treat pollu disease?");
   });
 
+  it("arrives pre-filled when linked here from a low-confidence scan nudge", async () => {
+    useAuth.mockReturnValue({ user: farmerUser });
+    advisoryApi.listAdvisoryQueries.mockResolvedValue([]);
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/advisory",
+            state: { prefill: "My crop scan predicted Brown Spot but with only 42.0% confidence." },
+          },
+        ]}
+      >
+        <AdvisoryPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(advisoryApi.listAdvisoryQueries).toHaveBeenCalled());
+
+    expect(screen.getByPlaceholderText(/ask our expert/i)).toHaveValue(
+      "My crop scan predicted Brown Spot but with only 42.0% confidence."
+    );
+  });
+
+  it("starts with an empty question box on a normal visit (no nudge state)", async () => {
+    useAuth.mockReturnValue({ user: farmerUser });
+    advisoryApi.listAdvisoryQueries.mockResolvedValue([]);
+
+    render(
+      <MemoryRouter>
+        <AdvisoryPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(advisoryApi.listAdvisoryQueries).toHaveBeenCalled());
+    expect(screen.getByPlaceholderText(/ask our expert/i)).toHaveValue("");
+  });
+
   it("shows a farmer's own past queries, with the response only for answered ones", async () => {
     useAuth.mockReturnValue({ user: farmerUser });
     advisoryApi.listAdvisoryQueries.mockResolvedValue([

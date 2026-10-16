@@ -5,6 +5,7 @@ import { fetchScanDetail } from "../api/scans";
 import AppHeader from "../components/AppHeader";
 import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
+import LowConfidenceNudge from "../components/LowConfidenceNudge";
 
 export default function ScanHistoryDetailPage() {
   const { t } = useTranslation();
@@ -80,6 +81,8 @@ export default function ScanHistoryDetailPage() {
           ) : (
             <p className="status-message">{t("scan.predictionUnavailableDetail")}</p>
           )}
+
+          <LowConfidenceNudge scan={scan} />
         </div>
 
         <p className="auth-switch">
