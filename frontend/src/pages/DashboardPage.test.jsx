@@ -5,9 +5,14 @@ import { MemoryRouter } from "react-router-dom";
 import DashboardPage from "./DashboardPage";
 import { useAuth } from "../context/AuthContext";
 
-vi.mock("../context/AuthContext", () => ({
-  useAuth: vi.fn(),
-}));
+// AuthContext is partially mocked: useAuth() is replaced so tests can
+// control the logged-in user, but the real AuthContext object export is
+// kept (via importActual) since AppHeader's LanguageSwitcher reads it
+// directly with useContext rather than useAuth().
+vi.mock("../context/AuthContext", async () => {
+  const actual = await vi.importActual("../context/AuthContext");
+  return { ...actual, useAuth: vi.fn() };
+});
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -41,7 +46,7 @@ describe("DashboardPage", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/welcome, farmer_ravi/i)).toBeInTheDocument();
+    expect(screen.getByText(/good (morning|afternoon|evening), farmer_ravi/i)).toBeInTheDocument();
   });
 
   it("shows the farmer-facing 'Ask an Expert' link for a farmer, not the admin queries link", () => {

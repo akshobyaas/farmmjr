@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { LANGUAGES } from "../i18n/languages";
+import { languageStorage } from "../i18n/languageStorage";
 import logo from "../assets/logo.png";
 
 function getPasswordHints(password) {
@@ -22,7 +25,11 @@ export default function RegisterPage() {
     email: "",
     password: "",
     password_confirm: "",
-    preferred_language: "en",
+    // Phase 18/22 -- default to whatever language they're already viewing
+    // the page in (their LanguageSwitcher pick, or a returning visitor's
+    // saved choice), not a hardcoded "en", so the dropdown below starts in
+    // agreement with what they're reading.
+    preferred_language: languageStorage.get() || "en",
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -63,6 +70,9 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-lang-row">
+          <LanguageSwitcher />
+        </div>
         <img src={logo} alt={t("common.appName")} className="auth-logo" />
         <h1 className="auth-title">{t("register.title")}</h1>
         <p className="auth-subtitle">{t("register.subtitle")}</p>
@@ -107,9 +117,9 @@ export default function RegisterPage() {
             id="preferred_language" name="preferred_language" className="form-input"
             value={form.preferred_language} onChange={handleChange}
           >
-            <option value="en">English</option>
-            <option value="kn">ಕನ್ನಡ (Kannada)</option>
-            <option value="hi">हिन्दी (Hindi)</option>
+            {LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>{lang.full}</option>
+            ))}
           </select>
 
           {error && <p className="form-error" role="alert">{error}</p>}

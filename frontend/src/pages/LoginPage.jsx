@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import logo from "../assets/logo.png";
 
 export default function LoginPage() {
@@ -43,6 +44,9 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-lang-row">
+          <LanguageSwitcher />
+        </div>
         <img src={logo} alt={t("common.appName")} className="auth-logo" />
         <h1 className="auth-title">{t("login.title")}</h1>
         <p className="auth-subtitle">{t("login.subtitle")}</p>

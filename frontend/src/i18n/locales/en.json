@@ -11,11 +11,15 @@
     "geoUnsupported": "Your browser doesn't support location detection. Please type a place name instead.",
     "geoDenied": "Location permission denied. Please type a place name instead.",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "languageSwitcherLabel": "Choose language"
   },
   "dashboard": {
-    "welcome": "Welcome, {{username}}!",
-    "roleLanguage": "Role: {{role}} · Language: {{language}}",
+    "greetingMorning": "Good morning, {{username}}!",
+    "greetingAfternoon": "Good afternoon, {{username}}!",
+    "greetingEvening": "Good evening, {{username}}!",
+    "roleFarmer": "Farmer",
+    "roleAdmin": "Admin",
     "quickActionsTitle": "Quick Actions",
     "highlights": {
       "weatherTitle": "Today's Weather",
