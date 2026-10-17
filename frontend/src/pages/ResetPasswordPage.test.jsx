@@ -5,9 +5,14 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import ResetPasswordPage from "./ResetPasswordPage";
 import { useAuth } from "../context/AuthContext";
 
-vi.mock("../context/AuthContext", () => ({
-  useAuth: vi.fn(),
-}));
+// AuthContext is partially mocked: useAuth() is replaced so tests can
+// control the logged-in user, but the real AuthContext object export is
+// kept (via importActual) since AppHeader's LanguageSwitcher reads it
+// directly with useContext rather than useAuth().
+vi.mock("../context/AuthContext", async () => {
+  const actual = await vi.importActual("../context/AuthContext");
+  return { ...actual, useAuth: vi.fn() };
+});
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {

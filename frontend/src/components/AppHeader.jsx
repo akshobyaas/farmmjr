@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 /**
  * Phase 21 — UI Polish Pass.
@@ -14,6 +15,12 @@ import logo from "../assets/logo.png";
  * icon shown on the login/register pages and the browser tab. The component
  * no longer takes an `icon` prop; callers only pass `title` (and an optional
  * `className` for the handful of pages with extra header styling).
+ *
+ * Also now carries the always-visible LanguageSwitcher at the right edge --
+ * putting it here, once, is what makes it show up on all 12 logged-in pages
+ * for free instead of needing its own call site on every page (see
+ * LanguageSwitcher.jsx; Login/Register place their own copy separately,
+ * since those pages don't use AppHeader at all).
  */
 export default function AppHeader({ title, className = "" }) {
   const { t } = useTranslation();
@@ -23,6 +30,7 @@ export default function AppHeader({ title, className = "" }) {
         <img src={logo} alt={t("common.appName")} className="app-header-logo" />
       </span>
       <h1>{title}</h1>
+      <LanguageSwitcher className="app-header-lang" />
     </header>
   );
 }

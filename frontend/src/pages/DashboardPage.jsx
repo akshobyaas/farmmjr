@@ -4,11 +4,24 @@ import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
 import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
+import { languageName } from "../i18n/languages";
+
+// Phase 22 -- "Good morning/afternoon/evening" instead of a flat "Welcome",
+// based on the viewer's own local clock (new Date() reads it in whatever
+// timezone the device is set to).
+function greetingKey() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "dashboard.greetingMorning";
+  if (hour < 17) return "dashboard.greetingAfternoon";
+  return "dashboard.greetingEvening";
+}
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isAdmin = user?.role === "admin";
+  const avatarInitial = user?.username?.charAt(0)?.toUpperCase() || "?";
 
   const quickLinks = [
     { label: t("dashboard.links.profile"), desc: t("dashboard.links.profileDesc"), icon: "user", to: "/profile", ready: true },
@@ -36,17 +49,25 @@ export default function DashboardPage() {
       <AppHeader title={t("common.appName")} />
 
       <main className="app-main">
-        <div className="status-card status-ok dashboard-profile-card">
-          <span className="dashboard-profile-avatar" aria-hidden="true">
-            <Icon name="user" size={22} />
+        <Link to="/profile" className="status-card status-ok dashboard-profile-card">
+          <span
+            className={`dashboard-profile-avatar${isAdmin ? " dashboard-profile-avatar-admin" : ""}`}
+            aria-hidden="true"
+          >
+            {avatarInitial}
           </span>
           <span className="dashboard-profile-text">
-            <p className="status-title">{t("dashboard.welcome", { username: user?.username })}</p>
-            <p className="status-message">
-              {t("dashboard.roleLanguage", { role: user?.role, language: user?.preferred_language })}
-            </p>
+            <p className="status-title">{t(greetingKey(), { username: user?.username })}</p>
+            <span className="dashboard-profile-chips">
+              <span className={`chip${isAdmin ? " dashboard-chip-role-admin" : ""}`}>
+                {t(isAdmin ? "dashboard.roleAdmin" : "dashboard.roleFarmer")}
+              </span>
+              <span className="chip dashboard-chip-lang">
+                {languageName(user?.preferred_language)}
+              </span>
+            </span>
           </span>
-        </div>
+        </Link>
 
         <div className="dashboard-highlights">
           <Link to="/weather" className="dashboard-highlight-card dashboard-highlight-weather">

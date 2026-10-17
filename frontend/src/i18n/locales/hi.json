@@ -11,11 +11,15 @@
     "geoUnsupported": "आपका ब्राउज़र स्थान पहचान का समर्थन नहीं करता। कृपया स्थान का नाम टाइप करें।",
     "geoDenied": "स्थान की अनुमति अस्वीकृत। कृपया स्थान का नाम टाइप करें।",
     "previous": "पिछला",
-    "next": "अगला"
+    "next": "अगला",
+    "languageSwitcherLabel": "भाषा चुनें"
   },
   "dashboard": {
-    "welcome": "स्वागत है, {{username}}!",
-    "roleLanguage": "भूमिका: {{role}} · भाषा: {{language}}",
+    "greetingMorning": "सुप्रभात, {{username}}!",
+    "greetingAfternoon": "शुभ दोपहर, {{username}}!",
+    "greetingEvening": "शुभ संध्या, {{username}}!",
+    "roleFarmer": "किसान",
+    "roleAdmin": "व्यवस्थापक",
     "quickActionsTitle": "त्वरित कार्य",
     "highlights": {
       "weatherTitle": "आज का मौसम",

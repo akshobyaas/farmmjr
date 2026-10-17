@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import { LANGUAGES } from "../i18n/languages";
 
 export default function ProfilePage() {
   const { getProfile, updateProfile } = useAuth();
@@ -93,9 +94,9 @@ export default function ProfilePage() {
                 id="preferred_language" name="preferred_language" className="form-input"
                 value={form.preferred_language} onChange={handleChange}
               >
-                <option value="en">English</option>
-                <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>{lang.full}</option>
+                ))}
               </select>
 
               <p className="form-label" style={{ marginTop: 20, color: "var(--color-text-secondary)" }}>

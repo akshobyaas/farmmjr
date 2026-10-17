@@ -11,11 +11,15 @@
     "geoUnsupported": "ನಿಮ್ಮ ಬ್ರೌಸರ್ ಸ್ಥಳ ಪತ್ತೆಯನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. ದಯವಿಟ್ಟು ಸ್ಥಳದ ಹೆಸರನ್ನು ಟೈಪ್ ಮಾಡಿ.",
     "geoDenied": "ಸ್ಥಳದ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ಸ್ಥಳದ ಹೆಸರನ್ನು ಟೈಪ್ ಮಾಡಿ.",
     "previous": "ಹಿಂದಿನ",
-    "next": "ಮುಂದಿನ"
+    "next": "ಮುಂದಿನ",
+    "languageSwitcherLabel": "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ"
   },
   "dashboard": {
-    "welcome": "ಸ್ವಾಗತ, {{username}}!",
-    "roleLanguage": "ಪಾತ್ರ: {{role}} · ಭಾಷೆ: {{language}}",
+    "greetingMorning": "ಶುಭೋದಯ, {{username}}!",
+    "greetingAfternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ, {{username}}!",
+    "greetingEvening": "ಶುಭ ಸಂಜೆ, {{username}}!",
+    "roleFarmer": "ರೈತ",
+    "roleAdmin": "ನಿರ್ವಾಹಕ",
     "quickActionsTitle": "ತ್ವರಿತ ಕ್ರಿಯೆಗಳು",
     "highlights": {
       "weatherTitle": "ಇಂದಿನ ಹವಾಮಾನ",

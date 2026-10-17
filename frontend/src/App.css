@@ -89,6 +89,61 @@ body {
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
+  /* Phase 22 -- grow to fill the space between the logo tile and the new
+     always-visible LanguageSwitcher, which sits flush right; without this
+     the title's natural width left a gap and the switcher floated in the
+     middle instead of hugging the edge. Titles that are too long to fit
+     (there aren't any today, but pages add new ones) truncate with an
+     ellipsis rather than wrapping and pushing the switcher down. */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Phase 22 — Always-visible language switcher ===== */
+/* Three short tap targets, not a <select> or popover -- this app avoids
+   hidden menus for its non-tech-savvy farmer audience (see BottomNav.jsx's
+   own note on the same principle). Lives in AppHeader (every logged-in
+   page) and, separately, atop the Login/Register auth cards. */
+
+.language-switcher {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.language-switcher-btn {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.language-switcher-btn:hover {
+  border-color: var(--color-primary);
+}
+
+.language-switcher-btn.active {
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+/* On the auth pages the switcher sits above the logo, right-aligned, inside
+   the card -- .auth-card has no explicit flex-direction today (its one
+   child, the logo, didn't need one), so this row supplies its own. */
+.auth-lang-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
 }
 
 .weather-header {
@@ -558,6 +613,17 @@ body {
   align-items: center;
   gap: 14px;
   text-align: left;
+  /* Phase 22 -- the whole card is now a Link to /profile (it was a plain
+     div), so it needs the same anchor resets .dashboard-highlight-card
+     already uses rather than inheriting link blue/underline. */
+  text-decoration: none;
+  color: var(--color-text);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.dashboard-profile-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .dashboard-profile-avatar {
@@ -570,10 +636,39 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Holds a single uppercase initial letter now (was a generic user icon). */
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Admin accounts get the gold variant already defined as a design token
+   but unused until now, distinguishing them from the default farmer
+   green/primary at a glance -- same gold used by the role chip below. */
+.dashboard-profile-avatar-admin {
+  background: var(--color-gold-light);
+  color: var(--color-gold);
 }
 
 .dashboard-profile-text {
   min-width: 0;
+}
+
+.dashboard-profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.dashboard-chip-role-admin {
+  background: var(--color-gold-light);
+  color: var(--color-gold);
+}
+
+.dashboard-chip-lang {
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
 }
 
 .dashboard-highlights {

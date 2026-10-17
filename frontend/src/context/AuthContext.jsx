@@ -2,8 +2,18 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import api from "../api/axios";
 import { tokenStorage } from "../api/tokenStorage";
 import i18n from "../i18n";
+import { languageStorage } from "../i18n/languageStorage";
 
-const AuthContext = createContext(null);
+// Exported (not just the usual `useAuth` hook below) so LanguageSwitcher can
+// read it with a plain `useContext` instead of the throwing `useAuth()`.
+// AppHeader (and so LanguageSwitcher) is always rendered inside a real
+// AuthProvider in the actual app, but it's also rendered by many pages'
+// tests that don't mock AuthContext (they never needed to before, since
+// AppHeader's old per-page `icon` prop didn't touch auth state) -- for a
+// language switcher specifically, "no provider" and "logged out" are the
+// same situation (can't persist to an account that may not exist yet), so
+// it degrades to that instead of throwing.
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -34,11 +44,18 @@ export function AuthProvider({ children }) {
   }, [fetchMe]);
 
   // Phase 18 -- the logged-in user's saved preference drives the UI
-  // language on login/session-restore, and any subsequent save on the
-  // Profile page's language switcher takes effect immediately (updateProfile
-  // below sets `user` from the response, which re-runs this).
+  // language on login/session-restore, and any subsequent save from a
+  // LanguageSwitcher (Profile page's own, or the always-visible one in
+  // AppHeader/Login/Register) takes effect immediately (updateProfile below
+  // sets `user` from the response, which re-runs this). This also runs once
+  // on mount while still logged out (`user` is null then), which used to
+  // hardcode "en" -- stomping right back over whatever languageStorage.get()
+  // the i18n module had already set as the initial language a moment
+  // earlier, so a returning logged-out visitor saw a flash of English before
+  // their saved choice "won" again on the next real change. Falling back to
+  // languageStorage here too (instead of straight to "en") fixes that.
   useEffect(() => {
-    i18n.changeLanguage(user?.preferred_language || "en");
+    i18n.changeLanguage(user?.preferred_language || languageStorage.get() || "en");
   }, [user?.preferred_language]);
 
   const login = async (username, password) => {
