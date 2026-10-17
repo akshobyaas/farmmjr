@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { listAdvisoryQueries, createAdvisoryQuery, answerAdvisoryQuery } from "../api/advisory";
 import AppHeader from "../components/AppHeader";
-import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 function StatusBadge({ status, t }) {
@@ -103,7 +102,7 @@ export default function AdvisoryPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="inbox" />} title={isAdmin ? t("advisory.titleAdmin") : t("advisory.titleAsk")} />
+      <AppHeader title={isAdmin ? t("advisory.titleAdmin") : t("advisory.titleAsk")} />
 
       <main className="app-main advisory-main">
         {!isAdmin && (

@@ -71,6 +71,17 @@ body {
   background: var(--color-primary-tint);
   color: var(--color-primary-dark);
   border-radius: 12px;
+  overflow: hidden;
+}
+
+/* The app logo, shown as a persistent brand mark in this tile on every
+   page's header (replacing the old per-page contextual icon) -- see
+   assets/logo.png for provenance. Padded slightly inside the tile rather
+   than filling it edge-to-edge, since the artwork itself has no inset. */
+.app-header-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .app-header h1 {
@@ -175,6 +186,14 @@ body {
   padding: 32px 28px;
   width: 100%;
   max-width: 400px;
+}
+
+.auth-logo {
+  display: block;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 16px;
+  object-fit: contain;
 }
 
 .auth-title {

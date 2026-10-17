@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { sendChatMessage } from "../api/chatbot";
 import AppHeader from "../components/AppHeader";
-import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 let nextId = 1;
@@ -49,7 +48,7 @@ export default function ChatbotPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="chat" />} title={t("chatbot.title")} />
+      <AppHeader title={t("chatbot.title")} />
 
       <main className="app-main chatbot-main">
         <div className="chatbot-messages">

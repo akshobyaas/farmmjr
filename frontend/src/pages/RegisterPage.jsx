@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import logo from "../assets/logo.png";
 
 function getPasswordHints(password) {
   return {
@@ -62,6 +63,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <img src={logo} alt={t("common.appName")} className="auth-logo" />
         <h1 className="auth-title">{t("register.title")}</h1>
         <p className="auth-subtitle">{t("register.subtitle")}</p>
 

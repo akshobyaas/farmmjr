@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchScanDetail } from "../api/scans";
 import AppHeader from "../components/AppHeader";
-import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 import LowConfidenceNudge from "../components/LowConfidenceNudge";
 
@@ -33,7 +32,7 @@ export default function ScanHistoryDetailPage() {
   if (error) {
     return (
       <div className="dashboard-page">
-        <AppHeader icon={<Icon name="history" />} title={t("scan.resultTitle")} />
+        <AppHeader title={t("scan.resultTitle")} />
         <main className="app-main">
           <p className="form-error" role="alert">{error}</p>
           <Link to="/scan/history" className="auth-switch">{t("scan.backToHistory")}</Link>
@@ -49,7 +48,7 @@ export default function ScanHistoryDetailPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="history" />} title={t("scan.resultTitle")} />
+      <AppHeader title={t("scan.resultTitle")} />
 
       <main className="app-main">
         <div className="status-card status-ok">
