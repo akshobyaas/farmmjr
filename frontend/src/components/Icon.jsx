@@ -1,88 +1,36 @@
 /**
- * Phase 21 — UI Polish Pass.
+ * Phase 21 — UI Polish Pass. Updated later to use Google's Material Symbols icon
+ * set (the "Google icons" the user asked for) instead of hand-drawn line icons.
  *
- * A small set of consistent line icons replacing the emoji previously used
- * for header and bottom-nav "chrome" icons. Emoji render differently across
- * operating systems/fonts (different weight, color, alignment), which broke
- * the single cohesive visual system the redesign is going for. These are
- * plain stroked SVGs with stroke="currentColor", so each one automatically
- * takes on whatever color its container already sets — white in the
- * gradient header, secondary-gray/primary-green in the bottom nav — with no
- * extra CSS needed anywhere it's used.
+ * Each path below is copied byte-for-byte from the real SVG files in
+ * assets/icons/material-symbols/ (downloaded via the official
+ * @material-symbols/svg-400 npm package, not retyped or reconstructed from
+ * memory — see that folder's README.md for exact provenance/license/version and
+ * the filename-to-icon-name mapping). The component API is unchanged: every
+ * call site still does <Icon name="x" size={22} /> with no changes needed there.
  *
- * Deliberately scoped to just the icons used as navigational/header chrome
- * (AppHeader call sites + BottomNav items). Inline body-copy glyphs
- * (✅⚠️🌿💧 status marks, the weather-condition emoji map) are left as-is —
- * out of scope for this pass.
- *
- * `eye`/`eyeOff` added later (password show/hide toggle) — same line-icon
- * style, used by PasswordInput.jsx.
+ * Material Symbols SVGs are solid *filled* shapes on a 960x960 grid with a
+ * flipped Y axis (viewBox="0 -960 960 960"), not open strokes on a 24x24 grid
+ * like the icons this replaces — so the wrapper below now uses
+ * fill="currentColor" with no stroke, and the new viewBox, instead of the old
+ * fill="none"/stroke="currentColor" setup. currentColor still means every icon
+ * automatically takes on whatever color its container sets (white in the header,
+ * gray/green in the bottom nav) with no extra CSS needed anywhere it's used —
+ * that behavior carries over unchanged.
  */
 const PATHS = {
-  home: (
-    <path d="M3 11.5 12 4l9 7.5M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9" />
-  ),
-  leaf: (
-    <path d="M5 19c8 1 13-4 14-14-10 1-15 6-14 14ZM5 19c0-4 2-7 5-9" />
-  ),
-  search: (
-    <>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-4-4" />
-    </>
-  ),
-  cloudSun: (
-    <>
-      <path d="M7.5 5V3M4 6.5 2.6 5.1M11 6.5l1.4-1.4" />
-      <path d="M17.5 19H8a4 4 0 0 1-.6-7.96 5 5 0 0 1 9.7-1.55A4 4 0 0 1 17.5 19Z" />
-    </>
-  ),
-  user: (
-    <>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c1.5-4.5 5-6 8-6s6.5 1.5 8 6" />
-    </>
-  ),
-  history: (
-    <>
-      <path d="M5 6h11a5 5 0 0 1 0 10H8" />
-      <path d="m8 12-3 4 3 4M5 4v5h5" />
-    </>
-  ),
-  inbox: (
-    <>
-      <path d="M4 12h4l2 3h4l2-3h4" />
-      <path d="M5.5 5h13l1.5 7v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6l1.5-7Z" />
-    </>
-  ),
-  chat: (
-    <path d="M4 4.5h16v11H9l-4 3.5v-3.5H4Z" />
-  ),
-  pin: (
-    <>
-      <path d="M12 21s7-6.6 7-12a7 7 0 0 0-14 0c0 5.4 7 12 7 12Z" />
-      <circle cx="12" cy="9" r="2.5" />
-    </>
-  ),
-  play: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M10 8.5v7l6-3.5-6-3.5Z" />
-    </>
-  ),
-  eye: (
-    <>
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </>
-  ),
-  eyeOff: (
-    <>
-      <path d="M3 3l18 18" />
-      <path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-2.2 3.1M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4-.8" />
-      <path d="M9.5 9.8a3 3 0 0 0 4.2 4.2" />
-    </>
-  ),
+  home: <path d="M220-180h150v-250h220v250h150v-390L480-765 220-570v390Zm-60 60v-480l320-240 320 240v480H530v-250H430v250H160Zm320-353Z" />,
+  leaf: <path d="M213-175q-43.59-45-68.3-104Q120-338 120-400q0-73 25.5-133.5T222-645q35-35 87-59t122.5-37.5Q502-755 591-758.5t198 3.5q8 108 5.5 197.5t-16 160.75q-13.5 71.25-38 124.56Q716-218.87 680-183q-51 51-110 77T444-80q-69 0-126.5-23.5T213-175Zm103 0q25 17 58 26t69.92 9Q497-140 547-162t91-64q27-27 46-70.5t31-103Q727-459 731-534t0-165q-94-2-168.5 2.5T431-680q-57 12-98 30.5T266-604q-42 43-64 91t-22 98q0 48 20.5 100.5T251-230q53-98 127-176t157-123q-87 75-141 162.5T316-175Zm0 0Zm0 0Z" />,
+  search: <path d="M796-121 533-384q-30 26-70 40.5T378-329q-108 0-183-75t-75-181q0-106 75-181t182-75q106 0 180.5 75T632-585q0 43-14 83t-42 75l264 262-44 44ZM377-389q81 0 138-57.5T572-585q0-81-57-138.5T377-781q-82 0-139.5 57.5T180-585q0 81 57.5 138.5T377-389Z" />,
+  cloudSun: <path d="M450-770v-150h60v150h-60Zm256 106-42-43 106-106 42 43-106 106Zm64 214v-60h150v60H770Zm1 302L665-254l43-43 106 106-43 43ZM254-664 148-770l42-42 106 106-42 42Zm-14 484h180q33.33 0 56.67-23.26Q500-226.53 500-259.76 500-293 477.24-317q-22.77-24-56.24-24h-44l-18-41q-15.15-35.75-47.6-56.88Q278.95-460 240-460q-58.33 0-99.17 40.76-40.83 40.77-40.83 99Q100-262 140.83-221q40.84 41 99.17 41Zm0 60q-83 0-141.5-58.5T40-320q0-83 58.5-141.5T240-520q57.74 0 105.37 32.5T416-401q60.12 0 101.06 43.59Q558-313.82 558-253q-5 56-44.03 94.5Q474.93-120 420-120H240Zm318-133q-3-15.38-6-30t-6-30q52-20 83-65.54 31-45.54 31-101.32 0-75.14-52.5-127.64T480-660q-67.22 0-117.63 42.67Q311.96-574.65 303-509q-16-3-31.5-5.5T240-520q14-88 82.5-144T480-720q100 0 170 70t70 170.34Q720-402 675.5-340T558-253Zm-77-227Z" />,
+  user: <path d="M372-523q-42-42-42-108t42-108q42-42 108-42t108 42q42 42 42 108t-42 108q-42 42-108 42t-108-42ZM160-160v-94q0-38 19-65t49-41q67-30 128.5-45T480-420q62 0 123 15.5T731-360q31 14 50 41t19 65v94H160Zm60-60h520v-34q0-16-9.5-30.5T707-306q-64-31-117-42.5T480-360q-57 0-111 11.5T252-306q-14 7-23 21.5t-9 30.5v34Zm324.5-346.5Q570-592 570-631t-25.5-64.5Q519-721 480-721t-64.5 25.5Q390-670 390-631t25.5 64.5Q441-541 480-541t64.5-25.5ZM480-631Zm0 411Z" />,
+  history: <path d="M477-120q-149 0-253-105.5T120-481h60q0 125 86 213t211 88q127 0 215-89t88-216q0-124-89-209.5T477-780q-68 0-127.5 31T246-667h105v60H142v-208h60v106q52-61 123.5-96T477-840q75 0 141 28t115.5 76.5Q783-687 811.5-622T840-482q0 75-28.5 141t-78 115Q684-177 618-148.5T477-120Zm128-197L451-469v-214h60v189l137 134-43 43Z" />,
+  inbox: <path d="M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-136H634q-26 40-67.5 61.5T480-233q-45 0-86.5-21.5T326-316H180v136Zm374-136.5q33-23.5 56-59.5h170v-404H180v404h170q23 36 56.25 59.5 33.24 23.5 74 23.5Q521-293 554-316.5ZM180-180h600-600Z" />,
+  chat: <path d="M240-399h313v-60H240v60Zm0-130h480v-60H240v60Zm0-130h480v-60H240v60ZM80-80v-740q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H240L80-80Zm134-220h606v-520H140v600l74-80Zm-74 0v-520 520Z" />,
+  pin: <path d="M529.5-510.5Q550-531 550-560t-20.5-49.5Q509-630 480-630t-49.5 20.5Q410-589 410-560t20.5 49.5Q451-490 480-490t49.5-20.5ZM480-159q133-121 196.5-219.5T740-552q0-118-75.5-193T480-820q-109 0-184.5 75T220-552q0 75 65 173.5T480-159Zm0 79Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z" />,
+  play: <path d="m383-310 267-170-267-170v340Zm97 230q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />,
+  eye: <path d="M600.5-379.5Q650-429 650-500t-49.5-120.5Q551-670 480-670t-120.5 49.5Q310-571 310-500t49.5 120.5Q409-330 480-330t120.5-49.5Zm-200-41Q368-453 368-500t32.5-79.5Q433-612 480-612t79.5 32.5Q592-547 592-500t-32.5 79.5Q527-388 480-388t-79.5-32.5ZM216-283Q98-366 40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83q-146 0-264-83Zm264-217Zm222.5 174.5Q804-391 857-500q-53-109-154.5-174.5T480-740q-121 0-222.5 65.5T102-500q54 109 155.5 174.5T480-260q121 0 222.5-65.5Z" />,
+  eyeOff: <path d="m629-419-44-44q26-71-27-118t-115-24l-44-44q17-11 38-16t43-5q71 0 120.5 49.5T650-500q0 22-5.5 43.5T629-419Zm129 129-40-40q49-36 85.5-80.5T857-500q-50-111-150-175.5T490-740q-42 0-86 8t-69 19l-46-47q35-16 89.5-28T485-800q143 0 261.5 81.5T920-500q-26 64-67 117t-95 93Zm58 226L648-229q-35 14-79 21.5t-89 7.5q-146 0-265-81.5T40-500q20-52 55.5-101.5T182-696L56-822l42-43 757 757-39 44ZM223-654q-37 27-71.5 71T102-500q51 111 153.5 175.5T488-260q33 0 65-4t48-12l-64-64q-11 5-27 7.5t-30 2.5q-70 0-120-49t-50-121q0-15 2.5-30t7.5-27l-97-97Zm305 142Zm-116 58Z" />,
 };
 
 export default function Icon({ name, size = 22, className = "" }) {
@@ -93,12 +41,8 @@ export default function Icon({ name, size = 22, className = "" }) {
       className={className}
       width={size}
       height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 -960 960 960"
+      fill="currentColor"
       aria-hidden="true"
     >
       {path}
