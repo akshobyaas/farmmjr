@@ -9,13 +9,14 @@ reconstructed from memory:
 - Style: Outlined, default weight (400) / grade (0) / fill (0)
 - Upstream source: https://github.com/google/material-design-icons
 - License: Apache License 2.0 (same as the upstream repo's `LICENSE`)
-- `weather_mix.svg`, `account_circle.svg`, and `yard.svg` are three exceptions: the user supplied
-  those exact files directly (Google's Material Symbols icon-font-site exports, `24dp`/`wght400`/
-  `GRAD0`/`opsz24`, each with a baked-in `#e3e3e3` fill) to replace the originally npm-sourced
-  `partly_cloudy_day.svg` (weather icon), `person.svg` (profile icon), and `eco.svg` (crop guidance
-  icon). Saved verbatim as given, under shorter filenames for consistency with the rest of this
-  folder. Only the `<path d="...">` data is actually used (by `Icon.jsx`); the files' own `width`/
-  `height`/`fill` attributes are cosmetic metadata from that export and aren't read by the app.
+- `weather_mix.svg`, `account_circle.svg`, `yard.svg`, and `forum.svg` are four exceptions: the user
+  supplied those exact files directly (Google's Material Symbols icon-font-site exports,
+  `24dp`/`wght400`/`GRAD0`/`opsz24`, each with a baked-in `#e3e3e3` fill) to replace the originally
+  npm-sourced `partly_cloudy_day.svg` (weather icon), `person.svg` (profile icon), `eco.svg` (crop
+  guidance icon), and `inbox.svg` (Ask an Expert icon). Saved verbatim as given, under shorter
+  filenames for consistency with the rest of this folder. Only the `<path d="...">` data is actually
+  used (by `Icon.jsx`); the files' own `width`/`height`/`fill` attributes are cosmetic metadata from
+  that export and aren't read by the app.
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -39,7 +40,7 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `weather_mix.svg` | `cloudSun` | Weather |
 | `account_circle.svg` | `user` | Profile nav |
 | `history.svg` | `history` | Scan History nav |
-| `inbox.svg` | `inbox` | Advisory ("Ask an Expert") |
+| `forum.svg` | `inbox` | Advisory ("Ask an Expert") |
 | `chat.svg` | `chat` | Chatbot |
 | `location_on.svg` | `pin` | Locator (nearby services) |
 | `play_circle.svg` | `play` | Learning videos |
