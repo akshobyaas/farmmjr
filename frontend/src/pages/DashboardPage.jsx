@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="leaf" />} title={t("common.appName")} />
+      <AppHeader title={t("common.appName")} />
 
       <main className="app-main">
         <div className="status-card status-ok dashboard-profile-card">

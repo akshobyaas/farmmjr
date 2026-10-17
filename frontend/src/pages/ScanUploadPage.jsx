@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { uploadScan } from "../api/scans";
 import AppHeader from "../components/AppHeader";
-import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 import LowConfidenceNudge from "../components/LowConfidenceNudge";
 
@@ -104,7 +103,7 @@ export default function ScanUploadPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="search" />} title={t("scan.uploadTitle")} />
+      <AppHeader title={t("scan.uploadTitle")} />
 
       <main className="app-main">
         {!result && (

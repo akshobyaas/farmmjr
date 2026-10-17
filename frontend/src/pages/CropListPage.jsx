@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { fetchCrops } from "../api/crops";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
-import Icon from "../components/Icon";
 import BottomNav from "../components/BottomNav";
 
 export default function CropListPage() {
@@ -34,7 +33,7 @@ export default function CropListPage() {
 
   return (
     <div className="dashboard-page">
-      <AppHeader icon={<Icon name="leaf" />} title={t("crops.title")} />
+      <AppHeader title={t("crops.title")} />
 
       <main className="app-main">
         <form onSubmit={handleSearchSubmit} className="crop-search-form">

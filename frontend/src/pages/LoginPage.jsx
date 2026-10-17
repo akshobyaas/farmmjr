@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import logo from "../assets/logo.png";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -42,6 +43,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <img src={logo} alt={t("common.appName")} className="auth-logo" />
         <h1 className="auth-title">{t("login.title")}</h1>
         <p className="auth-subtitle">{t("login.subtitle")}</p>
 
