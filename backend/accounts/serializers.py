@@ -83,16 +83,16 @@ class UserPublicSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """
     Used for the profile view/edit endpoint.
-    Only first_name, last_name, phone_number, and preferred_language are
-    editable — username, email, role, and verification status are all
-    read-only here.
+    Only first_name, last_name, phone_number, preferred_language, and
+    home_location are editable — username, email, role, and verification
+    status are all read-only here.
     """
 
     class Meta:
         model = User
         fields = [
             "id", "username", "email", "first_name", "last_name",
-            "phone_number", "preferred_language", "role", "is_verified",
+            "phone_number", "home_location", "preferred_language", "role", "is_verified",
         ]
         read_only_fields = ["id", "username", "email", "role", "is_verified"]
 

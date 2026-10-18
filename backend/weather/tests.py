@@ -8,10 +8,12 @@ from unittest.mock import patch, Mock
 
 import requests
 from django.contrib.auth import get_user_model
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from .forecast import fetch_forecast_summary
 
 User = get_user_model()
 
@@ -143,3 +145,73 @@ class WeatherViewTests(APITestCase):
         response = self.client.get(self.url, {"city": "Mangaluru"})
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class ForecastHelperTests(TestCase):
+    @override_settings(OPENWEATHER_API_KEY="test-key")
+    @patch("weather.forecast.requests.get")
+    def test_returns_none_on_network_error(self, mock_get):
+        mock_get.side_effect = requests.RequestException()
+        self.assertIsNone(fetch_forecast_summary("Puttur"))
+
+    @override_settings(OPENWEATHER_API_KEY="test-key")
+    @patch("weather.forecast.requests.get")
+    def test_aggregates_humidity_and_rainfall_from_3hourly_entries(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: {
+            "list": [
+                {"main": {"humidity": 90, "temp": 24}, "rain": {"3h": 2.0}},
+                {"main": {"humidity": 95, "temp": 26}, "rain": {"3h": 1.5}},
+            ]
+        })
+        result = fetch_forecast_summary("Puttur")
+        self.assertEqual(result["max_humidity_percent"], 95)
+        self.assertAlmostEqual(result["total_rainfall_mm"], 3.5)
+
+    @override_settings(OPENWEATHER_API_KEY="")
+    def test_returns_none_when_key_not_configured(self):
+        self.assertIsNone(fetch_forecast_summary("Puttur"))
+
+    @override_settings(OPENWEATHER_API_KEY="test-key")
+    @patch("weather.forecast.requests.get")
+    def test_entry_missing_rain_key_contributes_zero_rainfall(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: {
+            "list": [
+                {"main": {"humidity": 80, "temp": 22}},
+                {"main": {"humidity": 85, "temp": 23}, "rain": {"3h": 4.0}},
+            ]
+        })
+        result = fetch_forecast_summary("Puttur")
+        self.assertIsNotNone(result)
+        self.assertAlmostEqual(result["total_rainfall_mm"], 4.0)
+
+    @override_settings(OPENWEATHER_API_KEY="test-key")
+    @patch("weather.forecast.requests.get")
+    def test_one_malformed_main_entry_does_not_kill_the_aggregate(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: {
+            "list": [
+                {"rain": {"3h": 1.0}},  # missing "main" entirely
+                {"main": {"humidity": 88, "temp": 25}, "rain": {"3h": 1.0}},
+                {"main": {"humidity": 92, "temp": 27}, "rain": {"3h": 1.0}},
+            ]
+        })
+        result = fetch_forecast_summary("Puttur")
+        self.assertIsNotNone(result)
+        # The malformed entry's humidity/temp are skipped, not counted as 0.
+        self.assertEqual(result["max_humidity_percent"], 92)
+        self.assertEqual(result["min_temp_celsius"], 25.0)
+        self.assertEqual(result["max_temp_celsius"], 27.0)
+        # The malformed entry's own rainfall still counts (rain and main are
+        # independent fields), plus the two well-formed entries' rainfall.
+        self.assertAlmostEqual(result["total_rainfall_mm"], 3.0)
+
+    @override_settings(OPENWEATHER_API_KEY="test-key")
+    @patch("weather.forecast.requests.get")
+    def test_returns_none_when_every_entry_is_malformed(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda: {
+            "list": [
+                {"rain": {"3h": 1.0}},  # missing "main"
+                "not-a-dict",
+                {"main": {}},  # main present but no humidity/temp
+            ]
+        })
+        self.assertIsNone(fetch_forecast_summary("Puttur"))

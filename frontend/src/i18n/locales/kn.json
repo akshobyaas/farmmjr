@@ -21,11 +21,20 @@
     "roleFarmer": "ರೈತ",
     "roleAdmin": "ನಿರ್ವಾಹಕ",
     "quickActionsTitle": "ತ್ವರಿತ ಕ್ರಿಯೆಗಳು",
+    "tasksCardTitle": "ಇಂದಿನ ಕಾರ್ಯಗಳು",
     "highlights": {
       "weatherTitle": "ಇಂದಿನ ಹವಾಮಾನ",
       "weatherDesc": "ನಿಮ್ಮ ಪ್ರದೇಶದ ಪ್ರಸ್ತುತ ಸ್ಥಿತಿಯನ್ನು ನೋಡಿ",
+      "riskAlertText": "ಇಂದಿನ ಮುನ್ಸೂಚನೆಯ ಆಧಾರದ ಮೇಲೆ {{disease}} ಗೆ {{risk}} ಅಪಾಯ",
       "recentTitle": "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
       "recentDesc": "ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬೆಳೆ ಸ್ಕ್ಯಾನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+    },
+    "taskCategories": {
+      "irrigation": "ನೀರಾವರಿ",
+      "fertilizer": "ಗೊಬ್ಬರ",
+      "spraying": "ಸಿಂಪರಣೆ",
+      "pruning": "ಕತ್ತರಿಸುವಿಕೆ",
+      "other": "ಇತರೆ"
     },
     "links": {
       "profile": "ನನ್ನ ಪ್ರೊಫೈಲ್",
@@ -81,6 +90,7 @@
     "firstName": "ಮೊದಲ ಹೆಸರು",
     "lastName": "ಕೊನೆಯ ಹೆಸರು",
     "phoneNumber": "ಫೋನ್ ಸಂಖ್ಯೆ",
+    "homeLocation": "ಮನೆಯ ಸ್ಥಳ",
     "preferredLanguage": "ಆದ್ಯತೆಯ ಭಾಷೆ",
     "emailNote": "ಇಮೇಲ್ ({{email}}) ಮತ್ತು ಬಳಕೆದಾರಹೆಸರನ್ನು ಇಲ್ಲಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
   },
@@ -104,7 +114,19 @@
     "backToCropList": "ಬೆಳೆ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ",
     "cropNotFound": "ಈ ಬೆಳೆ ಕಂಡುಬಂದಿಲ್ಲ.",
     "cropLoadError": "ಈ ಬೆಳೆಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    "cropsLoadError": "ಬೆಳೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+    "cropsLoadError": "ಬೆಳೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    "tracker": {
+      "sectionTitle": "ಈ ಬೆಳೆಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+      "trackButton": "ಈ ಬೆಳೆಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+      "plantingDateLabel": "ನಾಟಿ ದಿನಾಂಕ",
+      "stageLabel": "ಪ್ರಸ್ತುತ ಹಂತ",
+      "currentStagePrefix": "ಪ್ರಸ್ತುತ ಹಂತ:",
+      "stageNotYetDetermined": "ಹಂತ ಇನ್ನೂ ನಿರ್ಧರಿಸಲಾಗಿಲ್ಲ",
+      "submitButton": "ಟ್ರ್ಯಾಕಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ",
+      "updateButton": "ನವೀಕರಿಸಿ",
+      "cancelButton": "ರದ್ದುಮಾಡಿ",
+      "saveError": "ನಿಮ್ಮ ಟ್ರ್ಯಾಕರ್ ಅನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+    }
   },
   "nav": {
     "label": "ಮುಖ್ಯ ಸಂಚರಣೆ",

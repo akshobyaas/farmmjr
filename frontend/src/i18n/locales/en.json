@@ -21,11 +21,20 @@
     "roleFarmer": "Farmer",
     "roleAdmin": "Admin",
     "quickActionsTitle": "Quick Actions",
+    "tasksCardTitle": "Today's Tasks",
     "highlights": {
       "weatherTitle": "Today's Weather",
       "weatherDesc": "See current conditions for your area",
+      "riskAlertText": "{{risk}} risk of {{disease}} based on today's forecast",
       "recentTitle": "Recent Activity",
       "recentDesc": "View your latest crop scans"
+    },
+    "taskCategories": {
+      "irrigation": "Irrigation",
+      "fertilizer": "Fertilizer",
+      "spraying": "Spraying",
+      "pruning": "Pruning",
+      "other": "Other"
     },
     "links": {
       "profile": "My Profile",
@@ -81,6 +90,7 @@
     "firstName": "First Name",
     "lastName": "Last Name",
     "phoneNumber": "Phone Number",
+    "homeLocation": "Home Location",
     "preferredLanguage": "Preferred Language",
     "emailNote": "Email ({{email}}) and username cannot be changed here."
   },
@@ -104,7 +114,19 @@
     "backToCropList": "Back to Crop List",
     "cropNotFound": "This crop could not be found.",
     "cropLoadError": "Could not load this crop. Please try again.",
-    "cropsLoadError": "Could not load crops. Please try again."
+    "cropsLoadError": "Could not load crops. Please try again.",
+    "tracker": {
+      "sectionTitle": "Track This Crop",
+      "trackButton": "Track This Crop",
+      "plantingDateLabel": "Planting Date",
+      "stageLabel": "Current Stage",
+      "currentStagePrefix": "Current stage:",
+      "stageNotYetDetermined": "Stage not yet determined",
+      "submitButton": "Start Tracking",
+      "updateButton": "Update",
+      "cancelButton": "Cancel",
+      "saveError": "Could not save your tracker. Please try again."
+    }
   },
   "nav": {
     "label": "Main navigation",

@@ -43,6 +43,7 @@ export default function ProfilePage() {
         first_name: form.first_name,
         last_name: form.last_name,
         phone_number: form.phone_number,
+        home_location: form.home_location,
         preferred_language: form.preferred_language,
       });
       setSuccess(true);
@@ -87,6 +88,12 @@ export default function ProfilePage() {
               <input
                 id="phone_number" name="phone_number" type="tel" className="form-input"
                 value={form.phone_number} onChange={handleChange}
+              />
+
+              <label className="form-label" htmlFor="home_location">{t("profile.homeLocation")}</label>
+              <input
+                id="home_location" name="home_location" type="text" className="form-input"
+                value={form.home_location} onChange={handleChange}
               />
 
               <label className="form-label" htmlFor="preferred_language">{t("profile.preferredLanguage")}</label>

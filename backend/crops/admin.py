@@ -1,5 +1,16 @@
 from django.contrib import admin
-from .models import Crop, Disease, Recommendation, FertilizerSchedule, Lifecycle, OrganicManureMethod
+from .models import (
+    Crop,
+    CropStage,
+    CropTask,
+    Disease,
+    DiseaseRiskRule,
+    FarmerCropTracker,
+    FertilizerSchedule,
+    Lifecycle,
+    OrganicManureMethod,
+    Recommendation,
+)
 
 
 class DiseaseInline(admin.TabularInline):
@@ -47,6 +58,30 @@ class FertilizerScheduleAdmin(admin.ModelAdmin):
 class LifecycleAdmin(admin.ModelAdmin):
     list_display = ("crop", "stage", "order")
     list_filter = ("crop",)
+
+
+@admin.register(CropStage)
+class CropStageAdmin(admin.ModelAdmin):
+    list_display = ("crop", "name", "order")
+    list_filter = ("crop",)
+
+
+@admin.register(FarmerCropTracker)
+class FarmerCropTrackerAdmin(admin.ModelAdmin):
+    list_display = ("farmer", "crop", "planting_date", "current_stage", "is_active")
+    list_filter = ("crop", "is_active")
+    search_fields = ("farmer__username",)
+
+
+@admin.register(DiseaseRiskRule)
+class DiseaseRiskRuleAdmin(admin.ModelAdmin):
+    list_display = ("disease", "risk_level", "consecutive_days_required")
+
+
+@admin.register(CropTask)
+class CropTaskAdmin(admin.ModelAdmin):
+    list_display = ("crop", "stage", "category")
+    list_filter = ("crop", "category")
 
 
 @admin.register(OrganicManureMethod)

@@ -32,17 +32,17 @@ alongside this plan; this plan does not repeat its rationale, only the decisions
 
 ## Review Focus
 
-- No active tracker exists yet when `/crops/risk-alerts/` or `/crops/tasks/today/` is called (a brand-new farmer) — must return an empty/explicit "nothing tracked yet" response, not an error. (Task B4, C3)
-- A tracker exists but the farmer never set `home_location` — the risk-alerts endpoint must say so plainly rather than crash on a missing location. (Task B4)
-- The OpenWeatherMap forecast call times out, errors, or returns a non-200 — must degrade exactly like the existing current-weather proxy (503, plain message), not raise. (Task B3, B4)
-- A farmer tries to create a second active tracker for a crop they already track — must surface a clean validation error (400 with a readable message), not an unhandled `IntegrityError`. (Task A5)
-- A perennial crop's typical-month range wraps across year end (e.g. a harvest season spanning November–February) — the "is current month in this stage's range" check must handle wraparound correctly, not just `start <= month <= end`, which silently breaks for a wrapped range. (Task A2, A4)
+- No active tracker exists yet when `/crops/risk-alerts/` or `/crops/tasks/today/` is called (a brand-new farmer) — must return an empty/explicit "nothing tracked yet" response, not an error. (Task 12, 17)
+- A tracker exists but the farmer never set `home_location` — the risk-alerts endpoint must say so plainly rather than crash on a missing location. (Task 12)
+- The OpenWeatherMap forecast call times out, errors, or returns a non-200 — must degrade exactly like the existing current-weather proxy (503, plain message), not raise. (Task 11, 12)
+- A farmer tries to create a second active tracker for a crop they already track — must surface a clean validation error (400 with a readable message), not an unhandled `IntegrityError`. (Task 5)
+- A perennial crop's typical-month range wraps across year end (e.g. a harvest season spanning November–February) — the "is current month in this stage's range" check must handle wraparound correctly, not just `start <= month <= end`, which silently breaks for a wrapped range. (Task 2, 4)
 
 ---
 
 ## Phase A — Crop Lifecycle Tracker Foundation
 
-### Task A1: `CropStage` model
+### Task 1: `CropStage` model
 
 **Files:**
 - Modify: `backend/crops/models.py` (add `CropStage`)
@@ -102,14 +102,14 @@ git commit -m "feat: add CropStage model for farmer-trackable crop stages"
 
 ---
 
-### Task A2: Research & seed real `CropStage` content for all 4 crops
+### Task 2: Research & seed real `CropStage` content for all 4 crops
 
 **Files:**
 - Modify: `backend/crops/management/commands/seed_demo_data.py` (add stage-seeding, reusing the existing per-crop loop)
 - Test: `backend/crops/tests.py` (add `CropStageSeedContentTests`)
 
 **Interfaces:**
-- Consumes: `CropStage` (Task A1).
+- Consumes: `CropStage` (Task 1).
 - Produces: every seeded `Crop` has a complete, ordered set of `CropStage` rows. Rice's stages use `day_range_start`/`day_range_end` copied from its existing `Lifecycle` day values (Germination 5-10, Vegetative 20-45, Flowering 45-65, Harvest 100-140 — confirmed in `USP_FEATURES_DESIGN.md` section 1). Arecanut/Black Pepper/Cocoa's stages use `typical_month_start`/`typical_month_end` for a real recurring annual cycle (Vegetative flush / Flowering / Fruit development / Harvest), researched from ICAR-CPCRI Kasaragod, Karnataka university extension material, and the other sources listed in the design doc's section 5 — not invented. Each row's reasoning (which months, from which source) must be captured as a code comment next to the seed data, in the same style `seed_demo_data.py` already uses for its disease/treatment content.
 
 - [ ] **Step 1: Write the failing test**
@@ -169,7 +169,7 @@ git commit -m "feat: seed researched CropStage content for all 4 crops"
 
 ---
 
-### Task A3: `Profile.home_location` field
+### Task 3: `Profile.home_location` field
 
 **Files:**
 - Modify: `backend/accounts/models.py` (add `home_location` to `User`)
@@ -229,7 +229,7 @@ git commit -m "feat: add farmer home_location profile field"
 
 ---
 
-### Task A4: `FarmerCropTracker` model + stage-derivation helper
+### Task 4: `FarmerCropTracker` model + stage-derivation helper
 
 **Files:**
 - Modify: `backend/crops/models.py` (add `FarmerCropTracker`)
@@ -239,7 +239,7 @@ git commit -m "feat: add farmer home_location profile field"
 - Test: `backend/crops/tests.py` (add `FarmerCropTrackerModelTests`, `StageDerivationTests`)
 
 **Interfaces:**
-- Consumes: `CropStage` (Task A1/A2).
+- Consumes: `CropStage` (Task 1/2).
 - Produces: `FarmerCropTracker` model — `farmer` (FK to `settings.AUTH_USER_MODEL`), `crop` (FK to `Crop`), `planting_date` (nullable DateField), `current_stage` (nullable FK to `CropStage`, `on_delete=models.SET_NULL`), `stage_confirmed_at` (`auto_now=True` DateField), `is_active` (BooleanField, default `True`); `Meta.unique_together = ("farmer", "crop")`. `derive_stage_for_tracker(tracker: FarmerCropTracker) -> CropStage | None` in `stage_derivation.py`: for a crop whose stages are day-based (any `CropStage` row has `day_range_start` set), compute days since `tracker.planting_date` and return the matching stage (or the last stage if days exceed every range, or `None` if `planting_date` is unset); for a crop whose stages are month-based, return the stage whose `typical_month_start`..`typical_month_end` range contains today's month, **handling wraparound** (e.g. `start=11, end=2` must match months 11, 12, 1, 2) with `(month - start) % 12 <= (end - start) % 12`.
 
 - [ ] **Step 1: Write the failing test**
@@ -303,7 +303,7 @@ git commit -m "feat: add FarmerCropTracker model and stage-derivation helper"
 
 ---
 
-### Task A5: `FarmerCropTracker` endpoint (list/create/update, ownership-scoped)
+### Task 5: `FarmerCropTracker` endpoint (list/create/update, ownership-scoped)
 
 **Files:**
 - Modify: `backend/crops/serializers.py` (add `FarmerCropTrackerSerializer`)
@@ -312,7 +312,7 @@ git commit -m "feat: add FarmerCropTracker model and stage-derivation helper"
 - Test: `backend/crops/tests.py` (add `FarmerCropTrackerAPITests`)
 
 **Interfaces:**
-- Consumes: `FarmerCropTracker`, `derive_stage_for_tracker` (Task A4).
+- Consumes: `FarmerCropTracker`, `derive_stage_for_tracker` (Task 4).
 - Produces: `GET/POST /crops/trackers/` (list the requesting farmer's own trackers; create one — `farmer` set server-side from `request.user`, never from the body, same pattern as `AdvisoryQueryCreateSerializer`). `PATCH /crops/trackers/<id>/` (update `planting_date` or `current_stage` on the farmer's own tracker only). On create or on a `planting_date`/stage-relevant update, if the farmer did not explicitly send `current_stage`, the view calls `derive_stage_for_tracker` and sets it as a suggestion.
 
 - [ ] **Step 1: Write the failing test**
@@ -384,7 +384,7 @@ git commit -m "feat: add ownership-scoped FarmerCropTracker API"
 
 ---
 
-### Task A6: Frontend API module + "Track this crop" UI on CropDetailPage
+### Task 6: Frontend API module + "Track this crop" UI on CropDetailPage
 
 **Files:**
 - Create: `frontend/src/api/cropTracker.js`
@@ -393,7 +393,7 @@ git commit -m "feat: add ownership-scoped FarmerCropTracker API"
 - Test: `frontend/src/pages/CropDetailPage.test.jsx`
 
 **Interfaces:**
-- Consumes: `GET/POST/PATCH /crops/trackers/` (Task A5).
+- Consumes: `GET/POST/PATCH /crops/trackers/` (Task 5).
 - Produces: `fetchTrackers()`, `createTracker({cropId, plantingDate})`, `updateTracker(id, fields)` exported from `api/cropTracker.js`, following the exact call shape of `api/advisory.js`'s functions. A new `<section className="crop-section">` on `CropDetailPage.jsx`, placed after the existing soil/climate/planting-method `status-card` and before the intercropped-with section, offering "Track this crop" when no active tracker exists for it, or showing the current (derived-or-confirmed) stage with an "update" control when one does.
 
 - [ ] **Step 1: Write the failing test**
@@ -421,7 +421,7 @@ Expected: FAIL — tracker UI doesn't exist yet.
 
 - [ ] **Step 3: Add `trackable_stages` to `CropDetailSerializer` (small backend addition)**
 
-Add a nested `CropStageSerializer` (`fields = ["id", "name", "day_range_start", "day_range_end", "typical_month_start", "typical_month_end", "order"]`) to `backend/crops/serializers.py`, and add `trackable_stages = CropStageSerializer(many=True, read_only=True)` to `CropDetailSerializer.Meta.fields` (source: `CropStage`'s existing `related_name` — add `related_name="trackable_stages"` to `CropStage.crop`'s `ForeignKey` in Task A1 if not already set there; if it is, this is a pure serializer addition). This is the one place `CropDetailSerializer` changes in this phase — no new view or URL needed, since `GET /crops/<id>/` already exists. Add one backend test confirming `trackable_stages` appears in the detail response.
+Add a nested `CropStageSerializer` (`fields = ["id", "name", "day_range_start", "day_range_end", "typical_month_start", "typical_month_end", "order"]`) to `backend/crops/serializers.py`, and add `trackable_stages = CropStageSerializer(many=True, read_only=True)` to `CropDetailSerializer.Meta.fields` (source: `CropStage`'s existing `related_name` — add `related_name="trackable_stages"` to `CropStage.crop`'s `ForeignKey` in Task 1 if not already set there; if it is, this is a pure serializer addition). This is the one place `CropDetailSerializer` changes in this phase — no new view or URL needed, since `GET /crops/<id>/` already exists. Add one backend test confirming `trackable_stages` appears in the detail response.
 
 - [ ] **Step 4: Implement `api/cropTracker.js` and the CropDetailPage UI**
 
@@ -455,7 +455,7 @@ git commit -m "feat: add Track This Crop UI to Crop Detail page"
 
 ---
 
-### Task A7: Frontend Profile "home location" field
+### Task 7: Frontend Profile "home location" field
 
 **Files:**
 - Modify: `frontend/src/pages/ProfilePage.jsx`
@@ -500,9 +500,9 @@ git commit -m "feat: add home location field to Profile page"
 
 ---
 
-### Task A8: Phase A verification & device push
+### Task 8: Phase A verification & device push
 
-**Files:** none new — this task verifies and ships everything from A1-A7.
+**Files:** none new — this task verifies and ships everything from 1-7.
 
 - [ ] **Step 1:** Run the full backend suite (`python manage.py test`) and full frontend suite (`npm test && npm run build`) in the cloud mirror — expect 100% pass, no regressions in pre-existing counts.
 - [ ] **Step 2:** Live-verify with Playwright against real dev servers: log in as a farmer, open a Rice crop's detail page, start tracking it with a planting date, confirm the derived stage shows; open an Arecanut crop's detail page, confirm a sensible default seasonal stage is suggested and can be overridden; set a home location on the Profile page and confirm it persists across reload.
@@ -514,7 +514,7 @@ git commit -m "feat: add home location field to Profile page"
 
 ## Phase B — Proactive Disease-Risk Alerts
 
-### Task B1: `DiseaseRiskRule` model
+### Task 9: `DiseaseRiskRule` model
 
 **Files:**
 - Modify: `backend/crops/models.py` (add `DiseaseRiskRule`)
@@ -523,7 +523,7 @@ git commit -m "feat: add home location field to Profile page"
 - Test: `backend/crops/tests.py` (add `DiseaseRiskRuleModelTests`)
 
 **Interfaces:**
-- Consumes: `Disease` (existing model), `CropStage` (Task A1).
+- Consumes: `Disease` (existing model), `CropStage` (Task 1).
 - Produces: `DiseaseRiskRule` — `disease` (FK to `Disease`, `related_name="risk_rules"`), `applicable_stages` (M2M to `CropStage`, blank=True — empty means "any stage"), `humidity_min_percent`/`temp_min_celsius`/`temp_max_celsius`/`rainfall_min_mm` (all nullable), `consecutive_days_required` (PositiveSmallIntegerField, default 1), `risk_level` (CharField, choices `low`/`moderate`/`high`), `advisory_text` (TextField), `source_citation` (TextField).
 
 - [ ] **Step 1: Write the failing test**
@@ -564,14 +564,14 @@ git commit -m "feat: add DiseaseRiskRule model"
 
 ---
 
-### Task B2: Research & seed real `DiseaseRiskRule` content
+### Task 10: Research & seed real `DiseaseRiskRule` content
 
 **Files:**
 - Modify: `backend/crops/management/commands/seed_demo_data.py`
 - Test: `backend/crops/tests.py` (add `DiseaseRiskRuleSeedContentTests`)
 
 **Interfaces:**
-- Consumes: `DiseaseRiskRule` (B1), the real seeded `Disease` rows (enumerate via `Disease.objects.all()` — do not hardcode a count, since the exact number is whatever `seed_demo_data.py` already creates).
+- Consumes: `DiseaseRiskRule` (9), the real seeded `Disease` rows (enumerate via `Disease.objects.all()` — do not hardcode a count, since the exact number is whatever `seed_demo_data.py` already creates).
 - Produces: every seeded `Disease` has at least one `DiseaseRiskRule` row with real, cited thresholds.
 
 - [ ] **Step 1: Write the failing test**
@@ -622,14 +622,14 @@ git commit -m "feat: seed researched DiseaseRiskRule content for all diseases"
 
 ---
 
-### Task B3: Weather forecast helper
+### Task 11: Weather forecast helper
 
 **Files:**
 - Create: `backend/weather/forecast.py`
 - Test: `backend/weather/tests.py` (add `ForecastHelperTests`)
 
 **Interfaces:**
-- Produces: `fetch_forecast_summary(location: str) -> dict | None` in `forecast.py` — calls OpenWeatherMap's free `https://api.openweathermap.org/data/2.5/forecast` endpoint (`q=location`, same `appid`/`units=metric` pattern as `weather/views.py`'s existing current-conditions call), reads the next 3 days of 3-hourly entries, and returns `{"max_humidity_percent": int, "min_temp_celsius": float, "max_temp_celsius": float, "total_rainfall_mm": float, "qualifying_days": int}` where `qualifying_days` is deliberately left for the caller to compute per-rule (this function returns raw aggregates, not a verdict — keeps risk-rule logic in one place, Task B4). Returns `None` on any failure (missing key, network error, non-200, malformed JSON) — mirrors `weather/views.py`'s existing `try/except requests.RequestException` plus status-code checks, factored out so Task B4 can reuse it without duplicating that error handling.
+- Produces: `fetch_forecast_summary(location: str) -> dict | None` in `forecast.py` — calls OpenWeatherMap's free `https://api.openweathermap.org/data/2.5/forecast` endpoint (`q=location`, same `appid`/`units=metric` pattern as `weather/views.py`'s existing current-conditions call), reads the next 3 days of 3-hourly entries, and returns `{"max_humidity_percent": int, "min_temp_celsius": float, "max_temp_celsius": float, "total_rainfall_mm": float, "qualifying_days": int}` where `qualifying_days` is deliberately left for the caller to compute per-rule (this function returns raw aggregates, not a verdict — keeps risk-rule logic in one place, Task 12). Returns `None` on any failure (missing key, network error, non-200, malformed JSON) — mirrors `weather/views.py`'s existing `try/except requests.RequestException` plus status-code checks, factored out so Task 12 can reuse it without duplicating that error handling.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -687,7 +687,7 @@ git commit -m "feat: add OpenWeatherMap forecast-aggregation helper"
 
 ---
 
-### Task B4: Risk-alert endpoint
+### Task 12: Risk-alert endpoint
 
 **Files:**
 - Create: `backend/crops/risk_engine.py` (pure evaluation logic, separate from the view per this plan's file-structure preference for focused files)
@@ -696,7 +696,7 @@ git commit -m "feat: add OpenWeatherMap forecast-aggregation helper"
 - Test: `backend/crops/tests.py` (add `RiskAlertsViewTests`, `RiskEngineTests`)
 
 **Interfaces:**
-- Consumes: `FarmerCropTracker`/`derive_stage_for_tracker` (A4), `DiseaseRiskRule` (B1/B2), `fetch_forecast_summary` (B3).
+- Consumes: `FarmerCropTracker`/`derive_stage_for_tracker` (4), `DiseaseRiskRule` (9/10), `fetch_forecast_summary` (11).
 - Produces: `evaluate_risk(tracker: FarmerCropTracker, forecast: dict) -> list[dict]` in `risk_engine.py` — returns every matching `DiseaseRiskRule` for the tracker's crop+current stage whose thresholds the forecast satisfies, each as `{"disease_name", "risk_level", "advisory_text", "source_citation"}`, sorted highest-risk first. `GET /crops/risk-alerts/` — for the authenticated farmer's active tracker(s): no trackers → `{"trackers": []}` (200, not an error); no `home_location` set → `{"detail": "Set your location on your profile to see risk alerts."}` (200 with an explanatory `detail`, not an error status, since this is a normal incomplete-setup state, not a failure); forecast fetch failure → `503` with the same plain-language pattern as the existing Weather proxy. Cached per `(location, crop_id, stage_id)` for a short TTL (same pattern as `locator`), since the forecast itself doesn't change minute to minute. `crops/views.py` imports `fetch_forecast_summary` via `from weather.forecast import fetch_forecast_summary`, so tests patch it at `crops.views.fetch_forecast_summary` (patch-where-used, not patch-where-defined).
 
 - [ ] **Step 1: Write the failing test**
@@ -764,7 +764,7 @@ git commit -m "feat: add proactive disease-risk-alert endpoint"
 
 ---
 
-### Task B5: Frontend dynamic risk-alert dashboard card
+### Task 13: Frontend dynamic risk-alert dashboard card
 
 **Files:**
 - Modify: `frontend/src/api/cropTracker.js` (add `fetchRiskAlerts`)
@@ -773,7 +773,7 @@ git commit -m "feat: add proactive disease-risk-alert endpoint"
 - Test: `frontend/src/pages/DashboardPage.test.jsx`
 
 **Interfaces:**
-- Consumes: `GET /crops/risk-alerts/` (Task B4).
+- Consumes: `GET /crops/risk-alerts/` (Task 12).
 - Produces: `fetchRiskAlerts()` in `api/cropTracker.js`. `DashboardPage.jsx`'s existing static
   `.dashboard-highlight-weather` card (currently a plain link, see the file read during design) is
   replaced with a version that, when a risk alert exists, shows the disease name + risk level
@@ -824,7 +824,7 @@ git commit -m "feat: show real proactive risk alerts on the dashboard"
 
 ---
 
-### Task B6: Phase B verification & device push
+### Task 14: Phase B verification & device push
 
 - [ ] **Step 1:** Full backend + frontend suites in the cloud mirror, all passing.
 - [ ] **Step 2:** Live Playwright verification: farmer with an active Arecanut tracker and a saved location sees a real risk-alert card reflecting the actual current OpenWeatherMap forecast for that location (confirm against the real API response, not a mock, for at least one manual check).
@@ -835,7 +835,7 @@ git commit -m "feat: show real proactive risk alerts on the dashboard"
 
 ## Phase C — Task Reminders
 
-### Task C1: `CropTask` model
+### Task 15: `CropTask` model
 
 **Files:**
 - Modify: `backend/crops/models.py`
@@ -846,7 +846,7 @@ git commit -m "feat: show real proactive risk alerts on the dashboard"
 **Interfaces:**
 - Produces: `CropTask` — `crop` (FK), `stage` (FK to `CropStage`, `related_name="tasks"`), `category` (CharField, choices `irrigation`/`fertilizer`/`spraying`/`pruning`/`other`), `instruction` (TextField), `source_citation` (TextField).
 
-- [ ] **Step 1: Write the failing test** — a straightforward creation/field test, same shape as `DiseaseRiskRuleModelTests` (Task B1 Step 1), substituting `CropTask`'s fields.
+- [ ] **Step 1: Write the failing test** — a straightforward creation/field test, same shape as `DiseaseRiskRuleModelTests` (Task 9 Step 1), substituting `CropTask`'s fields.
 - [ ] **Step 2: Run test to verify it fails.**
 - [ ] **Step 3: Implement `CropTask`** exactly as specified; register in admin.
 - [ ] **Step 4: Migrate, then run test to verify it passes.**
@@ -859,17 +859,17 @@ git commit -m "feat: add CropTask model"
 
 ---
 
-### Task C2: Research & seed real `CropTask` content
+### Task 16: Research & seed real `CropTask` content
 
 **Files:**
 - Modify: `backend/crops/management/commands/seed_demo_data.py`
 - Test: `backend/crops/tests.py` (add `CropTaskSeedContentTests`)
 
 **Interfaces:**
-- Consumes: `CropTask` (C1), the real seeded `CropStage` rows (A2).
-- Produces: every `CropStage` has at least one `CropTask` row, researched and cited the same way as Task B2.
+- Consumes: `CropTask` (15), the real seeded `CropStage` rows (2).
+- Produces: every `CropStage` has at least one `CropTask` row, researched and cited the same way as Task 10.
 
-- [ ] **Step 1: Write the failing test** — same shape as `DiseaseRiskRuleSeedContentTests` (Task B2 Step 1): every stage has ≥1 task, every task has a real, non-trivial `source_citation` and non-empty `instruction`.
+- [ ] **Step 1: Write the failing test** — same shape as `DiseaseRiskRuleSeedContentTests` (Task 10 Step 1): every stage has ≥1 task, every task has a real, non-trivial `source_citation` and non-empty `instruction`.
 - [ ] **Step 2: Run test to verify it fails.**
 - [ ] **Step 3: Research and implement.** For each crop+stage, research real irrigation/fertilizer/spraying timing from the same section-5 source list (ICAR-CPCRI for Arecanut/Cocoa stage-specific work, Karnataka extension material for Pepper/Rice), add a `_seed_crop_tasks()` helper following the same pattern as `_seed_risk_rules()`.
 - [ ] **Step 4: Run test to verify it passes.**
@@ -882,7 +882,7 @@ git commit -m "feat: seed researched CropTask content for every crop stage"
 
 ---
 
-### Task C3: "Tasks for today" endpoint
+### Task 17: "Tasks for today" endpoint
 
 **Files:**
 - Modify: `backend/crops/views.py` (add `TodaysTasksView`)
@@ -891,12 +891,12 @@ git commit -m "feat: seed researched CropTask content for every crop stage"
 - Test: `backend/crops/tests.py` (add `TodaysTasksViewTests`)
 
 **Interfaces:**
-- Consumes: `FarmerCropTracker` (A4/A5), `CropTask` (C1/C2).
+- Consumes: `FarmerCropTracker` (4/5), `CropTask` (15/16).
 - Produces: `GET /crops/tasks/today/` — for the farmer's active tracker(s), returns
   `{"tasks": [...]}` where each entry is `CropTask` rows matching the tracker's crop + **current**
   stage only, serialized via `CropTaskSerializer` (`fields = ["id", "category", "instruction"]` —
   `source_citation` stays internal/admin-only, not farmer-facing). No trackers → `{"tasks": []}`,
-  200, not an error (same pattern as Task B4).
+  200, not an error (same pattern as Task 12).
 
 - [ ] **Step 1: Write the failing test**
 
@@ -930,7 +930,7 @@ git commit -m "feat: add Today's Tasks endpoint"
 
 ---
 
-### Task C4: Frontend "Today's Tasks" dashboard card
+### Task 18: Frontend "Today's Tasks" dashboard card
 
 **Files:**
 - Modify: `frontend/src/api/cropTracker.js` (add `fetchTodaysTasks`)
@@ -940,7 +940,7 @@ git commit -m "feat: add Today's Tasks endpoint"
 - Test: `frontend/src/pages/DashboardPage.test.jsx`
 
 **Interfaces:**
-- Consumes: `GET /crops/tasks/today/` (Task C3).
+- Consumes: `GET /crops/tasks/today/` (Task 17).
 - Produces: `fetchTodaysTasks()` in `api/cropTracker.js`. A new card on the dashboard, placed after
   the existing `.dashboard-highlights` grid and before the "Quick Actions" section heading, listing
   each task's category + instruction; renders nothing (not an empty card) when the farmer has no
@@ -965,7 +965,7 @@ it("renders no tasks card when there are no tasks", async () => {
 
 - [ ] **Step 2: Run test to verify it fails.**
 - [ ] **Step 3: Implement.** Add `fetchTodaysTasks` to `api/cropTracker.js`; fetch on mount in
-  `DashboardPage.jsx` alongside the risk-alerts fetch (Task B5); render the new card (with
+  `DashboardPage.jsx` alongside the risk-alerts fetch (Task 13); render the new card (with
   `data-testid="dashboard-tasks-card"`) only when `tasks.length > 0`. Add the CSS rules and i18n
   keys (`dashboard.tasksCardTitle`, category labels) to all three locales.
 - [ ] **Step 4: Run test to verify it passes, then the full frontend suite.**
@@ -981,7 +981,7 @@ git commit -m "feat: add Today's Tasks dashboard card"
 
 ---
 
-### Task C5: Phase C verification, device push, and final docs update
+### Task 19: Phase C verification, device push, and final docs update
 
 - [ ] **Step 1:** Full backend + frontend suites, all passing; run the project's usual class-selector diff on `App.css` to confirm only additive changes.
 - [ ] **Step 2:** Live Playwright verification: farmer with an active tracker sees real, stage-matched tasks on the dashboard; a farmer with no tracker sees neither new card, unchanged from today's dashboard.
