@@ -1530,6 +1530,7 @@ class Command(BaseCommand):
         self._seed_test_accounts()
 
         if Crop.objects.exists():
+            self._backfill_usp_content_for_existing_crops()
             self.stdout.write(self.style.WARNING("Crops already exist — skipping seed to avoid duplicates."))
             return
 
@@ -1858,6 +1859,41 @@ class Command(BaseCommand):
                     instruction=task_def["instruction"],
                     source_citation=task_def["source_citation"],
                 )
+
+    def _backfill_usp_content_for_existing_crops(self):
+        """
+        On a database that already had Crop rows before the USP feature
+        (CropStage/DiseaseRiskRule/CropTask) existed, the early return just
+        above this call means the first-time-only `data` loop in handle()
+        -- the only place that ever created those three tables' content --
+        never runs again. That silently leaves the USP feature's tracker,
+        risk-alert, and task-reminder UI permanently empty on any such
+        database: the exact bug class _seed_test_accounts() was already
+        pulled out of the early return to avoid, just not yet applied to
+        this content too. Found via a real user's existing database, not
+        by any test -- every test runs seed_demo_data() against a brand
+        new, empty test database, so this gap was invisible to the whole
+        suite (see SeedDemoDataBackfillTests for the regression test).
+
+        Each content type gets its own existence check, so this is safe
+        to call on every run of this command, matching every other
+        _seed_* method's idempotency -- it's a genuine no-op once the
+        content is present, whether this was the run that created it or
+        the first-time `data` loop did.
+        """
+        crops_by_name = {crop.name: crop for crop in Crop.objects.all()}
+
+        if not CropStage.objects.exists():
+            for crop_name, stage_defs in CROP_STAGE_DEFS.items():
+                crop = crops_by_name.get(crop_name)
+                if crop:
+                    self._seed_crop_stages(crop, stage_defs)
+
+        if not DiseaseRiskRule.objects.exists():
+            self._seed_risk_rules(crops_by_name)
+
+        if not CropTask.objects.exists():
+            self._seed_crop_tasks(crops_by_name)
 
     def _seed_test_accounts(self):
         """
