@@ -40,6 +40,23 @@ def _forecast_satisfies_rule(rule, forecast):
     if rule.consecutive_days_required > FORECAST_WINDOW_DAYS:
         return False
 
+    # A rule with every threshold field left null hasn't encoded any
+    # weather condition at all -- it's a data-entry gap (a disease row
+    # seeded before its thresholds were researched), not a deliberate
+    # "matches any weather" rule; the model has no field to express that
+    # intent, so null-across-the-board can only mean "not filled in yet".
+    # Without this guard, every `if ... is not None` check below is
+    # skipped and the function falls through to `return True`
+    # unconditionally, so a rule like this matches EVERY forecast, every
+    # day. Fail safe here: no real threshold in, no risk claim out.
+    if (
+        rule.humidity_min_percent is None
+        and rule.rainfall_min_mm is None
+        and rule.temp_min_celsius is None
+        and rule.temp_max_celsius is None
+    ):
+        return False
+
     if rule.humidity_min_percent is not None:
         if forecast.get("max_humidity_percent") is None:
             return False

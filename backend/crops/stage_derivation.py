@@ -50,10 +50,36 @@ def derive_stage_for_tracker(tracker):
         for stage in day_based_stages:
             if stage.day_range_start <= days_since_planting <= stage.day_range_end:
                 return stage
-        # Past every known range (crop has outgrown its last tracked
-        # stage): the last day-based stage (by order) is the best
-        # available answer.
-        return day_based_stages[-1]
+
+        # No stage's range contains this exact day. The seeded day-ranges
+        # (see seed_demo_data.py's RICE_STAGE_DEFS) have real GAPS between
+        # them -- e.g. Rice's Germination (5-10) and Vegetative growth
+        # (20-45) leave days 11-19 uncovered -- so this is a normal case,
+        # not just "crop has outgrown its last tracked stage". There are
+        # three distinct situations here, and conflating them (as the
+        # previous version did, by always returning the last stage) wrongly
+        # reported "Harvest" for a day that hasn't even germinated yet:
+        #   1. Before the first stage's own day_range_start (e.g. day 0,
+        #      the day of planting, is before Germination's start of 5).
+        #   2. In a gap between two stages (e.g. day 15, between
+        #      Germination and Vegetative growth).
+        #   3. Past the last stage's day_range_end (crop has outgrown its
+        #      last tracked stage).
+        # In cases 2 and 3 the crop is still progressing through whichever
+        # stage it most recently started, so the right answer is the last
+        # stage (by day_range_start ascending) whose day_range_start has
+        # already been reached. Case 1 has no such stage, so it falls back
+        # to the first one -- consistent with the future-planting-date
+        # branch above.
+        stages_by_start = sorted(day_based_stages, key=lambda stage: stage.day_range_start)
+        if days_since_planting < stages_by_start[0].day_range_start:
+            return stages_by_start[0]
+
+        most_recently_started = stages_by_start[0]
+        for stage in stages_by_start:
+            if stage.day_range_start <= days_since_planting:
+                most_recently_started = stage
+        return most_recently_started
 
     # Month-based: find the stage whose typical_month_start..end window
     # contains the current month, handling wraparound (e.g. start=11,

@@ -237,6 +237,57 @@ class StageDerivationTests(TestCase):
         self.assertNotEqual(derive_stage_for_tracker(tracker_past_range), month_stage)
 
 
+class StageDerivationRiceGapRegressionTests(TestCase):
+    """
+    Regression tests for the Critical whole-branch-review finding: the
+    seeded Rice day-ranges (Germination 5-10, Vegetative/Tillering 20-45,
+    Flowering/Panicle 45-65, Harvest 100-140) have GAPS between them (e.g.
+    days 0-4, 11-19, 66-99 fall in none of the authored ranges). The old
+    "no range matched" fallback always returned day_based_stages[-1]
+    (Harvest) for ANY unmatched day, including day 0 -- the day of
+    planting. Deliberately uses the actual seeded Rice CropStage data (via
+    seed_demo_data) rather than a synthetic gap-free fixture, since a
+    gap-free fixture is exactly what let this bug through undetected
+    before.
+    """
+
+    def setUp(self):
+        call_command("seed_demo_data")
+        self.rice = Crop.objects.get(name="Rice")
+        self.germination = CropStage.objects.get(crop=self.rice, name="Germination")
+        self.harvest = CropStage.objects.get(crop=self.rice, name="Harvest")
+        self.farmer = User.objects.create_user(username="rice_gap_farmer", password="x")
+
+    def _tracker_planted_days_ago(self, days):
+        return FarmerCropTracker.objects.create(
+            farmer=self.farmer, crop=self.rice,
+            planting_date=date.today() - timedelta(days=days),
+        )
+
+    def test_day_in_gap_between_two_stages_returns_the_preceding_stage(self):
+        # Day 15 falls in the gap between Germination (5-10) and
+        # Vegetative growth / Tillering (20-45) -- the crop is still
+        # progressing through Germination at that point, not freshly
+        # harvested, so this must return Germination, not Harvest.
+        tracker = self._tracker_planted_days_ago(15)
+        self.assertEqual(derive_stage_for_tracker(tracker), self.germination)
+
+    def test_day_zero_before_the_first_stages_own_start_returns_first_stage(self):
+        # Day 0 (planting day) is before Germination's own day_range_start
+        # of 5 -- a gap before the very first range. Must return the first
+        # stage (Germination), the same as the existing "planting date in
+        # the future" branch already does for consistency, not Harvest.
+        tracker = self._tracker_planted_days_ago(0)
+        self.assertEqual(derive_stage_for_tracker(tracker), self.germination)
+
+    def test_day_past_the_last_stages_range_still_returns_last_stage(self):
+        # Regression guard: a day past Harvest's own range (100-140) must
+        # still correctly return Harvest -- this existing behaviour (the
+        # crop has outgrown its last tracked stage) must keep working.
+        tracker = self._tracker_planted_days_ago(200)
+        self.assertEqual(derive_stage_for_tracker(tracker), self.harvest)
+
+
 class FarmerCropTrackerAPITests(APITestCase):
     # NOTE: the task brief's example test code hits the raw path
     # "/crops/trackers/", but every crops/urls.py route (like every other
@@ -491,16 +542,20 @@ class RiskEngineTests(TestCase):
         self.assertEqual(evaluate_risk(self.tracker, too_hot), [])
 
     def test_results_are_sorted_highest_risk_first(self):
+        # Each rule sets a trivially-satisfied humidity threshold -- this
+        # test is only exercising sort order, not threshold matching, and
+        # (per the fix below) a rule with every threshold left null can
+        # never match at all, so it needs at least one real threshold here.
         DiseaseRiskRule.objects.create(
-            disease=self.disease, risk_level=DiseaseRiskRule.RiskLevel.LOW,
+            disease=self.disease, humidity_min_percent=1, risk_level=DiseaseRiskRule.RiskLevel.LOW,
             advisory_text="low", source_citation="y",
         )
         DiseaseRiskRule.objects.create(
-            disease=self.disease, risk_level=DiseaseRiskRule.RiskLevel.HIGH,
+            disease=self.disease, humidity_min_percent=1, risk_level=DiseaseRiskRule.RiskLevel.HIGH,
             advisory_text="high", source_citation="y",
         )
         DiseaseRiskRule.objects.create(
-            disease=self.disease, risk_level=DiseaseRiskRule.RiskLevel.MODERATE,
+            disease=self.disease, humidity_min_percent=1, risk_level=DiseaseRiskRule.RiskLevel.MODERATE,
             advisory_text="moderate", source_citation="y",
         )
         forecast = {
@@ -509,6 +564,47 @@ class RiskEngineTests(TestCase):
         }
         results = evaluate_risk(self.tracker, forecast)
         self.assertEqual([r["advisory_text"] for r in results], ["high", "moderate", "low"])
+
+    def test_rule_with_every_threshold_null_never_matches_any_forecast(self):
+        # Critical regression: a DiseaseRiskRule authored with all four
+        # weather threshold fields left null (a data-entry gap, not a
+        # deliberate "any weather" rule -- there's no way to express that
+        # intentionally on this model) must never match, however
+        # favourable-looking the forecast is. Before the fix, every
+        # per-threshold check below was skipped (None means "not set, so
+        # don't check it") and the function fell through to `return True`
+        # unconditionally -- matching EVERY forecast, every day.
+        DiseaseRiskRule.objects.create(
+            disease=self.disease, risk_level=DiseaseRiskRule.RiskLevel.HIGH,
+            advisory_text="Vascular Streak Dieback risk.", source_citation="y",
+        )
+        favorable_looking = {
+            "max_humidity_percent": 95, "min_temp_celsius": 24.0,
+            "max_temp_celsius": 28.0, "total_rainfall_mm": 60.0,
+        }
+        dry = {
+            "max_humidity_percent": 40, "min_temp_celsius": 15.0,
+            "max_temp_celsius": 35.0, "total_rainfall_mm": 0.0,
+        }
+        self.assertEqual(evaluate_risk(self.tracker, favorable_looking), [])
+        self.assertEqual(evaluate_risk(self.tracker, dry), [])
+
+    def test_rule_with_at_least_one_real_threshold_still_matches_as_before(self):
+        # Regression guard alongside the fix above: a rule that sets at
+        # least one real threshold is not a data-entry gap, and must keep
+        # matching/failing exactly as before.
+        DiseaseRiskRule.objects.create(
+            disease=self.disease, humidity_min_percent=80,
+            risk_level=DiseaseRiskRule.RiskLevel.HIGH,
+            advisory_text="x", source_citation="y",
+        )
+        humid = {
+            "max_humidity_percent": 90, "min_temp_celsius": 24.0,
+            "max_temp_celsius": 28.0, "total_rainfall_mm": 0.0,
+        }
+        dry = {**humid, "max_humidity_percent": 40}
+        self.assertEqual(len(evaluate_risk(self.tracker, humid)), 1)
+        self.assertEqual(evaluate_risk(self.tracker, dry), [])
 
 
 class RiskAlertsViewTests(APITestCase):
