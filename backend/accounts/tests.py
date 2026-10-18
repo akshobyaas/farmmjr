@@ -218,6 +218,16 @@ class ProfileAuthorizationTests(APITestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.role, User.Role.FARMER)
 
+    def test_farmer_can_set_their_own_home_location(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(self.own_url, {"home_location": "Puttur"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.home_location, "Puttur")
+
+    def test_home_location_defaults_to_blank(self):
+        self.assertEqual(self.user.home_location, "")
+
 
 class EmailVerificationTests(APITestCase):
     def setUp(self):

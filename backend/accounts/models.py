@@ -24,6 +24,7 @@ class User(AbstractUser):
         default="en",
     )
     phone_number = models.CharField(max_length=15, blank=True)
+    home_location = models.CharField(max_length=200, blank=True)
     is_verified = models.BooleanField(
         default=False,
         help_text="Set to True once the user confirms their email address."

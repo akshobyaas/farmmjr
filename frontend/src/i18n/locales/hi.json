@@ -21,11 +21,20 @@
     "roleFarmer": "किसान",
     "roleAdmin": "व्यवस्थापक",
     "quickActionsTitle": "त्वरित कार्य",
+    "tasksCardTitle": "आज के कार्य",
     "highlights": {
       "weatherTitle": "आज का मौसम",
       "weatherDesc": "अपने क्षेत्र की वर्तमान स्थिति देखें",
+      "riskAlertText": "आज के पूर्वानुमान के आधार पर {{disease}} का {{risk}} जोखिम",
       "recentTitle": "हाल की गतिविधि",
       "recentDesc": "अपने नवीनतम फसल स्कैन देखें"
+    },
+    "taskCategories": {
+      "irrigation": "सिंचाई",
+      "fertilizer": "खाद",
+      "spraying": "छिड़काव",
+      "pruning": "छंटाई",
+      "other": "अन्य"
     },
     "links": {
       "profile": "मेरी प्रोफ़ाइल",
@@ -81,6 +90,7 @@
     "firstName": "पहला नाम",
     "lastName": "अंतिम नाम",
     "phoneNumber": "फ़ोन नंबर",
+    "homeLocation": "घर का स्थान",
     "preferredLanguage": "पसंदीदा भाषा",
     "emailNote": "ईमेल ({{email}}) और उपयोगकर्ता नाम यहां नहीं बदला जा सकता।"
   },
@@ -104,7 +114,19 @@
     "backToCropList": "फसल सूची पर वापस जाएं",
     "cropNotFound": "यह फसल नहीं मिली।",
     "cropLoadError": "यह फसल लोड नहीं हो सकी। कृपया पुनः प्रयास करें।",
-    "cropsLoadError": "फसलें लोड नहीं हो सकीं। कृपया पुनः प्रयास करें।"
+    "cropsLoadError": "फसलें लोड नहीं हो सकीं। कृपया पुनः प्रयास करें।",
+    "tracker": {
+      "sectionTitle": "इस फसल को ट्रैक करें",
+      "trackButton": "इस फसल को ट्रैक करें",
+      "plantingDateLabel": "रोपण तिथि",
+      "stageLabel": "वर्तमान चरण",
+      "currentStagePrefix": "वर्तमान चरण:",
+      "stageNotYetDetermined": "चरण अभी निर्धारित नहीं हुआ",
+      "submitButton": "ट्रैकिंग शुरू करें",
+      "updateButton": "अपडेट करें",
+      "cancelButton": "रद्द करें",
+      "saveError": "आपका ट्रैकर सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।"
+    }
   },
   "nav": {
     "label": "मुख्य नेविगेशन",

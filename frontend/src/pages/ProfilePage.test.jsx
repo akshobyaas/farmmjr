@@ -21,6 +21,7 @@ const mockProfile = {
   first_name: "",
   last_name: "",
   phone_number: "",
+  home_location: "",
   preferred_language: "en",
   role: "farmer",
   is_verified: true,
@@ -67,6 +68,7 @@ describe("ProfilePage", () => {
         first_name: "Ravi",
         last_name: "",
         phone_number: "",
+        home_location: "",
         preferred_language: "en",
       });
     });
@@ -75,6 +77,28 @@ describe("ProfilePage", () => {
     expect(sentPayload).not.toHaveProperty("email");
     expect(sentPayload).not.toHaveProperty("role");
     expect(sentPayload).not.toHaveProperty("is_verified");
+  });
+
+  it("lets a farmer save their home location", async () => {
+    const mockGet = vi.fn().mockResolvedValue(mockProfile);
+    const mockUpdate = vi.fn().mockResolvedValue(mockProfile);
+    useAuth.mockReturnValue({ getProfile: mockGet, updateProfile: mockUpdate });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByLabelText(/location/i));
+    await userEvent.type(screen.getByLabelText(/location/i), "Puttur");
+    await userEvent.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ home_location: "Puttur" })
+      );
+    });
   });
 
   it("shows a success message after a successful save", async () => {
