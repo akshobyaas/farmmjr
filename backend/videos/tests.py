@@ -125,10 +125,13 @@ class VideoSearchViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    @override_settings(YOUTUBE_API_KEY="")
     def test_query_longer_than_max_length_is_truncated_not_rejected(self):
         # _sanitize_query truncates to MAX_QUERY_LENGTH rather than erroring
         # -- confirm a very long query still produces a well-formed 503
-        # (missing key) instead of blowing up during sanitization.
+        # (missing key) instead of blowing up during sanitization. The key
+        # is forced blank here so this test is deterministic regardless of
+        # whether a real YOUTUBE_API_KEY is configured in the environment.
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url, {"q": "a" * 500})
         self.assertIn(response.status_code, (status.HTTP_400_BAD_REQUEST, status.HTTP_503_SERVICE_UNAVAILABLE))
