@@ -5,9 +5,11 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import CropDetailPage from "./CropDetailPage";
 import * as cropsApi from "../api/crops";
 import { fetchTrackers, createTracker, updateTracker } from "../api/cropTracker";
+import { fetchDiaryEntries, saveDiaryEntry } from "../api/diary";
 
 vi.mock("../api/crops");
 vi.mock("../api/cropTracker");
+vi.mock("../api/diary");
 
 const mockCropDetail = {
   id: 1,
@@ -66,6 +68,11 @@ describe("CropDetailPage", () => {
     // every test to "no tracker yet" so the pre-existing assertions below
     // (written before Task 6) don't need to know about it at all.
     vi.mocked(fetchTrackers).mockResolvedValue([]);
+    // Likewise, the Daily Log section (Task 6) only ever fetches once a
+    // tracker exists -- default it to an empty diary so tests written
+    // before Task 6 (which do end up with a tracker, e.g. the "Track This
+    // Crop" tests below) don't need to know about it at all.
+    vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
   });
 
   it("loads and displays full crop detail including nested lifecycle/fertilizer/organic data", async () => {
@@ -213,6 +220,197 @@ describe("CropDetailPage", () => {
       await userEvent.click(screen.getByRole("button", { name: /start tracking/i }));
 
       expect(await screen.findByRole("alert")).toHaveTextContent(/you already have a tracker for this crop/i);
+    });
+  });
+
+  describe("Daily Log", () => {
+    const todayISO = new Date().toLocaleDateString("en-CA");
+    const mockTracker = {
+      id: 7, crop: 1, planting_date: "2026-08-01",
+      current_stage: { id: 2, name: "Flowering" }, stage_confirmed_at: "2026-10-01", is_active: true,
+    };
+
+    it("shows the Daily Log form once a tracker exists, pre-filled from today's entry if one exists", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 1, tracker: 7, entry_date: todayISO,
+          did_irrigation: true, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "watered",
+        },
+      ]);
+      renderWithRoute("1");
+
+      await screen.findByRole("checkbox", { name: /irrigation/i });
+      await waitFor(() => {
+        expect(screen.getByRole("checkbox", { name: /irrigation/i })).toBeChecked();
+      });
+      expect(screen.getByRole("checkbox", { name: /fertilizer/i })).not.toBeChecked();
+      expect(screen.getByPlaceholderText(/any notes about today/i)).toHaveValue("watered");
+      expect(fetchDiaryEntries).toHaveBeenCalledWith(7);
+    });
+
+    it("submits the form and clears/updates it with the saved entry", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
+      vi.mocked(saveDiaryEntry).mockResolvedValue({
+        id: 2, tracker: 7, entry_date: todayISO,
+        did_irrigation: true, did_fertilizer: false, did_spraying: true, did_pruning: false,
+        other_activity_note: "", note: "Sprayed neem oil",
+      });
+      renderWithRoute("1");
+
+      await userEvent.click(await screen.findByRole("checkbox", { name: /irrigation/i }));
+      await userEvent.click(screen.getByRole("checkbox", { name: /spraying/i }));
+      await userEvent.type(screen.getByPlaceholderText(/any notes about today/i), "Sprayed neem oil");
+      await userEvent.click(screen.getByRole("button", { name: /save entry/i }));
+
+      await waitFor(() => {
+        expect(saveDiaryEntry).toHaveBeenCalledWith(7, {
+          didIrrigation: true,
+          didFertilizer: false,
+          didSpraying: true,
+          didPruning: false,
+          otherActivityNote: "",
+          note: "Sprayed neem oil",
+          photoFile: null,
+        });
+      });
+      // The saved entry replaces the prior (empty) state for today rather
+      // than appending a duplicate -- re-running the pre-fill from it
+      // should leave the form showing exactly what was just saved.
+      expect(screen.getByRole("checkbox", { name: /irrigation/i })).toBeChecked();
+    });
+
+    it("shows a validation error from the backend instead of a generic message", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
+      vi.mocked(saveDiaryEntry).mockRejectedValue({ response: { data: { note: ["Too long."] } } });
+      renderWithRoute("1");
+
+      await userEvent.click(await screen.findByRole("button", { name: /save entry/i }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent("Too long.");
+    });
+
+    it("uses the browser's local date for 'today', not UTC's", async () => {
+      // 2026-10-19 20:00 UTC is 2026-10-20 01:30 in India. Yesterday's
+      // (IST) entry must NOT be pre-filled as if it were today's -- that's
+      // what UTC-based toISOString() would do until 05:30 IST.
+      const originalTZ = process.env.TZ;
+      process.env.TZ = "Asia/Kolkata";
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-10-19T20:00:00Z"));
+      try {
+        cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+        vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+        vi.mocked(fetchDiaryEntries).mockResolvedValue([
+          {
+            id: 1, tracker: 7, entry_date: "2026-10-19",
+            did_irrigation: true, did_fertilizer: false, did_spraying: false, did_pruning: false,
+            other_activity_note: "", note: "yesterday's note", photo: null,
+            photo_diagnosis_label: "", ai_analysis: "", ai_analysis_status: "unavailable",
+          },
+        ]);
+        renderWithRoute("1");
+
+        // Rendered in the timeline, so entries have loaded...
+        await screen.findByText("yesterday's note");
+        // ...but the form is blank for the new IST day.
+        expect(screen.getByRole("checkbox", { name: /irrigation/i })).not.toBeChecked();
+        expect(screen.getByPlaceholderText(/any notes about today/i)).toHaveValue("");
+      } finally {
+        vi.useRealTimers();
+        if (originalTZ === undefined) {
+          delete process.env.TZ;
+        } else {
+          process.env.TZ = originalTZ;
+        }
+      }
+    });
+  });
+
+  describe("Daily Log timeline (Task 7)", () => {
+    const mockTracker = {
+      id: 7, crop: 1, planting_date: "2026-08-01",
+      current_stage: { id: 2, name: "Flowering" }, stage_confirmed_at: "2026-10-01", is_active: true,
+    };
+
+    it("renders past entries most-recent-first with their AI analysis", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 2, tracker: 7, entry_date: "2026-10-19",
+          did_irrigation: true, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "Looks good today", photo: null,
+          photo_diagnosis_label: "", ai_analysis: "Looks healthy.", ai_analysis_status: "ok",
+        },
+        {
+          id: 1, tracker: 7, entry_date: "2026-10-10",
+          did_irrigation: false, did_fertilizer: true, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "Applied fertilizer", photo: null,
+          photo_diagnosis_label: "", ai_analysis: "Fertilizer applied as scheduled.", ai_analysis_status: "ok",
+        },
+      ]);
+      renderWithRoute("1");
+
+      const analysisNodes = await screen.findAllByText(/looks healthy\.|fertilizer applied as scheduled\./i);
+      expect(analysisNodes).toHaveLength(2);
+      // diaryEntries is already most-recent-first from the backend -- the
+      // timeline must render in that same order, not re-sort.
+      expect(analysisNodes[0]).toHaveTextContent(/looks healthy\./i);
+      expect(analysisNodes[1]).toHaveTextContent(/fertilizer applied as scheduled\./i);
+    });
+
+    it("shows a graceful fallback message when ai_analysis_status is unavailable", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 1, tracker: 7, entry_date: "2026-10-18",
+          did_irrigation: false, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "Watered the field", photo: null,
+          photo_diagnosis_label: "", ai_analysis: "", ai_analysis_status: "unavailable",
+        },
+      ]);
+      renderWithRoute("1");
+
+      await screen.findByText("Watered the field");
+      expect(screen.getByText(/ai analysis isn.t available/i)).toBeInTheDocument();
+    });
+
+    it("shows the photo diagnosis label when a photo was analyzed", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 1, tracker: 7, entry_date: "2026-10-18",
+          did_irrigation: false, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "", photo: "/media/diary_photos/2026/10/leaf.jpg",
+          photo_diagnosis_label: "Rice___Blast", photo_diagnosis_confidence: 0.91,
+          ai_analysis: "", ai_analysis_status: "unavailable",
+        },
+      ]);
+      const { container } = renderWithRoute("1");
+
+      expect(await screen.findByText(/Rice___Blast/)).toBeInTheDocument();
+      // Same photo-thumbnail convention as ScanHistoryPage (alt="" makes it
+      // decorative, so it's queried directly rather than via accessible role).
+      const thumbnail = container.querySelector("img.scan-history-thumbnail");
+      expect(thumbnail).toHaveAttribute("src", "/media/diary_photos/2026/10/leaf.jpg");
+    });
+
+    it("shows a fallback message when there are no diary entries yet", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
+      renderWithRoute("1");
+
+      expect(await screen.findByText(/no diary entries yet/i)).toBeInTheDocument();
     });
   });
 });

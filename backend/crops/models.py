@@ -143,6 +143,40 @@ class FarmerCropTracker(models.Model):
         return f"{self.farmer} — {self.crop.name}"
 
 
+# One farmer-written diary entry per tracker per day: what farm work was done,
+# an optional photo with its diagnosis, and the AI analysis of that day's
+# activity. `ai_analysis_status` records whether the analysis succeeded so the
+# UI can show a fallback when the AI service is unavailable.
+class FarmingDiaryEntry(models.Model):
+    class AnalysisStatus(models.TextChoices):
+        OK = "ok", "OK"
+        UNAVAILABLE = "unavailable", "Unavailable"
+
+    tracker = models.ForeignKey(FarmerCropTracker, on_delete=models.CASCADE, related_name="diary_entries")
+    entry_date = models.DateField()
+    did_irrigation = models.BooleanField(default=False)
+    did_fertilizer = models.BooleanField(default=False)
+    did_spraying = models.BooleanField(default=False)
+    did_pruning = models.BooleanField(default=False)
+    other_activity_note = models.CharField(max_length=200, blank=True)
+    note = models.TextField(blank=True)
+    photo = models.ImageField(upload_to="diary_photos/%Y/%m/", null=True, blank=True)
+    photo_diagnosis_label = models.CharField(max_length=100, blank=True)
+    photo_diagnosis_confidence = models.FloatField(null=True)
+    ai_analysis = models.TextField(blank=True)
+    ai_analysis_status = models.CharField(
+        max_length=20, choices=AnalysisStatus.choices, default=AnalysisStatus.UNAVAILABLE,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("tracker", "entry_date")
+        ordering = ["-entry_date"]
+
+    def __str__(self):
+        return f"{self.tracker} — {self.entry_date}"
+
+
 # Weather conditions under which a disease is considered at risk, used by the
 # weather-based disease-risk alerts. Every condition is optional: a rule only
 # checks the thresholds it sets. An empty applicable_stages means the rule

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { fetchCropDetail } from "../api/crops";
 import { fetchTrackers, createTracker, updateTracker } from "../api/cropTracker";
+import { fetchDiaryEntries, saveDiaryEntry } from "../api/diary";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -24,6 +25,29 @@ export default function CropDetailPage() {
   const [selectedStageId, setSelectedStageId] = useState("");
   const [trackerSubmitting, setTrackerSubmitting] = useState(false);
   const [trackerError, setTrackerError] = useState("");
+
+  // Task 6 -- the Daily Log (Farming Diary) form. `diaryEntries` holds
+  // every entry fetched for this tracker (Task 7 renders it as a
+  // reverse-chronological timeline below this form; we only ever read
+  // today's entry out of it here). `diaryForm.didOther` is local-UI-only
+  // state, not part of `saveDiaryEntry`'s field contract -- it just
+  // drives whether the "other" text field is enabled, and is derived
+  // back from `other_activity_note` on pre-fill (a non-empty note implies
+  // the checkbox was ticked).
+  const emptyDiaryForm = {
+    didIrrigation: false,
+    didFertilizer: false,
+    didSpraying: false,
+    didPruning: false,
+    didOther: false,
+    otherActivityNote: "",
+    note: "",
+    photoFile: null,
+  };
+  const [diaryEntries, setDiaryEntries] = useState([]);
+  const [diaryForm, setDiaryForm] = useState(emptyDiaryForm);
+  const [diarySubmitting, setDiarySubmitting] = useState(false);
+  const [diaryError, setDiaryError] = useState("");
 
   useEffect(() => {
     setCrop(null);
@@ -52,6 +76,29 @@ export default function CropDetailPage() {
         // page just falls back to offering "Track This Crop" from scratch.
       });
   }, [id, t]);
+
+  // Task 6 -- the diary is a property of an active tracker, so it only
+  // ever fetches once one exists (same gating the Daily Log section below
+  // uses to render). Re-fetches whenever `tracker` changes identity,
+  // which also covers the "Track This Crop" / "Update" flow handing back
+  // a freshly created or updated tracker.
+  useEffect(() => {
+    if (!tracker) {
+      setDiaryEntries([]);
+      setDiaryForm(emptyDiaryForm);
+      return;
+    }
+    fetchDiaryEntries(tracker.id)
+      .then((entries) => {
+        setDiaryEntries(entries);
+        applyDiaryPrefill(entries);
+      })
+      .catch(() => {
+        // Same fail-soft pattern as the tracker fetch above -- the diary
+        // is secondary to the crop detail/tracker itself.
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracker]);
 
   const isDayBasedCrop = (crop?.trackable_stages || []).some(
     (stage) => stage.day_range_start != null
@@ -98,6 +145,75 @@ export default function CropDetailPage() {
       }
     } finally {
       setTrackerSubmitting(false);
+    }
+  };
+
+  // Task 6 -- same pre-fill-on-reopen idea as `openTrackerForm`, but run
+  // automatically (there's no separate "open" step for the diary form:
+  // it's always shown once a tracker exists) whenever the diary entries
+  // we have change. Finds today's entry, if any, and loads it into the
+  // form; otherwise resets to a blank entry for today.
+  const applyDiaryPrefill = (entries) => {
+    // The browser's LOCAL date, not UTC's (toISOString): for a farmer in
+    // India, UTC is still "yesterday" until 05:30 IST. "en-CA" formats as
+    // YYYY-MM-DD, matching the backend's entry_date (also IST-based).
+    const todayISO = new Date().toLocaleDateString("en-CA");
+    const todayEntry = entries.find((entry) => entry.entry_date === todayISO);
+    if (todayEntry) {
+      setDiaryForm({
+        didIrrigation: !!todayEntry.did_irrigation,
+        didFertilizer: !!todayEntry.did_fertilizer,
+        didSpraying: !!todayEntry.did_spraying,
+        didPruning: !!todayEntry.did_pruning,
+        didOther: !!todayEntry.other_activity_note,
+        otherActivityNote: todayEntry.other_activity_note || "",
+        note: todayEntry.note || "",
+        photoFile: null,
+      });
+    } else {
+      setDiaryForm(emptyDiaryForm);
+    }
+  };
+
+  const handleDiarySubmit = async (e) => {
+    e.preventDefault();
+    setDiaryError("");
+    setDiarySubmitting(true);
+    try {
+      const saved = await saveDiaryEntry(tracker.id, {
+        didIrrigation: diaryForm.didIrrigation,
+        didFertilizer: diaryForm.didFertilizer,
+        didSpraying: diaryForm.didSpraying,
+        didPruning: diaryForm.didPruning,
+        // The "other" text field is only meaningful while its checkbox is
+        // ticked -- send "" rather than any stray leftover text if it's
+        // unchecked, same as the backend's own "always send a string,
+        // never omit" rule in api/diary.js.
+        otherActivityNote: diaryForm.didOther ? diaryForm.otherActivityNote : "",
+        note: diaryForm.note,
+        photoFile: diaryForm.photoFile,
+      });
+      // Replace today's entry (there can be at most one per day --
+      // unique_together("tracker", "entry_date")) rather than appending a
+      // duplicate, then re-run the same pre-fill so the form reflects
+      // exactly what the backend now has stored.
+      const updatedEntries = [
+        saved,
+        ...diaryEntries.filter((entry) => entry.entry_date !== saved.entry_date),
+      ];
+      setDiaryEntries(updatedEntries);
+      applyDiaryPrefill(updatedEntries);
+    } catch (err) {
+      const data = err.response?.data;
+      if (data && typeof data === "object") {
+        const firstField = Object.keys(data)[0];
+        const message = Array.isArray(data[firstField]) ? data[firstField][0] : data[firstField];
+        setDiaryError(message || t("crops.diary.saveError"));
+      } else {
+        setDiaryError(t("crops.diary.saveError"));
+      }
+    } finally {
+      setDiarySubmitting(false);
     }
   };
 
@@ -202,6 +318,158 @@ export default function CropDetailPage() {
                   {t("crops.tracker.cancelButton")}
                 </button>
               </form>
+            )}
+          </section>
+        )}
+
+        {tracker && (
+          <section className="crop-section">
+            <h2 className="crop-section-title">{t("crops.diary.sectionTitle")}</h2>
+
+            <form onSubmit={handleDiarySubmit} noValidate>
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={diaryForm.didIrrigation}
+                  onChange={(e) =>
+                    setDiaryForm((f) => ({ ...f, didIrrigation: e.target.checked }))
+                  }
+                />
+                {t("crops.diary.irrigationLabel")}
+              </label>
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={diaryForm.didFertilizer}
+                  onChange={(e) =>
+                    setDiaryForm((f) => ({ ...f, didFertilizer: e.target.checked }))
+                  }
+                />
+                {t("crops.diary.fertilizerLabel")}
+              </label>
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={diaryForm.didSpraying}
+                  onChange={(e) =>
+                    setDiaryForm((f) => ({ ...f, didSpraying: e.target.checked }))
+                  }
+                />
+                {t("crops.diary.sprayingLabel")}
+              </label>
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={diaryForm.didPruning}
+                  onChange={(e) =>
+                    setDiaryForm((f) => ({ ...f, didPruning: e.target.checked }))
+                  }
+                />
+                {t("crops.diary.pruningLabel")}
+              </label>
+
+              <label className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={diaryForm.didOther}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setDiaryForm((f) => ({
+                      ...f,
+                      didOther: checked,
+                      // Clearing the note on uncheck keeps the disabled
+                      // field's displayed value in sync with what will
+                      // actually be submitted (always "" while unchecked).
+                      otherActivityNote: checked ? f.otherActivityNote : "",
+                    }));
+                  }}
+                />
+                {t("crops.diary.otherLabel")}
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder={t("crops.diary.otherNotePlaceholder")}
+                value={diaryForm.otherActivityNote}
+                disabled={!diaryForm.didOther}
+                onChange={(e) =>
+                  setDiaryForm((f) => ({ ...f, otherActivityNote: e.target.value }))
+                }
+              />
+
+              <textarea
+                className="form-input"
+                placeholder={t("crops.diary.notePlaceholder")}
+                value={diaryForm.note}
+                onChange={(e) => setDiaryForm((f) => ({ ...f, note: e.target.value }))}
+              />
+
+              <label className="form-label" htmlFor="diary_photo">
+                {t("crops.diary.photoLabel")}
+              </label>
+              <input
+                id="diary_photo"
+                name="photo"
+                type="file"
+                className="form-input"
+                accept="image/jpeg,image/png"
+                onChange={(e) =>
+                  setDiaryForm((f) => ({ ...f, photoFile: e.target.files?.[0] || null }))
+                }
+              />
+
+              {diaryError && <p className="form-error" role="alert">{diaryError}</p>}
+
+              <button type="submit" className="btn-primary" disabled={diarySubmitting}>
+                {diarySubmitting ? t("common.saving") : t("crops.diary.submitButton")}
+              </button>
+            </form>
+
+            {/* Task 7 -- the read-only timeline of past entries. `diaryEntries`
+                is already ordered most-recent-first by the backend
+                (FarmingDiaryEntry.Meta.ordering = ["-entry_date"]), so this
+                maps over it as-is with no client-side re-sort. */}
+            <h3 className="crop-section-subtitle">{t("crops.diary.timelineTitle")}</h3>
+            {diaryEntries.length === 0 ? (
+              <p className="status-message">{t("crops.diary.noEntriesYet")}</p>
+            ) : (
+              <div className="diary-timeline">
+                {diaryEntries.map((entry) => {
+                  const activityLabels = [
+                    entry.did_irrigation && t("crops.diary.irrigationLabel"),
+                    entry.did_fertilizer && t("crops.diary.fertilizerLabel"),
+                    entry.did_spraying && t("crops.diary.sprayingLabel"),
+                    entry.did_pruning && t("crops.diary.pruningLabel"),
+                    entry.other_activity_note,
+                  ].filter(Boolean);
+
+                  return (
+                    <div key={entry.id} className="diary-entry-card">
+                      <p className="diary-entry-date">{entry.entry_date}</p>
+                      {activityLabels.length > 0 && (
+                        <p className="diary-entry-activities">{activityLabels.join(", ")}</p>
+                      )}
+                      {entry.note && <p className="diary-entry-note">{entry.note}</p>}
+                      {entry.photo && (
+                        // Same photo-thumbnail convention as ScanHistoryPage.
+                        <img src={entry.photo} alt="" className="scan-history-thumbnail" />
+                      )}
+                      {entry.photo_diagnosis_label && (
+                        <p className="diary-entry-diagnosis">
+                          {t("crops.diary.photoDiagnosisPrefix")} {entry.photo_diagnosis_label}
+                        </p>
+                      )}
+                      {entry.ai_analysis_status === "ok" ? (
+                        <p className="diary-entry-analysis">{entry.ai_analysis}</p>
+                      ) : (
+                        <p className="diary-entry-analysis diary-entry-analysis-unavailable">
+                          {t("crops.diary.analysisUnavailable")}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </section>
         )}

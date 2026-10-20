@@ -206,6 +206,15 @@ OPENWEATHER_API_KEY = env('OPENWEATHER_API_KEY', default='')
 YOUTUBE_API_KEY = env('YOUTUBE_API_KEY', default='')
 
 # ---------------------------------------------------------------------------
+# Farming Diary AI analysis -- Google Gemini (free tier). Server-side only,
+# same blank-key-fails-soft pattern as OPENWEATHER_API_KEY/YOUTUBE_API_KEY.
+# GEMINI_MODEL is configurable because Google retires older model names
+# (gemini-1.5-flash now 404s); override it in .env rather than editing code.
+# ---------------------------------------------------------------------------
+GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+GEMINI_MODEL = env('GEMINI_MODEL', default='gemini-2.5-flash')
+
+# ---------------------------------------------------------------------------
 # Security headers (Phase 19 audit) -- made explicit rather than relying on
 # Django's implicit defaults, so a reviewer can see the intent directly:
 #   X-Content-Type-Options: nosniff        -- stops MIME-sniffing attacks

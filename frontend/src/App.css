@@ -274,6 +274,26 @@ body {
   text-align: left;
 }
 
+/* Task 6 -- a checkbox + its own text, inline, matching .form-label's
+   font-size/color/spacing rhythm rather than the browser-default
+   spacing a bare <label> would otherwise get. */
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 12px 0;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.form-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .form-input {
   width: 100%;
   min-height: 50px;
@@ -974,6 +994,77 @@ body {
 .fertilizer-stage {
   font-weight: 600;
   color: var(--color-primary-dark);
+}
+
+/* ===== Farming Diary — Daily Log timeline ===== */
+
+/* A level below .crop-section-title (17px/600) -- left unstyled, the
+   browser's default h3 (~18.7px bold) would outrank the h2 above it. */
+.crop-section-subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 18px 0 10px;
+  text-align: left;
+}
+
+.diary-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Same card surface as .fertilizer-card. */
+.diary-entry-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.diary-entry-card p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+
+.diary-entry-card .diary-entry-date {
+  margin-top: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.diary-entry-activities {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+/* Farmer-typed notes and Gemini replies can both contain line breaks. */
+.diary-entry-note {
+  white-space: pre-line;
+}
+
+.diary-entry-card .diary-entry-diagnosis {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.diary-entry-card .diary-entry-analysis {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-btn);
+  white-space: pre-line;
+}
+
+.diary-entry-card .diary-entry-analysis-unavailable {
+  background: transparent;
+  padding: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-secondary);
 }
 
 /* ===== Phase 8 — Crop scan upload ===== */
