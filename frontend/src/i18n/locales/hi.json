@@ -126,6 +126,23 @@
       "updateButton": "अपडेट करें",
       "cancelButton": "रद्द करें",
       "saveError": "आपका ट्रैकर सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।"
+    },
+    "diary": {
+      "sectionTitle": "दैनिक डायरी",
+      "irrigationLabel": "सिंचाई",
+      "fertilizerLabel": "खाद",
+      "sprayingLabel": "छिड़काव",
+      "pruningLabel": "छंटाई",
+      "otherLabel": "अन्य",
+      "otherNotePlaceholder": "आपने और क्या किया, संक्षेप में बताएं",
+      "notePlaceholder": "आज के बारे में कोई टिप्पणी? (वैकल्पिक)",
+      "photoLabel": "फोटो (वैकल्पिक)",
+      "submitButton": "प्रविष्टि सहेजें",
+      "saveError": "आपकी डायरी प्रविष्टि सहेजी नहीं जा सकी। कृपया पुनः प्रयास करें।",
+      "timelineTitle": "पिछली प्रविष्टियां",
+      "analysisUnavailable": "इस प्रविष्टि के लिए AI विश्लेषण अभी उपलब्ध नहीं है।",
+      "photoDiagnosisPrefix": "फोटो निदान:",
+      "noEntriesYet": "अभी तक कोई डायरी प्रविष्टि नहीं है। शुरू करने के लिए ऊपर आज की गतिविधि दर्ज करें।"
     }
   },
   "nav": {

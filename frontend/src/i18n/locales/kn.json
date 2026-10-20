@@ -126,6 +126,23 @@
       "updateButton": "ನವೀಕರಿಸಿ",
       "cancelButton": "ರದ್ದುಮಾಡಿ",
       "saveError": "ನಿಮ್ಮ ಟ್ರ್ಯಾಕರ್ ಅನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+    },
+    "diary": {
+      "sectionTitle": "ದಿನದ ದಾಖಲೆ",
+      "irrigationLabel": "ನೀರಾವರಿ",
+      "fertilizerLabel": "ಗೊಬ್ಬರ",
+      "sprayingLabel": "ಸಿಂಪರಣೆ",
+      "pruningLabel": "ಕತ್ತರಿಸುವಿಕೆ",
+      "otherLabel": "ಇತರೆ",
+      "otherNotePlaceholder": "ನೀವು ಇನ್ನೇನು ಮಾಡಿದ್ದೀರಿ ಎಂದು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಬರೆಯಿರಿ",
+      "notePlaceholder": "ಇಂದಿನ ಬಗ್ಗೆ ಯಾವುದೇ ಟಿಪ್ಪಣಿಗಳಿವೆಯೇ? (ಐಚ್ಛಿಕ)",
+      "photoLabel": "ಫೋಟೋ (ಐಚ್ಛಿಕ)",
+      "submitButton": "ದಾಖಲೆ ಉಳಿಸಿ",
+      "saveError": "ನಿಮ್ಮ ದಿನಚರಿ ದಾಖಲೆಯನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+      "timelineTitle": "ಹಿಂದಿನ ದಾಖಲೆಗಳು",
+      "analysisUnavailable": "ಈ ದಾಖಲೆಗೆ ಎಐ ವಿಶ್ಲೇಷಣೆ ಈಗ ಲಭ್ಯವಿಲ್ಲ.",
+      "photoDiagnosisPrefix": "ಫೋಟೋ ರೋಗನಿರ್ಣಯ:",
+      "noEntriesYet": "ಇನ್ನೂ ಯಾವುದೇ ದಿನಚರಿ ದಾಖಲೆಗಳಿಲ್ಲ. ಪ್ರಾರಂಭಿಸಲು ಮೇಲೆ ಇಂದಿನ ಚಟುವಟಿಕೆಯನ್ನು ದಾಖಲಿಸಿ."
     }
   },
   "nav": {

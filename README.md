@@ -64,10 +64,13 @@ Backend now runs at `http://localhost:8000`. Emails print to this terminal (cons
 is no real SMTP configured. The CNN model loads at server startup, so the first boot takes roughly
 15–20 seconds; wait for "Starting development server" in the log.
 
-**Optional API keys** (the app runs fully without them; Weather and Learning Videos just show a
-plain-language "service unavailable" message until these are set in `backend/.env`):
+**Optional API keys** (the app runs fully without them; Weather, Learning Videos and the Farming
+Diary's AI analysis just show a plain-language "unavailable" message until these are set in
+`backend/.env`):
 - `OPENWEATHER_API_KEY` — free key at https://openweathermap.org/api
 - `YOUTUBE_API_KEY` — free key at https://console.cloud.google.com/apis/credentials (enable "YouTube Data API v3")
+- `GEMINI_API_KEY` — free key at https://aistudio.google.com/apikey (Farming Diary AI analysis). The
+  model defaults to `gemini-2.5-flash`; set `GEMINI_MODEL` only if Google retires that model name.
 
 Test accounts from the seed command (pre-verified, ready to log in immediately):
 - `farmer_ravi` / `FarmerPass#123` (farmer role, Kannada preference)

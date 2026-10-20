@@ -126,6 +126,23 @@
       "updateButton": "Update",
       "cancelButton": "Cancel",
       "saveError": "Could not save your tracker. Please try again."
+    },
+    "diary": {
+      "sectionTitle": "Daily Log",
+      "irrigationLabel": "Irrigation",
+      "fertilizerLabel": "Fertilizer",
+      "sprayingLabel": "Spraying",
+      "pruningLabel": "Pruning",
+      "otherLabel": "Other",
+      "otherNotePlaceholder": "Briefly describe what else you did",
+      "notePlaceholder": "Any notes about today? (optional)",
+      "photoLabel": "Photo (optional)",
+      "submitButton": "Save Entry",
+      "saveError": "Could not save your diary entry. Please try again.",
+      "timelineTitle": "Past Entries",
+      "analysisUnavailable": "AI analysis isn't available for this entry right now.",
+      "photoDiagnosisPrefix": "Photo diagnosis:",
+      "noEntriesYet": "No diary entries yet. Log today's activity above to get started."
     }
   },
   "nav": {
