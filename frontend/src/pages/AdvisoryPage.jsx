@@ -22,7 +22,7 @@ export default function AdvisoryPage() {
 
   const [queries, setQueries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState("pending"); // admin only: "pending" | "all"
 
   // A low-confidence scan result (LowConfidenceNudge.jsx) links here with
@@ -38,12 +38,12 @@ export default function AdvisoryPage() {
   // advisory/utils.py's should_notify_admins).
   const [pendingScanId, setPendingScanId] = useState(() => location.state?.scanId ?? null);
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
+  const [formError, setFormError] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(false);
 
   const [drafts, setDrafts] = useState({}); // admin answer drafts, keyed by query id
   const [answering, setAnswering] = useState(null); // id currently being submitted
-  const [answerError, setAnswerError] = useState("");
+  const [answerError, setAnswerError] = useState(false);
 
   const loadQueries = useCallback(async () => {
     setLoading(true);
@@ -52,7 +52,7 @@ export default function AdvisoryPage() {
       const data = await listAdvisoryQueries(isAdmin && filter !== "all" ? filter : undefined);
       setQueries(data);
     } catch {
-      setError(t("advisory.loadError"));
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -68,16 +68,16 @@ export default function AdvisoryPage() {
     if (!text || submitting) return;
 
     setSubmitting(true);
-    setFormError("");
-    setFormSuccess("");
+    setFormError(false);
+    setFormSuccess(false);
     try {
       await createAdvisoryQuery(text, pendingScanId);
       setQuestion("");
       setPendingScanId(null);
-      setFormSuccess(t("advisory.sendSuccess"));
+      setFormSuccess(true);
       loadQueries();
     } catch {
-      setFormError(t("advisory.sendError"));
+      setFormError(true);
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +94,7 @@ export default function AdvisoryPage() {
       setDrafts((prev) => ({ ...prev, [id]: "" }));
       loadQueries();
     } catch {
-      setAnswerError(t("advisory.answerError"));
+      setAnswerError(true);
     } finally {
       setAnswering(null);
     }
@@ -124,12 +124,12 @@ export default function AdvisoryPage() {
             </button>
             {formError && (
               <p className="form-error" role="alert">
-                {formError}
+                {t("advisory.sendError")}
               </p>
             )}
             {formSuccess && (
               <div className="status-card status-ok">
-                <p className="status-message">✅ {formSuccess}</p>
+                <p className="status-message">✅ {t("advisory.sendSuccess")}</p>
               </div>
             )}
           </form>
@@ -157,12 +157,12 @@ export default function AdvisoryPage() {
         {loading && <p>{t("common.loading")}</p>}
         {error && (
           <p className="form-error" role="alert">
-            {error}
+            {t("advisory.loadError")}
           </p>
         )}
         {answerError && (
           <p className="form-error" role="alert">
-            {answerError}
+            {t("advisory.answerError")}
           </p>
         )}
 
