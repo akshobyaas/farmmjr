@@ -1,4 +1,5 @@
 import hashlib
+import html
 import re
 import requests
 from django.conf import settings
@@ -109,11 +110,15 @@ class VideoSearchView(APIView):
                     or thumbnails.get("default", {}).get("url")
                     or ""
                 )
+                # YouTube's API returns title/channelTitle with HTML entities
+                # literally encoded (e.g. "Fast &amp; Precise") rather than
+                # already-decoded text -- html.unescape() so farmers see
+                # "Fast & Precise" instead of the raw entity.
                 results.append(
                     {
                         "video_id": video_id,
-                        "title": snippet.get("title", ""),
-                        "channel_title": snippet.get("channelTitle", ""),
+                        "title": html.unescape(snippet.get("title", "")),
+                        "channel_title": html.unescape(snippet.get("channelTitle", "")),
                         "thumbnail": thumbnail,
                         "published_at": snippet.get("publishedAt"),
                         "url": f"https://www.youtube.com/watch?v={video_id}",
