@@ -94,6 +94,37 @@ class VideoSearchViewTests(APITestCase):
 
     @override_settings(YOUTUBE_API_KEY="dummy-key")
     @patch("videos.views.requests.get")
+    def test_html_entities_in_title_and_channel_are_decoded(self, mock_get):
+        # YouTube's API returns title/channelTitle with HTML entities
+        # literally encoded (e.g. "Fast &amp; Precise") rather than
+        # already-decoded text -- confirm the proxy decodes them so the
+        # frontend never has to, and never shows raw "&amp;" to a farmer.
+        payload = {
+            "items": [
+                {
+                    "id": {"videoId": "xyz789"},
+                    "snippet": {
+                        "title": "Fast &amp; Precise Paddy Seedling Planting",
+                        "channelTitle": "Farmer&#39;s Corner &amp; Tips",
+                        "thumbnails": {"medium": {"url": "https://img.example/xyz789.jpg"}},
+                        "publishedAt": "2025-01-01T00:00:00Z",
+                    },
+                }
+            ]
+        }
+        mock_get.return_value = mock_response(200, payload)
+        self.client.force_authenticate(self.user)
+
+        response = self.client.get(self.url, {"q": "paddy planting"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["results"][0]["title"], "Fast & Precise Paddy Seedling Planting"
+        )
+        self.assertEqual(response.data["results"][0]["channel_title"], "Farmer's Corner & Tips")
+
+    @override_settings(YOUTUBE_API_KEY="dummy-key")
+    @patch("videos.views.requests.get")
     def test_repeated_identical_query_is_served_from_cache_not_a_second_api_call(self, mock_get):
         mock_get.return_value = mock_response(200, SAMPLE_YT_PAYLOAD)
         self.client.force_authenticate(self.user)
