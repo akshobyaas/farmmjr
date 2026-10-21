@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import math
 import requests
 from django.core.cache import cache
@@ -6,6 +7,8 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .throttles import LocatorRateThrottle
+
+logger = logging.getLogger(__name__)
 
 NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search"
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
@@ -152,13 +155,21 @@ class NearbyServicesView(APIView):
             response = requests.post(
                 OVERPASS_URL, data={"data": query}, headers=_HEADERS, timeout=REQUEST_TIMEOUT_SECONDS
             )
-        except requests.RequestException:
+        except requests.RequestException as exc:
+            logger.warning(
+                "Overpass request failed for locator lookup: %s -- nearby services unavailable.",
+                type(exc).__name__,
+            )
             return Response(
                 {"detail": "Nearby services are unavailable right now. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         if response.status_code != 200:
+            logger.warning(
+                "Overpass returned HTTP %s for locator lookup -- nearby services unavailable.",
+                response.status_code,
+            )
             return Response(
                 {"detail": "Nearby services are unavailable right now. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -167,6 +178,9 @@ class NearbyServicesView(APIView):
         try:
             elements = response.json().get("elements", [])
         except ValueError:
+            logger.warning(
+                "Overpass response was not valid JSON for locator lookup -- nearby services unavailable."
+            )
             return Response(
                 {"detail": "Nearby services are unavailable right now. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
