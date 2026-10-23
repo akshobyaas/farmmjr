@@ -181,7 +181,11 @@
     "connectionError": "सर्वर तक नहीं पहुंचा जा सका। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
     "inputLabel": "संदेश टाइप करें",
     "inputPlaceholder": "अपना प्रश्न टाइप करें…",
-    "sendButton": "भेजें"
+    "sendButton": "भेजें",
+    "micLabel": "आवाज़ इनपुट शुरू करें",
+    "micListening": "सुन रहा है…",
+    "voiceOnLabel": "आवाज़ जवाब म्यूट करें",
+    "voiceOffLabel": "आवाज़ जवाब अनम्यूट करें"
   },
   "locator": {
     "title": "नज़दीकी सेवाएं",

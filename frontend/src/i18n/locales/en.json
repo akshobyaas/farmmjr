@@ -181,7 +181,11 @@
     "connectionError": "Could not reach the server. Please check your connection and try again.",
     "inputLabel": "Type a message",
     "inputPlaceholder": "Type your question…",
-    "sendButton": "Send"
+    "sendButton": "Send",
+    "micLabel": "Start voice input",
+    "micListening": "Listening…",
+    "voiceOnLabel": "Mute voice replies",
+    "voiceOffLabel": "Unmute voice replies"
   },
   "locator": {
     "title": "Nearby Services",
