@@ -247,6 +247,62 @@ class GeminiChatTests(APITestCase):
         sent_history_text = sent_payload["contents"][0]["parts"][0]["text"]
         self.assertLessEqual(len(sent_history_text), 2000)
 
+    @override_settings(GEMINI_MODEL="gemini-2.5-flash")
+    @patch("chatbot.gemini_chat.requests.post")
+    def test_thinking_budget_zero_is_sent_for_gemini_2_5_flash_family(self, mock_post):
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            "candidates": [{"content": {"parts": [{"text": "ok"}]}}]
+        }
+        generate_chat_reply("hi", [], "en")
+        sent_payload = mock_post.call_args.kwargs["json"]
+        self.assertEqual(
+            sent_payload["generationConfig"]["thinkingConfig"], {"thinkingBudget": 0}
+        )
+
+    @override_settings(GEMINI_MODEL="gemini-3.5-flash-lite")
+    @patch("chatbot.gemini_chat.requests.post")
+    def test_thinking_level_minimal_is_sent_for_gemini_3_x_flash_family(self, mock_post):
+        # Regression test for a real production bug: gemini-3.5-flash-lite
+        # doesn't recognize the older thinkingBudget field at all (it was
+        # replaced by thinkingLevel for this generation), and with nothing
+        # sent the backend fell back to a 5-second default that produced
+        # a real ReadTimeout on a live farmer request -- silently
+        # degrading every reply to the old FAQ matcher. thinkingLevel
+        # can't fully disable thinking on this family ("minimal" is its
+        # lowest setting, and also its own default), but sending it
+        # explicitly pins that intent rather than relying on a default
+        # that could change.
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            "candidates": [{"content": {"parts": [{"text": "ok"}]}}]
+        }
+        generate_chat_reply("hi", [], "en")
+        sent_payload = mock_post.call_args.kwargs["json"]
+        self.assertEqual(
+            sent_payload["generationConfig"]["thinkingConfig"], {"thinkingLevel": "minimal"}
+        )
+        self.assertNotIn("thinkingBudget", sent_payload["generationConfig"]["thinkingConfig"])
+
+    @override_settings(GEMINI_MODEL="gemini-1.5-pro")
+    @patch("chatbot.gemini_chat.requests.post")
+    def test_no_thinking_config_sent_for_an_unrelated_model_family(self, mock_post):
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            "candidates": [{"content": {"parts": [{"text": "ok"}]}}]
+        }
+        generate_chat_reply("hi", [], "en")
+        sent_payload = mock_post.call_args.kwargs["json"]
+        self.assertNotIn("generationConfig", sent_payload)
+
+    def test_request_timeout_is_generous_enough_for_real_world_latency(self):
+        # Pins the fix for the ReadTimeout above: 5 seconds proved too
+        # tight for a real round trip to Gemini from a real network, even
+        # when nothing was wrong with the request itself. Guards against
+        # a future edit silently shrinking this back down.
+        from . import gemini_chat
+        self.assertGreaterEqual(gemini_chat.REQUEST_TIMEOUT_SECONDS, 10)
+
 
 class ChatMessageViewAiTests(APITestCase):
     def setUp(self):

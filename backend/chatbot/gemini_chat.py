@@ -21,7 +21,13 @@ logger = logging.getLogger(__name__)
 # x-goog-api-key header, never the URL, so it can't leak into requests'
 # error messages or logs.
 GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-REQUEST_TIMEOUT_SECONDS = 5
+# Was 5 -- a real farmer request on a real residential connection hit a
+# genuine ReadTimeout at that budget (TLS handshake + request + Gemini's
+# own generation time all have to fit inside it), which silently
+# degraded that reply to the old FAQ matcher with zero visible sign to
+# the farmer. 10s is still short enough that a slow reply doesn't feel
+# broken, while giving a live network round trip real room to succeed.
+REQUEST_TIMEOUT_SECONDS = 10
 MAX_HISTORY_TURNS = 10
 
 SYSTEM_INSTRUCTION = (
@@ -84,17 +90,43 @@ def _history_to_contents(history):
     return contents
 
 
-def _supports_disabling_thinking(model):
+def _thinking_config_for(model):
     """
-    The 2.5 Flash family "thinks" before answering by default, which can
-    push a reply past REQUEST_TIMEOUT_SECONDS. thinkingBudget=0 turns that
-    off -- but only Flash/Flash-Lite accept 0 (2.5 Pro rejects it with a
-    400, and older models don't know the field), so it's only sent for
-    gemini-2.5-flash* model names. (Copied from crops/diary_ai.py -- kept
-    duplicated per-app rather than imported across apps, consistent with
-    this codebase's existing per-app independence.)
+    Returns the generationConfig.thinkingConfig payload to send for this
+    model, or None when this model doesn't need one. Keeps thinking as
+    minimal as the model allows, since a farmer-facing chat reply doesn't
+    need deep reasoning and every second of it eats into
+    REQUEST_TIMEOUT_SECONDS before a silent fallback to the FAQ matcher.
+
+    Gemini 2.5 Flash family: thinking fully disables via the older
+    thinkingBudget=0 field -- but only Flash/Flash-Lite accept 0 (2.5 Pro
+    rejects it with a 400, and older models don't know the field), so
+    it's only sent for gemini-2.5-flash* model names.
+
+    Gemini 3.x Flash family: thinkingBudget was replaced by a different
+    field, thinkingLevel, and this generation can't fully disable
+    thinking at all -- "minimal" is its lowest level (and, per Google's
+    own docs, also this family's own default already). Sending it
+    explicitly doesn't speed anything up by itself, but pins the same
+    "be deliberate about thinking cost" intent the 2.5 branch above has,
+    and protects against Google quietly changing the default later.
+    Scoped to Flash models specifically (not Pro), same caution as 2.5.
+
+    Caught a real production bug from relying on the old
+    thinkingBudget-only check alone: a farmer configured with
+    gemini-3.5-flash-lite got NO generationConfig sent at all (this
+    function returned False for that model name), and a real request
+    against it hit a genuine ReadTimeout on REQUEST_TIMEOUT_SECONDS=5 --
+    silently degrading every chat reply to the old FAQ matcher. Bumping
+    the timeout (below) is the actual fix for that; this function being
+    thinkingLevel-aware for the 3.x family is a related, deliberate
+    improvement, not a guess that it alone would have prevented it.
     """
-    return model.startswith("gemini-2.5-flash")
+    if model.startswith("gemini-2.5-flash"):
+        return {"thinkingBudget": 0}
+    if model.startswith("gemini-3.") and "flash" in model:
+        return {"thinkingLevel": "minimal"}
+    return None
 
 
 def generate_chat_reply(message, history, ui_language):
@@ -119,8 +151,9 @@ def generate_chat_reply(message, history, ui_language):
         "contents": contents,
     }
     model = getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash")
-    if _supports_disabling_thinking(model):
-        payload["generationConfig"] = {"thinkingConfig": {"thinkingBudget": 0}}
+    thinking_config = _thinking_config_for(model)
+    if thinking_config is not None:
+        payload["generationConfig"] = {"thinkingConfig": thinking_config}
 
     try:
         response = requests.post(
