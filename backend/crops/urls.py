@@ -1,10 +1,9 @@
 from django.urls import path
-from .views import (
-    CropListView, CropDetailView, DiseaseDetailView,
-    FarmerCropTrackerListCreateView, FarmerCropTrackerDetailView,
-    FarmingDiaryEntryListCreateView, FarmingDiaryEntryDetailView,
-    RiskAlertsView, TodaysTasksView,
-)
+from .views_catalog import CropListView, CropDetailView, DiseaseDetailView
+from .views_diary import FarmingDiaryEntryListCreateView, FarmingDiaryEntryDetailView
+from .views_risk_alerts import RiskAlertsView
+from .views_tasks import TodaysTasksView
+from .views_tracker import FarmerCropTrackerListCreateView, FarmerCropTrackerDetailView
 
 urlpatterns = [
     path('crops/', CropListView.as_view(), name='crop-list'),

@@ -19,7 +19,7 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.test import APITestCase
 from .diary_ai import generate_diary_analysis
-from .serializers import diary_today
+from .serializers_diary import diary_today
 from .models import Crop, FarmerCropTracker, FarmingDiaryEntry
 
 User = get_user_model()
@@ -173,7 +173,7 @@ class FarmingDiaryEntryAPITests(APITestCase):
         yesterday = FarmingDiaryEntry.objects.create(
             tracker=self.tracker, entry_date=date(2026, 10, 19), note="yesterday's real entry"
         )
-        with patch("crops.serializers.diary_today", side_effect=lambda: diary_today(utc_instant)):
+        with patch("crops.serializers_diary.diary_today", side_effect=lambda: diary_today(utc_instant)):
             resp = self.client.post("/api/crops/diary/", {"tracker": self.tracker.id, "note": "early morning"})
 
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -184,7 +184,7 @@ class FarmingDiaryEntryAPITests(APITestCase):
             FarmingDiaryEntry.objects.get(entry_date=date(2026, 10, 20)).note, "early morning"
         )
 
-    @patch("crops.views.generate_diary_analysis")
+    @patch("crops.views_diary.generate_diary_analysis")
     def test_recent_entries_passed_to_ai_are_the_5_most_recent_oldest_to_newest(self, mock_generate):
         # Regression test for a bug caught in review: `diary_entries`
         # inherits FarmingDiaryEntry.Meta.ordering ("-entry_date", newest
@@ -525,7 +525,7 @@ class FarmingDiaryAiViewWiringTests(APITestCase):
     End-to-end wiring between the diary POST view and Task 4's
     generate_diary_analysis: DiaryAiTests above only covers the pure
     function, so these prove the view actually calls it and persists the
-    result. `crops.views.generate_diary_analysis` is patched in every test
+    result. `crops.views_diary.generate_diary_analysis` is patched in every test
     (and the key is blanked as a second guard), so nothing here can reach
     the real Gemini API.
     """
@@ -536,7 +536,7 @@ class FarmingDiaryAiViewWiringTests(APITestCase):
         self.tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.crop)
         self.client.force_authenticate(user=self.farmer)
 
-    @patch("crops.views.generate_diary_analysis", return_value="Leaves look healthy; keep watering.")
+    @patch("crops.views_diary.generate_diary_analysis", return_value="Leaves look healthy; keep watering.")
     def test_successful_analysis_is_saved_with_ok_status(self, mock_generate):
         resp = self.client.post("/api/crops/diary/", {"tracker": self.tracker.id, "note": "watered"})
 
@@ -548,7 +548,7 @@ class FarmingDiaryAiViewWiringTests(APITestCase):
         self.assertEqual(resp.data["ai_analysis_status"], "ok")
         self.assertEqual(resp.data["ai_analysis"], "Leaves look healthy; keep watering.")
 
-    @patch("crops.views.generate_diary_analysis", return_value=None)
+    @patch("crops.views_diary.generate_diary_analysis", return_value=None)
     def test_failed_analysis_still_saves_entry_with_unavailable_status(self, mock_generate):
         resp = self.client.post("/api/crops/diary/", {"tracker": self.tracker.id, "note": "watered"})
 
@@ -560,7 +560,7 @@ class FarmingDiaryAiViewWiringTests(APITestCase):
         self.assertEqual(entry.ai_analysis, "")
         self.assertEqual(resp.data["ai_analysis_status"], "unavailable")
 
-    @patch("crops.views.generate_diary_analysis")
+    @patch("crops.views_diary.generate_diary_analysis")
     def test_same_day_update_re_runs_analysis_and_replaces_the_old_one(self, mock_generate):
         mock_generate.return_value = "Morning analysis."
         self.client.post("/api/crops/diary/", {"tracker": self.tracker.id, "note": "morning"})
@@ -577,7 +577,7 @@ class FarmingDiaryAiViewWiringTests(APITestCase):
         updated_entry_arg, _recent = mock_generate.call_args[0]
         self.assertEqual(updated_entry_arg.note, "evening")
 
-    @patch("crops.views.generate_diary_analysis")
+    @patch("crops.views_diary.generate_diary_analysis")
     def test_same_day_update_that_fails_clears_the_earlier_analysis(self, mock_generate):
         # A stale morning analysis must not be shown against the evening's
         # updated entry once the re-run fails.
