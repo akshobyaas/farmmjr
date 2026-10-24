@@ -1,0 +1,95 @@
+/* ===== Phase 15 — Nearby agriculture services locator ===== */
+.locator-search-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 450px;
+}
+.locator-place-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+.locator-place-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.locator-view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--color-primary-tint);
+  border-radius: 10px;
+  padding: 4px;
+  width: fit-content;
+}
+.locator-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  min-height: 36px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.locator-toggle-active {
+  background: white;
+  color: var(--color-primary-dark);
+  box-shadow: none;
+}
+.locator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+.locator-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+}
+.locator-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 4px;
+}
+.locator-card-category {
+  font-size: 14px;
+  color: var(--color-primary-dark);
+  margin: 0 0 4px;
+}
+.locator-card-meta {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.locator-map-wrap {
+  width: 100%;
+  max-width: 700px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+}
+.locator-map {
+  width: 100%;
+  height: 400px;
+}
+/* Distinguishes the "your location" pin from result pins without a second
+   icon image -- a warm color shift reads clearly against the default blue. */
+.locator-origin-marker {
+  filter: hue-rotate(130deg) saturate(1.4);
+}

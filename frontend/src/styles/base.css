@@ -1,0 +1,35 @@
+/* Global, document-level styles — the font import, the box-sizing reset,
+   and the base <body> styling. These aren't page-specific or shared
+   *component* primitives (that's shared.css's job); they're the
+   foundation every page sits on, so they get their own file rather than
+   living in tokens.css (design tokens only) or shared.css (component
+   classes). Moved here from App.css as part of Task 8 -- App.css itself
+   is deleted once nothing real is left in it. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", "Noto Sans", sans-serif;
+  /* Polish pass: more generous line-height for a calmer, easier-to-read
+     page (descriptions/status text especially) -- the browser default of
+     ~1.2 reads cramped once there's real paragraph-length content. */
+  line-height: 1.5;
+  /* index.css (leftover from the original Vite template) used to be the
+     only thing centering card text -- nothing in this file ever declared
+     it, so the whole app's "centered card" look was riding on unrelated
+     boilerplate. Made explicit here instead, and index.css has been
+     cleaned of everything that isn't actually part of this app's design
+     (it was also capping the page to 1126px and drawing a stray side
+     border via #root, visible on any screen wider than that, worse in OS
+     dark mode since that border color changed with prefers-color-scheme
+     while the rest of the app didn't). Merged with the rule above --
+     both were plain `body { ... }` selectors with no overlapping
+     properties, so merging changes nothing observable. */
+  text-align: center;
+}

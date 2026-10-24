@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { fetchScanHistory } from "../api/scans";
+import { useScanHistory } from "../hooks/useScanHistory";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import styles from "./ScanHistoryPage.module.css";
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -15,31 +15,7 @@ function formatDate(isoString) {
 
 export default function ScanHistoryPage() {
   const { t } = useTranslation();
-  const [results, setResults] = useState([]);
-  const [count, setCount] = useState(0);
-  const [page, setPage] = useState(1);
-  const [hasNext, setHasNext] = useState(false);
-  const [hasPrevious, setHasPrevious] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const loadPage = useCallback((pageNumber) => {
-    setLoading(true);
-    setError("");
-    fetchScanHistory(pageNumber)
-      .then((data) => {
-        setResults(data.results);
-        setCount(data.count);
-        setHasNext(Boolean(data.next));
-        setHasPrevious(Boolean(data.previous));
-      })
-      .catch(() => setError(t("scan.historyLoadError")))
-      .finally(() => setLoading(false));
-  }, [t]);
-
-  useEffect(() => {
-    loadPage(page);
-  }, [page, loadPage]);
+  const { results, count, page, setPage, hasNext, hasPrevious, loading, error } = useScanHistory();
 
   return (
     <div className="dashboard-page">
@@ -62,19 +38,19 @@ export default function ScanHistoryPage() {
                 ? t("scan.totalCount", { count })
                 : t("scan.totalCountPlural", { count })}
             </p>
-            <div className="scan-history-list">
+            <div className={styles["scan-history-list"]}>
               {results.map((scan) => (
-                <Link key={scan.id} to={`/scan/history/${scan.id}`} className="scan-history-item">
+                <Link key={scan.id} to={`/scan/history/${scan.id}`} className={styles["scan-history-item"]}>
                   {scan.image && (
                     <img src={scan.image} alt="" className="scan-history-thumbnail" />
                   )}
-                  <div className="scan-history-info">
-                    <p className="scan-history-disease">
+                  <div className={styles["scan-history-info"]}>
+                    <p className={styles["scan-history-disease"]}>
                       {scan.disease_name
                         ? `${scan.disease_name}${scan.crop_name ? ` — ${scan.crop_name}` : ""}`
                         : t("scan.predictionUnavailable")}
                     </p>
-                    <p className="scan-history-meta">
+                    <p className={styles["scan-history-meta"]}>
                       {typeof scan.confidence === "number" && `${(scan.confidence * 100).toFixed(1)}% · `}
                       {formatDate(scan.created_at)}
                     </p>
@@ -83,7 +59,7 @@ export default function ScanHistoryPage() {
               ))}
             </div>
 
-            <div className="scan-history-pagination">
+            <div className={styles["scan-history-pagination"]}>
               <button
                 type="button"
                 className="btn-secondary"
@@ -92,7 +68,7 @@ export default function ScanHistoryPage() {
               >
                 {t("common.previous")}
               </button>
-              <span className="scan-history-page-label">{t("scan.pageLabel", { page })}</span>
+              <span className={styles["scan-history-page-label"]}>{t("scan.pageLabel", { page })}</span>
               <button
                 type="button"
                 className="btn-secondary"

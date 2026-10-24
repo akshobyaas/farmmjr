@@ -1,0 +1,27 @@
+:root {
+  --color-primary: #2F9E44;
+  --color-primary-dark: #257A36;
+  --color-primary-light: #9FD9A8;
+  --color-primary-tint: #EAF7EC;
+  --color-alert: #D64545;
+  /* Minimal pass: plain white page background in place of the previous
+     warm cream gradient -- the gradient vars are kept (other rules still
+     reference them) but all three stops are now the same flat white, so
+     those gradients render as a solid color with no decoration. */
+  --color-bg: #FFFFFF;
+  --color-bg-grad-start: #FFFFFF;
+  --color-bg-grad-mid: #FFFFFF;
+  --color-warning: #B8720E;
+  --color-warning-tint: #FBF1DD;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
+  --color-sky: #2F8FC2;
+  --color-sky-light: #A9DCEE;
+  --color-gold: #C2790E;
+  --color-gold-light: #F0C877;
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --shadow-card: none;
+  --shadow-lift: none;
+}

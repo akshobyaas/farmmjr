@@ -1,0 +1,154 @@
+/* :global(.app-main) raises specificity to (0,2,0) so this always wins
+   over shared.css's plain .app-main (0,1,0) -- found necessary by the
+   final whole-branch review (Task 8 commit): App.jsx imports every page's
+   *.module.css before styles/shared.css, so on load order alone
+   .app-main's align-items:center from shared.css now wins instead of
+   this rule, shrinking/centering the crop-info card instead of letting
+   it stretch full-width. Fixing it with specificity here (rather than
+   reordering App.jsx's imports) is deliberate: reordering would flip a
+   different latent bug the other way (.chip in shared.css vs
+   DashboardPage's .dashboard-chip-lang/.dashboard-chip-role-admin). */
+.crop-detail-main:global(.app-main) {
+  align-items: stretch;
+  max-width: 600px;
+  margin: 0 auto;
+}
+/* Moved here from App.css (Task 7 closing check) -- a checkbox + its own
+   text, inline, matching .form-label's font-size/color/spacing rhythm.
+   Only ever used on this page's diary form, so it belongs here rather
+   than as a global rule. */
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 12px 0;
+  color: var(--color-text);
+  text-align: left;
+}
+.form-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.crop-section {
+  width: 100%;
+  margin-top: 8px;
+}
+.lifecycle-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 2px solid var(--color-border);
+}
+.lifecycle-stage {
+  padding: 8px 0 8px 16px;
+  text-align: left;
+}
+.lifecycle-stage-name {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.lifecycle-stage-duration {
+  display: block;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.fertilizer-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.fertilizer-card p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.fertilizer-stage {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+/* A level below .crop-section-title (17px/600) -- left unstyled, the
+   browser's default h3 (~18.7px bold) would outrank the h2 above it. */
+.crop-section-subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 18px 0 10px;
+  text-align: left;
+}
+.diary-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+/* Same card surface as .fertilizer-card. */
+.diary-entry-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  text-align: left;
+}
+.diary-entry-card p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.diary-entry-card .diary-entry-date {
+  margin-top: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.diary-entry-activities {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+/* Farmer-typed notes and Gemini replies can both contain line breaks. */
+.diary-entry-note {
+  white-space: pre-line;
+}
+.diary-entry-card .diary-entry-diagnosis {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.diary-entry-card .diary-entry-analysis {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-btn);
+  white-space: pre-line;
+}
+.diary-entry-card .diary-entry-analysis-unavailable {
+  background: transparent;
+  padding: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+/* ===== Phase 14 — Learning videos ===== */
+.video-link-card {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 500;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.video-link-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}

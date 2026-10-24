@@ -1,31 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useForgotPasswordForm } from "../hooks/useForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
-  const { requestPasswordReset } = useAuth();
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSubmitting(true);
-    try {
-      await requestPasswordReset(email);
-      setSubmitted(true);
-    } catch (err) {
-      if (err.response?.status === 429) {
-        setError("Too many requests. Please wait a minute and try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const { email, setEmail, submitted, error, submitting, handleSubmit } = useForgotPasswordForm();
 
   return (
     <div className="auth-page">

@@ -19,7 +19,9 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ResendVerificationPage from "./pages/ResendVerificationPage";
-import "./App.css";
+import "./styles/tokens.css";
+import "./styles/base.css";
+import "./styles/shared.css";
 
 function App() {
   return (

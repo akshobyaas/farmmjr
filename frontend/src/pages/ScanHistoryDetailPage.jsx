@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { fetchScanDetail } from "../api/scans";
+import { useScanDetail } from "../hooks/useScanDetail";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 import LowConfidenceNudge from "../components/LowConfidenceNudge";
@@ -9,25 +8,7 @@ import LowConfidenceNudge from "../components/LowConfidenceNudge";
 export default function ScanHistoryDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams();
-  const [scan, setScan] = useState(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    setScan(null);
-    setError("");
-    fetchScanDetail(id)
-      .then((data) => setScan(data))
-      .catch((err) => {
-        if (err.response?.status === 404 || err.response?.status === 403) {
-          // A 403 here (IsScanOwner) reads the same as "not found" to the
-          // farmer -- we never confirm or deny that some OTHER user's scan
-          // ID exists, that would itself be a minor information leak.
-          setError(t("scan.notFound"));
-        } else {
-          setError(t("scan.loadError"));
-        }
-      });
-  }, [id, t]);
+  const { scan, error } = useScanDetail(id);
 
   if (error) {
     return (

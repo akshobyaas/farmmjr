@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { fetchNearbyServices } from "../api/locator";
+import { useLocatorSearch } from "../hooks/useLocatorSearch";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import styles from "./LocatorPage.module.css";
 
 // react-leaflet's default marker icon references image paths that don't
 // resolve correctly once bundled by Vite -- pointing it at the same
@@ -28,67 +29,30 @@ const originIcon = new L.Icon({
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
-  className: "locator-origin-marker",
+  className: styles["locator-origin-marker"],
 });
 
 export default function LocatorPage() {
   const { t } = useTranslation();
-  const [placeInput, setPlaceInput] = useState("");
   const [view, setView] = useState("list");
-  const [origin, setOrigin] = useState(null);
-  const [results, setResults] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [searched, setSearched] = useState(false);
-
-  const runSearch = (params) => {
-    setLoading(true);
-    setError("");
-    setResults(null);
-    setSearched(true);
-    fetchNearbyServices(params)
-      .then((data) => {
-        setOrigin(data.origin);
-        setResults(data.results);
-      })
-      .catch((err) => {
-        setError(err.response?.data?.detail || t("locator.fetchError"));
-      })
-      .finally(() => setLoading(false));
-  };
-
-  const handlePlaceSubmit = (e) => {
-    e.preventDefault();
-    if (!placeInput.trim()) return;
-    runSearch({ place: placeInput.trim() });
-  };
-
-  const handleUseMyLocation = () => {
-    if (!navigator.geolocation) {
-      setError(t("common.geoUnsupported"));
-      return;
-    }
-    setLoading(true);
-    setError("");
-    // The browser itself shows the permission prompt here -- we never
-    // access location silently.
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        runSearch({ lat: position.coords.latitude, lon: position.coords.longitude });
-      },
-      () => {
-        setLoading(false);
-        setError(t("common.geoDenied"));
-      }
-    );
-  };
+  const {
+    placeInput,
+    setPlaceInput,
+    origin,
+    results,
+    loading,
+    error,
+    searched,
+    handlePlaceSubmit,
+    handleUseMyLocation,
+  } = useLocatorSearch();
 
   return (
     <div className="dashboard-page">
       <AppHeader title={t("locator.title")} className="locator-header" />
 
       <main className="app-main">
-        <form className="locator-search-form" onSubmit={handlePlaceSubmit}>
+        <form className={styles["locator-search-form"]} onSubmit={handlePlaceSubmit}>
           <label htmlFor="locator-place" className="sr-only">
             {t("locator.placeLabel")}
           </label>
@@ -98,7 +62,7 @@ export default function LocatorPage() {
             placeholder={t("locator.placePlaceholder")}
             value={placeInput}
             onChange={(e) => setPlaceInput(e.target.value)}
-            className="locator-place-input"
+            className={styles["locator-place-input"]}
           />
           <button type="submit" className="btn-primary" disabled={loading || !placeInput.trim()}>
             {t("common.search")}
@@ -120,12 +84,12 @@ export default function LocatorPage() {
 
         {!loading && !error && results && results.length > 0 && (
           <>
-            <div className="locator-view-toggle" role="tablist">
+            <div className={styles["locator-view-toggle"]} role="tablist">
               <button
                 type="button"
                 role="tab"
                 aria-selected={view === "list"}
-                className={`locator-toggle-btn ${view === "list" ? "locator-toggle-active" : ""}`}
+                className={`${styles["locator-toggle-btn"]} ${view === "list" ? styles["locator-toggle-active"] : ""}`}
                 onClick={() => setView("list")}
               >
                 {t("locator.viewList")}
@@ -134,7 +98,7 @@ export default function LocatorPage() {
                 type="button"
                 role="tab"
                 aria-selected={view === "map"}
-                className={`locator-toggle-btn ${view === "map" ? "locator-toggle-active" : ""}`}
+                className={`${styles["locator-toggle-btn"]} ${view === "map" ? styles["locator-toggle-active"] : ""}`}
                 onClick={() => setView("map")}
               >
                 {t("locator.viewMap")}
@@ -142,12 +106,12 @@ export default function LocatorPage() {
             </div>
 
             {view === "list" && (
-              <div className="locator-list">
+              <div className={styles["locator-list"]}>
                 {results.map((service) => (
-                  <div key={service.id} className="locator-card">
-                    <p className="locator-card-name">{service.name}</p>
-                    <p className="locator-card-category">{service.category}</p>
-                    <p className="locator-card-meta">
+                  <div key={service.id} className={styles["locator-card"]}>
+                    <p className={styles["locator-card-name"]}>{service.name}</p>
+                    <p className={styles["locator-card-category"]}>{service.category}</p>
+                    <p className={styles["locator-card-meta"]}>
                       {t("locator.kmAway", { km: service.distance_km })}
                       {service.address && ` · ${service.address}`}
                     </p>
@@ -157,12 +121,12 @@ export default function LocatorPage() {
             )}
 
             {view === "map" && origin && (
-              <div className="locator-map-wrap">
+              <div className={styles["locator-map-wrap"]}>
                 <MapContainer
                   center={[origin.lat, origin.lon]}
                   zoom={12}
                   scrollWheelZoom={false}
-                  className="locator-map"
+                  className={styles["locator-map"]}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

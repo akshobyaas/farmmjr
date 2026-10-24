@@ -2,11 +2,13 @@
    (a purple demo accent color, a dark-mode palette this app never uses, and
    a `#root` rule that capped the page to 1126px and drew a 1px side border
    down the whole app). None of that was ever part of this app's actual
-   design (App.css is) -- it was just unused boilerplate nobody removed,
-   and the #root rule in particular was a real, visible bug: a stray
-   vertical border line on any screen wider than 1126px, in a color that
-   changed under OS dark mode while the rest of the app didn't.
-   App.css already provides the real box-sizing reset and body styling, so
-   there's nothing left here to add -- kept as an empty stylesheet (still
-   imported by main.jsx) rather than removing the import, to keep this
-   change to CSS content only. */
+   design -- it was just unused boilerplate nobody removed, and the #root
+   rule in particular was a real, visible bug: a stray vertical border
+   line on any screen wider than 1126px, in a color that changed under OS
+   dark mode while the rest of the app didn't.
+   The real box-sizing reset and body styling live in styles/base.css now
+   (previously App.css, deleted in Task 8 of the frontend structure
+   cleanup once nothing page-specific was left in it) -- there's nothing
+   left here to add. Kept as an empty stylesheet (still imported by
+   main.jsx) rather than removing the import, to keep that change to CSS
+   content only. */

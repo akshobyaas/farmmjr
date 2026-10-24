@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
-import { listAdvisoryQueries, createAdvisoryQuery, answerAdvisoryQuery } from "../api/advisory";
+import { useAdvisoryQueries } from "../hooks/useAdvisoryQueries";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import styles from "./AdvisoryPage.module.css";
 
 function StatusBadge({ status, t }) {
   return (
-    <span className={`advisory-status-badge advisory-status-${status}`}>
+    <span className={`${styles["advisory-status-badge"]} ${styles[`advisory-status-${status}`]}`}>
       {status === "answered" ? t("advisory.statusAnswered") : t("advisory.statusPending")}
     </span>
   );
@@ -20,99 +20,42 @@ export default function AdvisoryPage() {
   const location = useLocation();
   const isAdmin = user?.role === "admin";
 
-  const [queries, setQueries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [filter, setFilter] = useState("pending"); // admin only: "pending" | "all"
-
-  // A low-confidence scan result (LowConfidenceNudge.jsx) links here with
-  // `state: { prefill, scanId }` so the farmer doesn't have to re-describe
-  // what the app already knows -- lazy initializers so these only ever
-  // read the location state this page was first navigated here with, not
-  // on every render.
-  const [question, setQuestion] = useState(() => location.state?.prefill || "");
-  // Attached to only the next submitted question, then cleared -- a
-  // follow-up question typed in later during the same visit shouldn't
-  // keep claiming to be about this scan. Sending it is what makes the
-  // backend notify the admin/expert (AdvisoryQuery.scan -- see
-  // advisory/utils.py's should_notify_admins).
-  const [pendingScanId, setPendingScanId] = useState(() => location.state?.scanId ?? null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState(false);
-  const [formSuccess, setFormSuccess] = useState(false);
-
-  const [drafts, setDrafts] = useState({}); // admin answer drafts, keyed by query id
-  const [answering, setAnswering] = useState(null); // id currently being submitted
-  const [answerError, setAnswerError] = useState(false);
-
-  const loadQueries = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await listAdvisoryQueries(isAdmin && filter !== "all" ? filter : undefined);
-      setQueries(data);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [isAdmin, filter, t]);
-
-  useEffect(() => {
-    loadQueries();
-  }, [loadQueries]);
-
-  const handleAsk = async (e) => {
-    e.preventDefault();
-    const text = question.trim();
-    if (!text || submitting) return;
-
-    setSubmitting(true);
-    setFormError(false);
-    setFormSuccess(false);
-    try {
-      await createAdvisoryQuery(text, pendingScanId);
-      setQuestion("");
-      setPendingScanId(null);
-      setFormSuccess(true);
-      loadQueries();
-    } catch {
-      setFormError(true);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleAnswer = async (id) => {
-    const text = (drafts[id] || "").trim();
-    if (!text || answering) return;
-
-    setAnswering(id);
-    setAnswerError("");
-    try {
-      await answerAdvisoryQuery(id, text);
-      setDrafts((prev) => ({ ...prev, [id]: "" }));
-      loadQueries();
-    } catch {
-      setAnswerError(true);
-    } finally {
-      setAnswering(null);
-    }
-  };
+  const {
+    queries,
+    loading,
+    error,
+    filter,
+    setFilter,
+    question,
+    setQuestion,
+    submitting,
+    formError,
+    formSuccess,
+    handleAsk,
+    drafts,
+    setDrafts,
+    answering,
+    answerError,
+    handleAnswer,
+  } = useAdvisoryQueries({
+    isAdmin,
+    initialPrefill: location.state?.prefill,
+    initialScanId: location.state?.scanId,
+  });
 
   return (
     <div className="dashboard-page">
       <AppHeader title={isAdmin ? t("advisory.titleAdmin") : t("advisory.titleAsk")} />
 
-      <main className="app-main advisory-main">
+      <main className={`app-main ${styles["advisory-main"]}`}>
         {!isAdmin && (
-          <form className="advisory-form" onSubmit={handleAsk}>
+          <form className={styles["advisory-form"]} onSubmit={handleAsk}>
             <label htmlFor="advisory-question" className="sr-only">
               {t("advisory.questionLabel")}
             </label>
             <textarea
               id="advisory-question"
-              className="advisory-textarea"
+              className={styles["advisory-textarea"]}
               placeholder={t("advisory.questionPlaceholder")}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -136,17 +79,17 @@ export default function AdvisoryPage() {
         )}
 
         {isAdmin && (
-          <div className="advisory-filter-tabs">
+          <div className={styles["advisory-filter-tabs"]}>
             <button
               type="button"
-              className={`advisory-toggle-btn ${filter === "pending" ? "advisory-toggle-active" : ""}`}
+              className={`${styles["advisory-toggle-btn"]} ${filter === "pending" ? styles["advisory-toggle-active"] : ""}`}
               onClick={() => setFilter("pending")}
             >
               {t("advisory.filterPending")}
             </button>
             <button
               type="button"
-              className={`advisory-toggle-btn ${filter === "all" ? "advisory-toggle-active" : ""}`}
+              className={`${styles["advisory-toggle-btn"]} ${filter === "all" ? styles["advisory-toggle-active"] : ""}`}
               onClick={() => setFilter("all")}
             >
               {t("advisory.filterAll")}
@@ -172,25 +115,25 @@ export default function AdvisoryPage() {
           </p>
         )}
 
-        <ul className="advisory-list">
+        <ul className={styles["advisory-list"]}>
           {queries.map((q) => (
-            <li key={q.id} className="advisory-card">
-              <div className="advisory-card-top">
-                {isAdmin && <span className="advisory-card-farmer">{q.farmer_username}</span>}
+            <li key={q.id} className={styles["advisory-card"]}>
+              <div className={styles["advisory-card-top"]}>
+                {isAdmin && <span className={styles["advisory-card-farmer"]}>{q.farmer_username}</span>}
                 <StatusBadge status={q.status} t={t} />
               </div>
-              <p className="advisory-card-question">{q.question}</p>
+              <p className={styles["advisory-card-question"]}>{q.question}</p>
 
-              {q.status === "answered" && <p className="advisory-response">{q.response}</p>}
+              {q.status === "answered" && <p className={styles["advisory-response"]}>{q.response}</p>}
 
               {isAdmin && q.status === "pending" && (
-                <div className="advisory-answer-form">
+                <div className={styles["advisory-answer-form"]}>
                   <label htmlFor={`answer-${q.id}`} className="sr-only">
                     {t("advisory.answerLabel", { name: q.farmer_username })}
                   </label>
                   <textarea
                     id={`answer-${q.id}`}
-                    className="advisory-textarea"
+                    className={styles["advisory-textarea"]}
                     placeholder={t("advisory.answerPlaceholder")}
                     value={drafts[q.id] || ""}
                     onChange={(e) => setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))}
