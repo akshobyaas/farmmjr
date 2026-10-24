@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from core.api_responses import bad_request, service_unavailable
 from .throttles import WeatherRateThrottle
 
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
@@ -29,20 +30,14 @@ class WeatherView(APIView):
         city = request.query_params.get("city", "").strip()
 
         if not city and not (lat and lon):
-            return Response(
-                {"detail": "Please provide a location (use your device location, or type a place name)."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return bad_request("Please provide a location (use your device location, or type a place name).")
 
         api_key = getattr(settings, "OPENWEATHER_API_KEY", "")
         if not api_key:
             # Not configured yet -- fail soft exactly like a live outage
             # would, rather than a 500. This is the state the app is in
             # until a real OpenWeatherMap key is added to .env.
-            return Response(
-                {"detail": "Weather unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Weather unavailable right now. Please try again later.")
 
         params = {"appid": api_key, "units": "metric"}
         if city:
@@ -56,32 +51,20 @@ class WeatherView(APIView):
         except requests.RequestException:
             # Network error, DNS failure, timeout, etc. -- the external
             # service is unreachable, not our farmer's fault.
-            return Response(
-                {"detail": "Weather unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Weather unavailable right now. Please try again later.")
 
         if response.status_code == 404:
-            return Response(
-                {"detail": "Location not found. Please check the spelling or try a different place name."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return bad_request("Location not found. Please check the spelling or try a different place name.")
 
         if response.status_code == 401:
             # Invalid/expired API key -- an ops problem, not something the
             # farmer using the app can fix, so it gets the same graceful
             # message rather than leaking "unauthorized" API details.
-            return Response(
-                {"detail": "Weather unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Weather unavailable right now. Please try again later.")
 
         if response.status_code != 200:
             # Rate-limited (429) or any other upstream failure.
-            return Response(
-                {"detail": "Weather unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Weather unavailable right now. Please try again later.")
 
         try:
             data = response.json()
@@ -97,9 +80,6 @@ class WeatherView(APIView):
             }
         except (ValueError, KeyError, IndexError):
             # Malformed response from the upstream API -- still don't crash.
-            return Response(
-                {"detail": "Weather unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Weather unavailable right now. Please try again later.")
 
         return Response(result, status=status.HTTP_200_OK)

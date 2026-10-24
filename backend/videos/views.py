@@ -7,6 +7,7 @@ from django.core.cache import cache
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from core.api_responses import bad_request, service_unavailable
 from .throttles import VideoSearchRateThrottle
 
 YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
@@ -45,10 +46,7 @@ class VideoSearchView(APIView):
         query = _sanitize_query(request.query_params.get("q", ""))
 
         if not query:
-            return Response(
-                {"detail": "Please enter a crop name or topic to search for."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return bad_request("Please enter a crop name or topic to search for.")
 
         # Hash the normalized query for the cache key -- spaces/punctuation
         # in a raw query aren't safe memcached key characters (Django warns
@@ -63,10 +61,7 @@ class VideoSearchView(APIView):
         if not api_key:
             # Not configured yet -- fail soft rather than a 500, same
             # pattern as weather.views.WeatherView.
-            return Response(
-                {"detail": "Learning videos are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Learning videos are unavailable right now. Please try again later.")
 
         params = {
             "key": api_key,
@@ -81,20 +76,14 @@ class VideoSearchView(APIView):
         try:
             response = requests.get(YOUTUBE_SEARCH_URL, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
         except requests.RequestException:
-            return Response(
-                {"detail": "Learning videos are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Learning videos are unavailable right now. Please try again later.")
 
         if response.status_code != 200:
             # Covers an invalid/expired key (400/403), quota exhausted
             # (403), and any other upstream failure -- none of these are
             # something the farmer searching can do anything about, so
             # they all collapse to the same graceful message.
-            return Response(
-                {"detail": "Learning videos are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Learning videos are unavailable right now. Please try again later.")
 
         try:
             data = response.json()
@@ -125,10 +114,7 @@ class VideoSearchView(APIView):
                     }
                 )
         except (ValueError, KeyError):
-            return Response(
-                {"detail": "Learning videos are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Learning videos are unavailable right now. Please try again later.")
 
         payload = {"query": query, "results": results}
         cache.set(cache_key, payload, CACHE_TIMEOUT_SECONDS)

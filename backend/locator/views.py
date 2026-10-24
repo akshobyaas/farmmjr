@@ -6,6 +6,7 @@ from django.core.cache import cache
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from core.api_responses import bad_request, service_unavailable
 from .throttles import LocatorRateThrottle
 
 logger = logging.getLogger(__name__)
@@ -115,32 +116,20 @@ class NearbyServicesView(APIView):
         place = request.query_params.get("place", "").strip()
 
         if not place and not (lat_param and lon_param):
-            return Response(
-                {"detail": "Please provide a location (use your device location, or type a place name)."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return bad_request("Please provide a location (use your device location, or type a place name).")
 
         if place:
             coords, geocode_error = _geocode_place(place)
             if geocode_error == "not_found":
-                return Response(
-                    {"detail": "Location not found. Please check the spelling or try a different place name."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return bad_request("Location not found. Please check the spelling or try a different place name.")
             if geocode_error == "unavailable" or coords is None:
-                return Response(
-                    {"detail": "Nearby services are unavailable right now. Please try again later."},
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
-                )
+                return service_unavailable("Nearby services are unavailable right now. Please try again later.")
             lat, lon = coords
         else:
             try:
                 lat, lon = float(lat_param), float(lon_param)
             except (TypeError, ValueError):
-                return Response(
-                    {"detail": "Invalid location. Please try again."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return bad_request("Invalid location. Please try again.")
 
         # Round to ~1.1km grid for the cache key -- a farmer's exact GPS
         # coordinates jitter slightly between requests, and this still
@@ -160,20 +149,14 @@ class NearbyServicesView(APIView):
                 "Overpass request failed for locator lookup: %s -- nearby services unavailable.",
                 type(exc).__name__,
             )
-            return Response(
-                {"detail": "Nearby services are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Nearby services are unavailable right now. Please try again later.")
 
         if response.status_code != 200:
             logger.warning(
                 "Overpass returned HTTP %s for locator lookup -- nearby services unavailable.",
                 response.status_code,
             )
-            return Response(
-                {"detail": "Nearby services are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Nearby services are unavailable right now. Please try again later.")
 
         try:
             elements = response.json().get("elements", [])
@@ -181,10 +164,7 @@ class NearbyServicesView(APIView):
             logger.warning(
                 "Overpass response was not valid JSON for locator lookup -- nearby services unavailable."
             )
-            return Response(
-                {"detail": "Nearby services are unavailable right now. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+            return service_unavailable("Nearby services are unavailable right now. Please try again later.")
 
         results = []
         for el in elements:
