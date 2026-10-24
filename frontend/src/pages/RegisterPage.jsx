@@ -1,71 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../context/AuthContext";
+import { useRegisterForm } from "../hooks/useRegisterForm";
 import PasswordInput from "../components/PasswordInput";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { LANGUAGES } from "../i18n/languages";
-import { languageStorage } from "../i18n/languageStorage";
 import logo from "../assets/logo.png";
-
-function getPasswordHints(password) {
-  return {
-    minLength: password.length >= 8,
-    notAllNumeric: password.length > 0 && !/^\d+$/.test(password),
-  };
-}
+import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
-
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-    password_confirm: "",
-    // Phase 18/22 -- default to whatever language they're already viewing
-    // the page in (their LanguageSwitcher pick, or a returning visitor's
-    // saved choice), not a hardcoded "en", so the dropdown below starts in
-    // agreement with what they're reading.
-    preferred_language: languageStorage.get() || "en",
-  });
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const hints = getPasswordHints(form.password);
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (form.password !== form.password_confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await register({ ...form, role: "farmer" });
-      navigate("/login");
-    } catch (err) {
-      const data = err.response?.data;
-      if (data && typeof data === "object") {
-        const firstField = Object.keys(data)[0];
-        const message = Array.isArray(data[firstField]) ? data[firstField][0] : data[firstField];
-        setError(message || "Something went wrong. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const { form, error, submitting, hints, handleChange, handleSubmit } = useRegisterForm();
 
   return (
     <div className="auth-page">
@@ -96,7 +40,7 @@ export default function RegisterPage() {
             value={form.password} onChange={handleChange} autoComplete="new-password" required
           />
           {form.password.length > 0 && (
-            <ul className="password-hints">
+            <ul className={styles["password-hints"]}>
               <li className={hints.minLength ? "hint-ok" : "hint-pending"}>
                 {hints.minLength ? "✓" : "○"} {t("register.passwordHintLength")}
               </li>

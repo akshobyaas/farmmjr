@@ -1,0 +1,81 @@
+/* ===== Phase 13 — Weather ===== */
+.weather-search-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+.weather-city-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+.weather-city-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+/* .btn-primary defaults to width:100% for its normal standalone use; inside
+   this flex row that fights the input's flex:1 and collapses it to a sliver,
+   so give the button a fixed, content-driven width here instead.
+   :global(...) because .btn-primary is the shared, un-scoped class (lives
+   in shared.css) while .weather-search-form above is this module's own
+   locally-scoped class -- moved here from shared.css, where it had been
+   mis-swept in Task 2 (that pass matched on the shared .btn-primary token
+   inside this compound selector and moved the whole rule, missing that
+   its ancestor, .weather-search-form, was page-specific). Left there, it
+   would have silently stopped matching the instant .weather-search-form
+   became a hashed module class name. */
+.weather-search-form :global(.btn-primary) {
+  width: auto;
+  min-width: 100px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+.weather-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: var(--radius-card);
+  box-shadow: none;
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  color: var(--color-text);
+}
+.weather-location {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 4px;
+}
+.weather-icon {
+  font-size: 44px;
+  margin: 4px 0;
+}
+.weather-temp {
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 4px 0;
+}
+.weather-description {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+  margin: 0 0 12px;
+}
+.weather-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+}

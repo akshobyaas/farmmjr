@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { fetchWeather } from "../api/weather";
+import { useWeather } from "../hooks/useWeather";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import styles from "./WeatherPage.module.css";
 
 // Simple, dependency-free mapping from OpenWeatherMap's icon code prefix to
 // an emoji, since we don't want to pull in an icon font/library just for
@@ -26,57 +26,14 @@ function iconFor(code) {
 
 export default function WeatherPage() {
   const { t } = useTranslation();
-  const [cityInput, setCityInput] = useState("");
-  const [weather, setWeather] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const runFetch = async (params) => {
-    setLoading(true);
-    setError("");
-    setWeather(null);
-    try {
-      const data = await fetchWeather(params);
-      setWeather(data);
-    } catch (err) {
-      setError(err.response?.data?.detail || t("weather.fetchError"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCitySubmit = (e) => {
-    e.preventDefault();
-    if (!cityInput.trim()) return;
-    runFetch({ city: cityInput.trim() });
-  };
-
-  const handleUseMyLocation = () => {
-    if (!navigator.geolocation) {
-      setError(t("common.geoUnsupported"));
-      return;
-    }
-    setLoading(true);
-    setError("");
-    // The browser itself shows the permission prompt here -- we never
-    // access location silently.
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        runFetch({ lat: position.coords.latitude, lon: position.coords.longitude });
-      },
-      () => {
-        setLoading(false);
-        setError(t("common.geoDenied"));
-      }
-    );
-  };
+  const { cityInput, setCityInput, weather, loading, error, handleCitySubmit, handleUseMyLocation } = useWeather();
 
   return (
     <div className="dashboard-page">
       <AppHeader title={t("weather.title")} className="weather-header" />
 
       <main className="app-main">
-        <form className="weather-search-form" onSubmit={handleCitySubmit}>
+        <form className={styles["weather-search-form"]} onSubmit={handleCitySubmit}>
           <label htmlFor="weather-city" className="sr-only">
             {t("locator.placeLabel")}
           </label>
@@ -86,7 +43,7 @@ export default function WeatherPage() {
             placeholder={t("weather.placePlaceholder")}
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
-            className="weather-city-input"
+            className={styles["weather-city-input"]}
           />
           <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
             {t("common.search")}
@@ -101,14 +58,14 @@ export default function WeatherPage() {
         {error && <p className="form-error" role="alert">{error}</p>}
 
         {!loading && !error && weather && (
-          <div className="weather-card">
-            <p className="weather-location">{weather.location}</p>
-            <p className="weather-icon">{iconFor(weather.icon)}</p>
+          <div className={styles["weather-card"]}>
+            <p className={styles["weather-location"]}>{weather.location}</p>
+            <p className={styles["weather-icon"]}>{iconFor(weather.icon)}</p>
             {typeof weather.temperature === "number" && (
-              <p className="weather-temp">{Math.round(weather.temperature)}°C</p>
+              <p className={styles["weather-temp"]}>{Math.round(weather.temperature)}°C</p>
             )}
-            {weather.description && <p className="weather-description">{weather.description}</p>}
-            <div className="weather-meta">
+            {weather.description && <p className={styles["weather-description"]}>{weather.description}</p>}
+            <div className={styles["weather-meta"]}>
               {typeof weather.feels_like === "number" && (
                 <span>{t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}</span>
               )}

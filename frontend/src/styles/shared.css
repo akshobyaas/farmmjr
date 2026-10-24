@@ -1,0 +1,608 @@
+/* Shared primitives and cross-page CSS — extracted from App.css.
+   Includes classes used by 2+ pages, classes owned by shared components
+   (AppHeader, BottomNav, LanguageSwitcher, PasswordInput, LowConfidenceNudge),
+   classes the test suite asserts on by literal string, and the phone-frame
+   demo mockup block. Imported once, globally, before any page module. */
+
+.app-header {
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 20px 22px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
+}
+.app-header-icon {
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* The app logo, shown as a persistent brand mark in this tile on every
+   page's header (replacing the old per-page contextual icon) -- see
+   assets/logo.png for provenance. Padded slightly inside the tile rather
+   than filling it edge-to-edge, since the artwork itself has no inset. */
+.app-header-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+.app-header h1 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  /* Phase 22 -- grow to fill the space between the logo tile and the new
+     always-visible LanguageSwitcher, which sits flush right; without this
+     the title's natural width left a gap and the switcher floated in the
+     middle instead of hugging the edge. Titles that are too long to fit
+     (there aren't any today, but pages add new ones) truncate with an
+     ellipsis rather than wrapping and pushing the switcher down. */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Three short tap targets, not a <select> or popover -- this app avoids
+   hidden menus for its non-tech-savvy farmer audience (see BottomNav.jsx's
+   own note on the same principle). Lives in AppHeader (every logged-in
+   page) and, separately, atop the Login/Register auth cards. */
+.language-switcher {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+.language-switcher-btn {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.language-switcher-btn:hover {
+  border-color: var(--color-primary);
+}
+.language-switcher-btn.active {
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+/* On the auth pages the switcher sits above the logo, right-aligned, inside
+   the card -- .auth-card has no explicit flex-direction today (its one
+   child, the logo, didn't need one), so this row supplies its own. */
+.auth-lang-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+.weather-header {
+  background: var(--color-bg);
+  box-shadow: none;
+}
+.videos-header {
+  background: var(--color-bg);
+  box-shadow: none;
+}
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  padding-bottom: 104px;
+  text-align: center;
+}
+.status-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 22px 24px;
+  min-width: 280px;
+  max-width: 400px;
+}
+.status-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.status-message {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+/* A bare loading/empty-state line dropped straight into .app-main (not
+   inside a .status-card) reads as unstyled placeholder text. Giving it its
+   own pale, rounded surface makes "loading…" and "no results" read as a
+   designed state rather than a missing one, consistent across every list
+   page that uses this pattern (crops, videos, locator, scan history). */
+.app-main > .status-message {
+  background: var(--color-primary-tint);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 20px 22px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+.status-ok {
+  border-left-color: var(--color-primary);
+}
+.status-ok .status-title {
+  color: var(--color-primary);
+}
+.status-error {
+  border-left-color: var(--color-alert);
+}
+.status-error .status-title {
+  color: var(--color-alert);
+}
+/* ===== Phase 4 — Auth pages ===== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(165deg, var(--color-bg-grad-start) 0%, var(--color-bg-grad-mid) 45%, var(--color-bg) 100%);
+}
+.auth-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lift);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 400px;
+}
+.auth-logo {
+  display: block;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 16px;
+  object-fit: contain;
+}
+.auth-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+.auth-subtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin: 0 0 24px;
+}
+.form-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 16px 0 6px;
+  color: var(--color-text);
+  text-align: left;
+}
+.form-input {
+  width: 100%;
+  min-height: 50px;
+  font-size: 17px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--color-text);
+  box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+.form-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.password-field {
+  position: relative;
+}
+.password-field-input {
+  padding-right: 44px;
+}
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.password-toggle:hover {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+}
+.password-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.hint-ok {
+  color: var(--color-primary);
+}
+.hint-pending {
+  color: var(--color-text-secondary);
+}
+.form-error {
+  color: var(--color-alert);
+  font-size: 15px;
+  margin: 16px 0 0;
+}
+.btn-primary {
+  width: 100%;
+  min-height: 50px;
+  min-width: 120px;
+  margin-top: 24px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+/* Desktop/demo-mockup polish: the button previously gave zero feedback
+   until actually pressed, which read as unfinished whenever the app is
+   shown on a cursor-driven screen (the phone-frame demo mockup included). */
+.btn-primary:not(:disabled):hover {
+  background-color: var(--color-primary-dark);
+}
+.btn-primary:not(:disabled):active {
+  transform: scale(0.97);
+}
+.btn-secondary {
+  min-height: 50px;
+  min-width: 120px;
+  background: #fff;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 20px;
+  box-shadow: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+/* Low-confidence-prediction nudge toward "Ask an Expert" (scan upload
+   result + scan-history detail). Pale amber, same warning tokens the
+   advisory "pending" badge already uses, so a low-confidence result reads
+   as "worth double-checking", not as an error. */
+.low-confidence-nudge {
+  background: var(--color-warning-tint);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-warning);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  margin-top: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.low-confidence-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+/* .btn-secondary is written for a <button>; this composes with it on the
+   <Link> here so the anchor actually centers its label and ignores the
+   underline a bare link would otherwise get. */
+.low-confidence-ask-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  text-decoration: none;
+}
+.auth-switch {
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-top: 24px;
+}
+.auth-switch a {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.auth-switch a:hover {
+  opacity: 0.75;
+}
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, var(--color-bg-grad-start) 0%, var(--color-bg-grad-mid) 35%, var(--color-bg) 100%);
+}
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  animation: pulse-fade 1.4s ease-in-out infinite;
+}
+/* Moved here from App.css (Task 8) -- .loading-screen above is the only
+   consumer, so the keyframe is co-located with it instead of living in
+   a now-deleted global stylesheet. */
+@keyframes pulse-fade {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* ===== Pill chips — compact filter/status/tag labels ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  border: 1px solid transparent;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.crop-section-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  text-align: left;
+}
+.scan-preview-image {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+.scan-result-details {
+  width: 100%;
+  text-align: left;
+  margin-top: 16px;
+}
+.scan-result-details p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+.scan-confidence {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+.scan-history-thumbnail {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+/* Visually hidden but still keyboard/screen-reader accessible. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* A comfortable, phone-proportioned column even on a wide desktop screen --
+   this app's target user is on a phone, and letting content stretch
+   edge-to-edge on a laptop doesn't serve that design. */
+.dashboard-page,
+.auth-page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+/* Persistent, thumb-reachable navigation so a farmer never has to backtrack
+   through "Back to Dashboard" just to reach another section. Large (60px+)
+   tap targets, icon + short label, current section highlighted with a
+   filled badge behind the icon -- flush to the bottom edge with a single
+   hairline top border, not a floating shadowed pill, consistent with the
+   rest of the minimal system. */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  border-radius: 0;
+  border-top: 1px solid var(--color-border);
+  box-shadow: none;
+  z-index: 20;
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.bottom-nav-inner {
+  display: flex;
+  width: 100%;
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
+  transition: color 0.15s ease;
+}
+.bottom-nav-icon {
+  font-size: 19px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+.bottom-nav-item.active {
+  color: var(--color-primary-dark);
+}
+.bottom-nav-item.active .bottom-nav-icon {
+  background: var(--color-primary-tint);
+  box-shadow: none;
+}
+/* ===== Phone-frame demo mockup (desktop/tablet browsers only) =====
+   This app is designed for a phone screen; on an actual phone it already
+   IS a phone, so it renders full-bleed exactly as before. But when shown
+   on a wider screen (a laptop during a guide demo, presentation slides,
+   screen recordings) it used to just be a column of content on a blank
+   page. This wraps that same content in a phone-shaped mockup frame --
+   bezel, rounded corners, a notch, drop shadow -- purely cosmetic, no
+   markup changes: #root is the one mount point every page renders into,
+   so framing it here covers every screen in the app automatically.
+   `transform` on #root is load-bearing, not decorative: it makes #root the
+   containing block for its `position: fixed` descendants (the bottom nav,
+   and the notch/frame pseudo-element below), so `bottom: 0`/`top: 0` on
+   them resolve against the phone frame's own edges instead of the real
+   browser window's.
+   FIXED (reported as "the nav bar moves when I scroll"): that containing-
+   block change alone doesn't make them stay visually pinned -- it only
+   changes what they're positioned *relative to*. If the element that
+   establishes the containing block (#root) is itself the thing that
+   scrolls, its `position: fixed` descendants scroll right along with it,
+   exactly like `position: absolute` children of any `overflow: auto`
+   box do. #root used to be the scrolling element (`overflow-y: auto`),
+   which is why the bottom nav visibly slid up with the page content.
+   Fix: #root no longer scrolls (`overflow: hidden`) -- it's just the
+   frame. Every page's own top-level wrapper (`.dashboard-page`/
+   `.auth-page`/`.loading-screen`, one of which is the sole child #root
+   ever renders) scrolls instead, below. Since #root itself now stays put,
+   its `position: fixed` descendants stay visually pinned to its edges no
+   matter how far the page inside has scrolled -- which is what the
+   original comment described, just naming the wrong element as the fix.
+   Left unchanged by the minimal theme pass -- this is presentation-device
+   chrome for desktop demo viewing, not part of the app's own visual system. */
+@media (min-width: 640px) {
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: radial-gradient(circle at 50% 0%, #EFF4EC 0%, #DCE4D8 60%, #CBD5C6 100%);
+  }
+
+  #root {
+    position: relative;
+    width: 390px;
+    height: min(844px, calc(100vh - 80px));
+    overflow: hidden;
+    border-radius: 46px;
+    border: 12px solid #14171A;
+    box-shadow:
+      0 40px 70px rgba(10, 15, 12, 0.35),
+      0 10px 24px rgba(10, 15, 12, 0.2),
+      0 0 0 2px rgba(255, 255, 255, 0.06) inset;
+    background: var(--color-bg);
+    transform: translateZ(0);
+  }
+
+  /* The actual scrolling container, inside the now-static #root frame --
+     every page renders exactly one of these three as its outermost
+     element. `min-height: 0` overrides each class's own `min-height:
+     100vh` (correct for full-bleed real-phone rendering, wrong here --
+     it would make the page scroll far past its own content) so
+     `height: 100%` against #root's fixed frame height wins instead. */
+  .dashboard-page,
+  .auth-page,
+  .loading-screen {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+
+  .dashboard-page::-webkit-scrollbar,
+  .auth-page::-webkit-scrollbar,
+  .loading-screen::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* the notch -- fixed relative to #root (see comment above), so it stays
+     pinned to the top of the frame regardless of how far the page inside
+     has scrolled */
+  #root::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 24px;
+    background: #14171A;
+    border-radius: 0 0 16px 16px;
+    z-index: 999;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,59 @@
+/* ===== Phase 16 — Chatbot (Basic) ===== */
+.chatbot-main {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+}
+.chatbot-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+}
+.chat-bubble {
+  max-width: 80%;
+  padding: 0.65rem 1rem;
+  border-radius: 1.1rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: none;
+}
+.chat-bubble-user {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: #fff;
+  border-bottom-right-radius: 0.3rem;
+}
+.chat-bubble-bot {
+  align-self: flex-start;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-bottom-left-radius: 0.3rem;
+}
+.chat-bubble-typing {
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+.chatbot-input-form {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.chatbot-text-input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  font-size: 1rem;
+  box-shadow: none;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+.chatbot-text-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
