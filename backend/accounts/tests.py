@@ -332,7 +332,7 @@ class PasswordResetTests(APITestCase):
         fake = self.client.post(self.request_url, {"email": "nobody@example.com"}, format="json")
         self.assertEqual(real.status_code, status.HTTP_200_OK)
         self.assertEqual(fake.status_code, status.HTTP_200_OK)
-        self.assertEqual(real.data["message"], fake.data["message"])
+        self.assertEqual(real.data["detail"], fake.data["detail"])
 
     def test_confirm_sets_new_password_and_the_token_is_then_single_use(self):
         from django.utils.encoding import force_bytes
