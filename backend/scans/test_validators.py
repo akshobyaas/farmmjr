@@ -1,9 +1,10 @@
 """
 Cleanup pass (dead-code/naming/error-handling audit): tests for the shared
 image-validation helper extracted from ScanUploadSerializer.validate_image
-and crops.serializers.FarmingDiaryEntrySerializer.validate_photo, which were
-previously deliberately duplicated (see the Task 3 comment history in
-crops/serializers.py) but are now worth sharing since this cleanup pass's
+and crops.serializers_diary.FarmingDiaryEntrySerializer.validate_photo, which
+were previously deliberately duplicated (see the Task 3 comment history in
+crops/serializers.py, since split into crops/serializers_diary.py) but are
+now worth sharing since this cleanup pass's
 whole point is removing exactly this kind of duplication.
 """
 import io

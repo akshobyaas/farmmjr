@@ -1,6 +1,6 @@
 """
 Shared image-upload validation, used by both scans.serializers.
-ScanUploadSerializer.validate_image and crops.serializers.
+ScanUploadSerializer.validate_image and crops.serializers_diary.
 FarmingDiaryEntrySerializer.validate_photo.
 
 History: this logic was originally duplicated verbatim in both places —

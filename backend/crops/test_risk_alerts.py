@@ -262,7 +262,7 @@ class RiskAlertsViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("location", response.data["detail"].lower())
 
-    @patch("crops.views.fetch_forecast_summary", return_value=None)
+    @patch("crops.views_risk_alerts.fetch_forecast_summary", return_value=None)
     def test_forecast_failure_is_503_not_500(self, mock_fetch):
         self.farmer.home_location = "Puttur"; self.farmer.save()
         FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice)
@@ -277,7 +277,7 @@ class RiskAlertsViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["trackers"], [])
 
-    @patch("crops.views.fetch_forecast_summary")
+    @patch("crops.views_risk_alerts.fetch_forecast_summary")
     def test_matching_rule_is_returned_as_a_risk_alert_for_its_tracker(self, mock_fetch):
         self.farmer.home_location = "Puttur"; self.farmer.save()
         tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice)
@@ -300,7 +300,7 @@ class RiskAlertsViewTests(APITestCase):
         self.assertEqual(len(tracker_entry["risk_alerts"]), 1)
         self.assertEqual(tracker_entry["risk_alerts"][0]["disease_name"], "Bacterial Leaf Blight")
 
-    @patch("crops.views.fetch_forecast_summary")
+    @patch("crops.views_risk_alerts.fetch_forecast_summary")
     def test_multiple_active_trackers_each_get_their_own_entry(self, mock_fetch):
         # Judgment call: a farmer with trackers for more than one crop gets
         # one entry per active tracker, each with its own (possibly empty)
@@ -319,7 +319,7 @@ class RiskAlertsViewTests(APITestCase):
         tracker_ids = {t["tracker_id"] for t in response.data["trackers"]}
         self.assertEqual(tracker_ids, {rice_tracker.id, arecanut_tracker.id})
 
-    @patch("crops.views.fetch_forecast_summary")
+    @patch("crops.views_risk_alerts.fetch_forecast_summary")
     def test_repeated_request_for_the_same_tracker_is_served_from_cache(self, mock_fetch):
         self.farmer.home_location = "Puttur"; self.farmer.save()
         FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice)
