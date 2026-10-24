@@ -35,7 +35,7 @@ class RegisterView(generics.CreateAPIView):
         send_verification_email(user)
         return Response(
             {
-                "message": "Account created. Please check your email to verify your account.",
+                "detail": "Account created. Please check your email to verify your account.",
                 "user": UserPublicSerializer(user).data,
             },
             status=status.HTTP_201_CREATED,
@@ -72,7 +72,7 @@ class LogoutView(APIView):
                 token.blacklist()
         except TokenError:
             pass
-        return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
 
 class MeView(APIView):
@@ -116,7 +116,7 @@ class ResendVerificationView(APIView):
             pass
 
         return Response(
-            {"message": "If an account with that email exists and is unverified, a new link has been sent."},
+            {"detail": "If an account with that email exists and is unverified, a new link has been sent."},
             status=status.HTTP_200_OK,
         )
 
@@ -131,7 +131,7 @@ class VerifyEmailConfirmView(APIView):
         user = serializer.validated_data["user"]
         user.is_verified = True
         user.save(update_fields=["is_verified"])
-        return Response({"message": "Email verified successfully. You can now log in."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Email verified successfully. You can now log in."}, status=status.HTTP_200_OK)
 
 
 class ChangeUnverifiedEmailView(APIView):
@@ -153,7 +153,7 @@ class ChangeUnverifiedEmailView(APIView):
         user.save(update_fields=["email"])
         send_verification_email(user)
         return Response(
-            {"message": "Email updated. A new verification link has been sent to the new address."},
+            {"detail": "Email updated. A new verification link has been sent to the new address."},
             status=status.HTTP_200_OK,
         )
 
@@ -178,7 +178,7 @@ class PasswordResetRequestView(APIView):
             pass
 
         return Response(
-            {"message": "If an account with that email exists, a password reset link has been sent."},
+            {"detail": "If an account with that email exists, a password reset link has been sent."},
             status=status.HTTP_200_OK,
         )
 
@@ -198,4 +198,4 @@ class PasswordResetConfirmView(APIView):
         user = serializer.validated_data["user"]
         user.set_password(serializer.validated_data["new_password"])
         user.save(update_fields=["password"])
-        return Response({"message": "Password reset successfully. You can now log in with your new password."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Password reset successfully. You can now log in with your new password."}, status=status.HTTP_200_OK)
