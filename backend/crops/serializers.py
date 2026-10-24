@@ -1,11 +1,10 @@
-import uuid
 from zoneinfo import ZoneInfo
 
 from django.utils import timezone
-from PIL import Image
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from scans import ml_model
+from scans.validators import validate_and_sanitize_image
 from .models import (
     Crop, CropStage, CropTask, Disease, Recommendation, Lifecycle, FertilizerSchedule,
     OrganicManureMethod, FarmerCropTracker, FarmingDiaryEntry,
@@ -24,17 +23,6 @@ DIARY_TIMEZONE = ZoneInfo("Asia/Kolkata")
 def diary_today(now=None):
     """The current calendar date in IST (`now` defaults to timezone.now())."""
     return timezone.localdate(now, timezone=DIARY_TIMEZONE)
-
-# Task 3 -- deliberately duplicated from scans.serializers.ScanUploadSerializer
-# (MAX_UPLOAD_SIZE_BYTES/ALLOWED_CONTENT_TYPES/ALLOWED_PIL_FORMATS +
-# validate_image's size -> content-type -> Pillow-verify -> filename-
-# sanitization sequence) rather than extracted into a shared module. scans
-# and crops aren't otherwise coupled, and a shared-module extraction for one
-# validator is out of scope for this plan.
-MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
-ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png"}
-ALLOWED_PIL_FORMATS = {"JPEG", "PNG"}
-
 
 class CropListSerializer(serializers.ModelSerializer):
     """
@@ -269,50 +257,11 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
     photo_diagnosis_confidence = serializers.FloatField(read_only=True)
 
     def validate_photo(self, value):
-        # Mirrors scans.serializers.ScanUploadSerializer.validate_image
-        # exactly -- see the module-level comment on the constants above
-        # for why this is a deliberate duplication, not a shared helper.
-
         # DRF turns an empty multipart `photo=""` or a JSON `"photo": null`
         # into None (the model field is null=True). That means "no photo",
-        # not an invalid upload -- validate() and create() handle it.
-        if value is None:
-            return value
-
-        # --- Size check ---
-        if value.size > MAX_UPLOAD_SIZE_BYTES:
-            raise serializers.ValidationError(
-                f"Image too large. Maximum size is {MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)}MB."
-            )
-
-        # --- Content-type check (first line of defense only) ---
-        content_type = getattr(value, "content_type", None)
-        if content_type and content_type not in ALLOWED_CONTENT_TYPES:
-            raise serializers.ValidationError("Only JPEG and PNG images are allowed.")
-
-        # --- Real validation: actually parse the file as an image ---
-        # This is what catches a malicious file renamed to end in .jpg --
-        # Pillow will fail to parse it regardless of filename/claimed type.
-        try:
-            value.seek(0)
-            img = Image.open(value)
-            img.verify()
-            detected_format = img.format
-        except Exception:
-            raise serializers.ValidationError("This file is not a valid image.")
-        finally:
-            value.seek(0)  # reset pointer so Django can still read+save the raw bytes after this
-
-        if detected_format not in ALLOWED_PIL_FORMATS:
-            raise serializers.ValidationError("Only JPEG and PNG images are allowed.")
-
-        # --- Filename sanitization ---
-        # Never trust or reuse the client-supplied filename. Replace it
-        # entirely with a random UUID plus the VERIFIED extension.
-        ext = ".jpg" if detected_format == "JPEG" else ".png"
-        value.name = f"{uuid.uuid4().hex}{ext}"
-
-        return value
+        # not an invalid upload -- allow_none=True passes it straight
+        # through rather than raising.
+        return validate_and_sanitize_image(value, allow_none=True)
 
     class Meta:
         model = FarmingDiaryEntry

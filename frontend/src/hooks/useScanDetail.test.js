@@ -41,7 +41,7 @@ describe("useScanDetail", () => {
 
   test("re-fetches when the id changes", async () => {
     scansApi.fetchScanDetail.mockResolvedValue({ id: 5 });
-    const { result, rerender } = renderHook(({ id }) => useScanDetail(id), { initialProps: { id: "5" } });
+    const { rerender } = renderHook(({ id }) => useScanDetail(id), { initialProps: { id: "5" } });
     await act(async () => {});
     rerender({ id: "6" });
     await act(async () => {});

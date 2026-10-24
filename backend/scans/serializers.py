@@ -1,12 +1,7 @@
-import uuid
-from PIL import Image
 from rest_framework import serializers
 from crops.models import Disease
 from .models import ScanHistory
-
-MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
-ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png"}
-ALLOWED_PIL_FORMATS = {"JPEG", "PNG"}
+from .validators import validate_and_sanitize_image
 
 
 class ScanUploadSerializer(serializers.ModelSerializer):
@@ -25,40 +20,7 @@ class ScanUploadSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "predicted_disease", "confidence", "created_at"]
 
     def validate_image(self, value):
-        # --- Size check ---
-        if value.size > MAX_UPLOAD_SIZE_BYTES:
-            raise serializers.ValidationError(
-                f"Image too large. Maximum size is {MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)}MB."
-            )
-
-        # --- Content-type check (first line of defense only) ---
-        content_type = getattr(value, "content_type", None)
-        if content_type and content_type not in ALLOWED_CONTENT_TYPES:
-            raise serializers.ValidationError("Only JPEG and PNG images are allowed.")
-
-        # --- Real validation: actually parse the file as an image ---
-        # This is what catches a malicious file renamed to end in .jpg —
-        # Pillow will fail to parse it regardless of filename/claimed type.
-        try:
-            value.seek(0)
-            img = Image.open(value)
-            img.verify()
-            detected_format = img.format
-        except Exception:
-            raise serializers.ValidationError("This file is not a valid image.")
-        finally:
-            value.seek(0)  # reset pointer so Django can still read+save the raw bytes after this
-
-        if detected_format not in ALLOWED_PIL_FORMATS:
-            raise serializers.ValidationError("Only JPEG and PNG images are allowed.")
-
-        # --- Filename sanitization ---
-        # Never trust or reuse the client-supplied filename. Replace it
-        # entirely with a random UUID plus the VERIFIED extension.
-        ext = ".jpg" if detected_format == "JPEG" else ".png"
-        value.name = f"{uuid.uuid4().hex}{ext}"
-
-        return value
+        return validate_and_sanitize_image(value)
 
     def create(self, validated_data):
         validated_data["user"] = self.context["request"].user
