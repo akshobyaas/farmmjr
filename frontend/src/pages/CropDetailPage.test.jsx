@@ -300,8 +300,27 @@ describe("CropDetailPage", () => {
       // 2026-10-19 20:00 UTC is 2026-10-20 01:30 in India. Yesterday's
       // (IST) entry must NOT be pre-filled as if it were today's -- that's
       // what UTC-based toISOString() would do until 05:30 IST.
-      const originalTZ = process.env.TZ;
-      process.env.TZ = "Asia/Kolkata";
+      //
+      // Reassigning process.env.TZ mid-test is NOT a reliable way to
+      // simulate this: useDiaryEntries.js computes "today" via
+      // `new Date().toLocaleDateString("en-CA")`, and that call resolves
+      // its implicit timezone through ICU's process-level default, which
+      // Node/V8 can cache at process (or worker-thread) startup -- a
+      // runtime assignment to process.env.TZ isn't guaranteed to
+      // invalidate that cache. This test used to pass locally only
+      // because this sandbox's own host timezone already happens to be
+      // IST, masking the bug; it failed in GitHub Actions CI (UTC by
+      // default) with the form wrongly pre-filled from "yesterday's
+      // note". Reproduced locally too via `TZ=UTC npx vitest run`.
+      // Stubbing the exact toLocaleDateString("en-CA") call the hook
+      // makes is host-timezone-independent and portable.
+      const originalToLocaleDateString = Date.prototype.toLocaleDateString;
+      vi.spyOn(Date.prototype, "toLocaleDateString").mockImplementation(function (...args) {
+        if (args[0] === "en-CA" && args.length === 1) {
+          return "2026-10-20"; // the IST-local date for the faked instant below
+        }
+        return originalToLocaleDateString.apply(this, args);
+      });
       vi.useFakeTimers({ toFake: ["Date"] });
       vi.setSystemTime(new Date("2026-10-19T20:00:00Z"));
       try {
@@ -324,11 +343,7 @@ describe("CropDetailPage", () => {
         expect(screen.getByPlaceholderText(/any notes about today/i)).toHaveValue("");
       } finally {
         vi.useRealTimers();
-        if (originalTZ === undefined) {
-          delete process.env.TZ;
-        } else {
-          process.env.TZ = originalTZ;
-        }
+        vi.mocked(Date.prototype.toLocaleDateString).mockRestore();
       }
     });
   });
