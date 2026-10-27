@@ -103,6 +103,13 @@
   /* Holds a single uppercase initial letter now (was a generic user icon). */
   font-size: 18px;
   font-weight: 700;
+  /* Restyle pass (Option B "Accent Ring + Chevron") -- a two-tone ring
+     around the avatar signals this is the tappable profile entry point
+     without changing the card's own white background. box-sizing: border
+     on the width/height set above keeps the ring from growing the circle
+     past 44px. */
+  box-sizing: border-box;
+  border: 2px solid var(--color-primary);
 }
 /* Admin accounts get the gold variant already defined as a design token
    but unused until now, distinguishing them from the default farmer
@@ -110,8 +117,14 @@
 .dashboard-profile-avatar-admin {
   background: var(--color-gold-light);
   color: var(--color-gold);
+  border-color: var(--color-gold);
 }
 .dashboard-profile-text {
+  /* flex: 1 1 auto added for the Option B restyle so this fills the row
+     the same way .dashboard-highlight-text/.quick-link-text do, pushing
+     the new trailing chevron to the card's right edge instead of it
+     sitting flush against the text. */
+  flex: 1 1 auto;
   min-width: 0;
 }
 .dashboard-profile-chips {
