@@ -402,6 +402,118 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+/* Status-pill colour variants, same shape as .chip -- a semantic tint
+   instead of the always-green default, for things like a pending/answered
+   state or a confidence warning. Additive; .chip's own default (primary
+   green tint) is unchanged for every existing call site. */
+.chip-warning {
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+}
+.chip-alert {
+  background: var(--color-alert-tint);
+  color: var(--color-alert);
+}
+/* ===== List rows — icon badge + title/subtitle + optional chevron =====
+   One consistent row shape for any "browse a list of things" page (crop
+   browsing, scan history, diary entries) instead of a bespoke card per
+   page -- UI Polish Pass, inspired by a cleaner reference app a teammate
+   shared, restyled (not copied) to this app's own minimal/hairline-border
+   system and existing green accent. */
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--color-text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
+}
+.list-row:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+.list-row-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.list-row-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.list-row-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.list-row-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list-row-subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list-row-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  opacity: 0.55;
+}
+/* ===== Stat tiles — small caps label, big bold value, small hint =====
+   For a highlighted number or current-state fact (a tracker's current
+   stage, a count) that deserves more visual weight than a plain sentence. */
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.stat-tile-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.stat-tile-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.25;
+}
+.stat-tile-hint {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
 .crop-section-title {
   font-size: 17px;
   font-weight: 600;

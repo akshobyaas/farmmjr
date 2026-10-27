@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useScanHistory } from "../hooks/useScanHistory";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./ScanHistoryPage.module.css";
 
 function formatDate(isoString) {
@@ -40,21 +41,28 @@ export default function ScanHistoryPage() {
             </p>
             <div className={styles["scan-history-list"]}>
               {results.map((scan) => (
-                <Link key={scan.id} to={`/scan/history/${scan.id}`} className={styles["scan-history-item"]}>
-                  {scan.image && (
-                    <img src={scan.image} alt="" className="scan-history-thumbnail" />
-                  )}
-                  <div className={styles["scan-history-info"]}>
-                    <p className={styles["scan-history-disease"]}>
+                <Link key={scan.id} to={`/scan/history/${scan.id}`} className="list-row">
+                  <span className="list-row-icon" aria-hidden="true">
+                    {scan.image ? (
+                      <img src={scan.image} alt="" />
+                    ) : (
+                      <Icon name="search" size={20} />
+                    )}
+                  </span>
+                  <span className="list-row-text">
+                    <span className="list-row-title">
                       {scan.disease_name
                         ? `${scan.disease_name}${scan.crop_name ? ` — ${scan.crop_name}` : ""}`
                         : t("scan.predictionUnavailable")}
-                    </p>
-                    <p className={styles["scan-history-meta"]}>
+                    </span>
+                    <span className="list-row-subtitle">
                       {typeof scan.confidence === "number" && `${(scan.confidence * 100).toFixed(1)}% · `}
                       {formatDate(scan.created_at)}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
+                  <span className="list-row-chevron" aria-hidden="true">
+                    <Icon name="chevronRight" size={18} />
+                  </span>
                 </Link>
               ))}
             </div>

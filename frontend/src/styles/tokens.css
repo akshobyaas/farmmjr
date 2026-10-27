@@ -4,6 +4,10 @@
   --color-primary-light: #9FD9A8;
   --color-primary-tint: #EAF7EC;
   --color-alert: #D64545;
+  /* UI Polish Pass -- additive only, same family as --color-warning-tint.
+     Used by the new .chip-alert status-pill variant; nothing existing
+     changes value. */
+  --color-alert-tint: #FBEAEA;
   /* Minimal pass: plain white page background in place of the previous
      warm cream gradient -- the gradient vars are kept (other rules still
      reference them) but all three stops are now the same flat white, so
