@@ -103,12 +103,17 @@
 }
 .diary-entry-card .diary-entry-date {
   margin-top: 0;
-  font-size: 13px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .diary-entry-activities {
-  font-weight: 600;
-  color: var(--color-primary-dark);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
 }
 /* Farmer-typed notes and Gemini replies can both contain line breaks. */
 .diary-entry-note {

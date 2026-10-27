@@ -1,44 +1,14 @@
-/* ===== Phase 12 — Scan history & dashboard integration ===== */
+/* ===== Phase 12 — Scan history & dashboard integration =====
+   UI Polish Pass -- the per-item card is now the shared .list-row
+   (shared.css), the same row shape CropListPage and the dashboard's quick
+   actions use; only this page's own list wrapper and pagination controls
+   stay here. */
 .scan-history-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
   max-width: 500px;
-}
-.scan-history-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 14px;
-  text-decoration: none;
-  color: var(--color-text);
-  transition: border-color 0.18s ease, transform 0.18s ease;
-}
-.scan-history-item:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-.scan-history-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.scan-history-disease {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  margin: 0;
-}
-.scan-history-meta {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  margin: 0;
 }
 .scan-history-pagination {
   display: flex;

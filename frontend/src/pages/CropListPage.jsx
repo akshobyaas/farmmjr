@@ -4,6 +4,7 @@ import { useCropList } from "../hooks/useCropList";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./CropListPage.module.css";
 
 export default function CropListPage() {
@@ -33,14 +34,21 @@ export default function CropListPage() {
           <p className="status-message">{t("crops.noCropsFound")}</p>
         )}
 
-        <div className={styles["crop-grid"]}>
+        <div className={styles["crop-list"]}>
           {crops.map((crop) => (
-            <Link key={crop.id} to={`/crops/${crop.id}`} className={styles["crop-card"]}>
-              <h3 className={styles["crop-card-name"]}>{localizeField(crop, "name", i18n.language)}</h3>
-              <div className={styles["crop-card-tags"]}>
-                <span className="chip">🌱 {localizeField(crop, "soil_type", i18n.language)}</span>
-                <span className="chip">☀️ {localizeField(crop, "climate", i18n.language)}</span>
-              </div>
+            <Link key={crop.id} to={`/crops/${crop.id}`} className="list-row">
+              <span className="list-row-icon" aria-hidden="true">
+                <Icon name="leaf" size={20} />
+              </span>
+              <span className="list-row-text">
+                <span className="list-row-title">{localizeField(crop, "name", i18n.language)}</span>
+                <span className="list-row-subtitle">
+                  {localizeField(crop, "soil_type", i18n.language)} · {localizeField(crop, "climate", i18n.language)}
+                </span>
+              </span>
+              <span className="list-row-chevron" aria-hidden="true">
+                <Icon name="chevronRight" size={18} />
+              </span>
             </Link>
           ))}
         </div>

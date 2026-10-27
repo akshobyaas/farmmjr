@@ -99,6 +99,9 @@ export default function DashboardPage() {
                   : t("dashboard.highlights.weatherDesc")}
               </span>
             </span>
+            <span className="list-row-chevron" aria-hidden="true">
+              <Icon name="chevronRight" size={16} />
+            </span>
           </Link>
           <Link to="/scan/history" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-activity"]}`}>
             <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
@@ -107,6 +110,9 @@ export default function DashboardPage() {
             <span className={styles["dashboard-highlight-text"]}>
               <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.recentTitle")}</span>
               <span className={styles["dashboard-highlight-desc"]}>{t("dashboard.highlights.recentDesc")}</span>
+            </span>
+            <span className="list-row-chevron" aria-hidden="true">
+              <Icon name="chevronRight" size={16} />
             </span>
           </Link>
         </div>
@@ -138,6 +144,9 @@ export default function DashboardPage() {
                 <span className={styles["quick-link-text"]}>
                   <span className={styles["quick-link-label"]}>{link.label}</span>
                   <span className={styles["quick-link-desc"]}>{link.desc}</span>
+                </span>
+                <span className="list-row-chevron" aria-hidden="true">
+                  <Icon name="chevronRight" size={18} />
                 </span>
               </Link>
             ) : (

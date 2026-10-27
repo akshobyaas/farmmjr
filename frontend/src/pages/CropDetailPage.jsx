@@ -101,10 +101,12 @@ export default function CropDetailPage() {
 
             {!showTrackerForm && tracker && (
               <div className="status-card status-ok">
-                <p>
-                  <strong>{t("crops.tracker.currentStagePrefix")}</strong>{" "}
-                  {tracker.current_stage?.name || t("crops.tracker.stageNotYetDetermined")}
-                </p>
+                <div className="stat-tile">
+                  <span className="stat-tile-label">{t("crops.tracker.currentStagePrefix")}</span>
+                  <span className="stat-tile-value">
+                    {tracker.current_stage?.name || t("crops.tracker.stageNotYetDetermined")}
+                  </span>
+                </div>
                 <button type="button" className="btn-primary" onClick={openTrackerForm}>
                   {t("crops.tracker.updateButton")}
                 </button>
@@ -289,7 +291,11 @@ export default function CropDetailPage() {
                     <div key={entry.id} className={styles["diary-entry-card"]}>
                       <p className={styles["diary-entry-date"]}>{entry.entry_date}</p>
                       {activityLabels.length > 0 && (
-                        <p className={styles["diary-entry-activities"]}>{activityLabels.join(", ")}</p>
+                        <div className={styles["diary-entry-activities"]}>
+                          {activityLabels.map((label, i) => (
+                            <span key={i} className="chip">{label}</span>
+                          ))}
+                        </div>
                       )}
                       {entry.note && <p className={styles["diary-entry-note"]}>{entry.note}</p>}
                       {entry.photo && (

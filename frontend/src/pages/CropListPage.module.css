@@ -16,76 +16,14 @@
 .crop-search-form :global(.form-input) {
   flex: 1;
 }
-.crop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
-  width: 100%;
-  max-width: 700px;
-}
-.crop-card {
-  position: relative;
-  overflow: hidden;
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 20px 16px 16px;
-  text-decoration: none;
-  color: var(--color-text);
-  text-align: left;
-  transition: border-color 0.18s ease, transform 0.18s ease;
-}
-/* A plain neutral top edge in place of the previous colour-cycling strip --
-   minimal keeps every card the same, so nothing here competes with the one
-   accent color used elsewhere for things that are actually actionable. */
-.crop-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-.crop-card:nth-child(4n+1)::before {
-  background: var(--color-border);
-}
-.crop-card:nth-child(4n+2)::before {
-  background: var(--color-border);
-}
-.crop-card:nth-child(4n+3)::before {
-  background: var(--color-border);
-}
-.crop-card:nth-child(4n+4)::before {
-  background: var(--color-border);
-}
-.crop-card:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-.crop-card-name {
-  color: var(--color-primary-dark);
-  font-size: 17px;
-  font-weight: 700;
-  margin: 0 0 8px;
-}
-/* Stacked, not side-by-side: soil/climate descriptions are sentence-length,
-   not short filter words, so each chip gets the card's full width to wrap
-   within rather than fighting a neighbour for a narrow column. */
-.crop-card-tags {
+/* UI Polish Pass -- replaced the 2-up tile grid with a single-column list
+   of .list-row items (shared.css), the same row shape ScanHistoryPage and
+   the dashboard's quick actions use, so browsing crops reads as one
+   consistent app instead of a one-off card grid. */
+.crop-list {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 8px 0 0;
-}
-/* :global(...) because .chip is the shared, un-scoped class -- same
-   latent-bug shape as .crop-search-form :global(.form-input) above,
-   fixed now for the same reason (moved from shared.css, where it had
-   been mis-swept in Task 2). */
-.crop-card-tags :global(.chip) {
+  gap: 10px;
   width: 100%;
-  /* Sentence-length content reads better as a soft rounded tag than a
-     full stadium pill, which looks over-rounded once it wraps to 2-3 lines. */
-  border-radius: var(--radius-btn);
+  max-width: 500px;
 }
