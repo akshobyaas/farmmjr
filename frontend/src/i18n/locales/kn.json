@@ -88,12 +88,12 @@
   },
   "profile": {
     "title": "ನಿಮ್ಮ ಪ್ರೊಫೈಲ್",
+    "username": "ಬಳಕೆದಾರಹೆಸರು",
     "firstName": "ಮೊದಲ ಹೆಸರು",
     "lastName": "ಕೊನೆಯ ಹೆಸರು",
     "phoneNumber": "ಫೋನ್ ಸಂಖ್ಯೆ",
     "homeLocation": "ಮನೆಯ ಸ್ಥಳ",
-    "preferredLanguage": "ಆದ್ಯತೆಯ ಭಾಷೆ",
-    "emailNote": "ಇಮೇಲ್ ({{email}}) ಮತ್ತು ಬಳಕೆದಾರಹೆಸರನ್ನು ಇಲ್ಲಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
+    "emailNote": "ಇಮೇಲ್ ({{email}}) ಇಲ್ಲಿ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ."
   },
   "crops": {
     "title": "ಬೆಳೆ ಮಾರ್ಗದರ್ಶನ",

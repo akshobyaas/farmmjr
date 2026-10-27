@@ -63,9 +63,43 @@ describe("useProfileForm", () => {
       last_name: "K",
       phone_number: "9999999999",
       home_location: "Mysuru",
-      preferred_language: "en",
     });
     expect(result.current.success).toBe(true);
+  });
+
+  // Language is no longer edited from this form -- the always-visible
+  // AppHeader LanguageSwitcher is now the only place that changes it (see
+  // LanguageSwitcher.jsx, which already PATCHes preferred_language itself),
+  // so this form has nothing left to preview-switch on every keystroke.
+  test("isDirty is false on load, true once an editable field changes, and false again after a successful save", async () => {
+    const getProfile = vi.fn().mockResolvedValue(mockProfile);
+    const updateProfile = vi.fn().mockResolvedValue({});
+    useAuth.mockReturnValue({ getProfile, updateProfile });
+    const { result } = renderHook(() => useProfileForm());
+    await act(async () => {});
+
+    expect(result.current.isDirty).toBe(false);
+
+    act(() => result.current.handleChange({ target: { name: "first_name", value: "Ravindra" } }));
+    expect(result.current.isDirty).toBe(true);
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: () => {} });
+    });
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  test("isDirty stays false when a field is changed back to its original value", async () => {
+    const getProfile = vi.fn().mockResolvedValue(mockProfile);
+    useAuth.mockReturnValue({ getProfile, updateProfile: vi.fn() });
+    const { result } = renderHook(() => useProfileForm());
+    await act(async () => {});
+
+    act(() => result.current.handleChange({ target: { name: "first_name", value: "Ravindra" } }));
+    expect(result.current.isDirty).toBe(true);
+
+    act(() => result.current.handleChange({ target: { name: "first_name", value: "Ravi" } }));
+    expect(result.current.isDirty).toBe(false);
   });
 
   test("handleSubmit sets an error on failure", async () => {
