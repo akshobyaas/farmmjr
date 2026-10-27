@@ -19,12 +19,14 @@ export default function ForgotPasswordPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-            <label className="form-label" htmlFor="email">Email</label>
-            <input
-              id="email" type="email" className="form-input"
-              value={email} onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email" required
-            />
+            <div className="field-box">
+              <label className="field-box-label" htmlFor="email">Email</label>
+              <input
+                id="email" type="email" className="field-box-input"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email" required
+              />
+            </div>
             {error && <p className="form-error" role="alert">{error}</p>}
             <button type="submit" className="btn-primary" disabled={submitting}>
               {submitting ? "Sending…" : "Send Reset Link"}

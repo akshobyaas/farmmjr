@@ -22,24 +22,30 @@ export default function RegisterPage() {
         <p className="auth-subtitle">{t("register.subtitle")}</p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <label className="form-label" htmlFor="username">{t("register.username")}</label>
-          <input
-            id="username" name="username" type="text" className="form-input"
-            value={form.username} onChange={handleChange} autoComplete="username" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="username">{t("register.username")}</label>
+            <input
+              id="username" name="username" type="text" className="field-box-input"
+              value={form.username} onChange={handleChange} autoComplete="username" required
+            />
+          </div>
           <p className="field-hint">{t("register.usernameHint")}</p>
 
-          <label className="form-label" htmlFor="email">{t("register.email")}</label>
-          <input
-            id="email" name="email" type="email" className="form-input"
-            value={form.email} onChange={handleChange} autoComplete="email" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="email">{t("register.email")}</label>
+            <input
+              id="email" name="email" type="email" className="field-box-input"
+              value={form.email} onChange={handleChange} autoComplete="email" required
+            />
+          </div>
 
-          <label className="form-label" htmlFor="password">{t("register.password")}</label>
-          <PasswordInput
-            id="password" name="password"
-            value={form.password} onChange={handleChange} autoComplete="new-password" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="password">{t("register.password")}</label>
+            <PasswordInput
+              id="password" name="password" className="field-box-input"
+              value={form.password} onChange={handleChange} autoComplete="new-password" required
+            />
+          </div>
           {form.password.length > 0 && (
             <ul className={styles["password-hints"]}>
               <li className={hints.minLength ? "hint-ok" : "hint-pending"}>
@@ -51,21 +57,25 @@ export default function RegisterPage() {
             </ul>
           )}
 
-          <label className="form-label" htmlFor="password_confirm">{t("register.confirmPassword")}</label>
-          <PasswordInput
-            id="password_confirm" name="password_confirm"
-            value={form.password_confirm} onChange={handleChange} autoComplete="new-password" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="password_confirm">{t("register.confirmPassword")}</label>
+            <PasswordInput
+              id="password_confirm" name="password_confirm" className="field-box-input"
+              value={form.password_confirm} onChange={handleChange} autoComplete="new-password" required
+            />
+          </div>
 
-          <label className="form-label" htmlFor="preferred_language">{t("register.preferredLanguage")}</label>
-          <select
-            id="preferred_language" name="preferred_language" className="form-input"
-            value={form.preferred_language} onChange={handleChange}
-          >
-            {LANGUAGES.map((lang) => (
-              <option key={lang.code} value={lang.code}>{lang.full}</option>
-            ))}
-          </select>
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="preferred_language">{t("register.preferredLanguage")}</label>
+            <select
+              id="preferred_language" name="preferred_language" className="field-box-input"
+              value={form.preferred_language} onChange={handleChange}
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>{lang.full}</option>
+              ))}
+            </select>
+          </div>
 
           {error && <p className="form-error" role="alert">{error}</p>}
 

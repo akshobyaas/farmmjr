@@ -38,12 +38,14 @@ export default function ResendVerificationPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-            <label className="form-label" htmlFor="email">Email</label>
-            <input
-              id="email" type="email" className="form-input"
-              value={email} onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email" required
-            />
+            <div className="field-box">
+              <label className="field-box-label" htmlFor="email">Email</label>
+              <input
+                id="email" type="email" className="field-box-input"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email" required
+              />
+            </div>
             {error && <p className="form-error" role="alert">{error}</p>}
             <button type="submit" className="btn-primary" disabled={submitting}>
               {submitting ? "Sending…" : "Resend Link"}
@@ -77,26 +79,32 @@ export default function ResendVerificationPage() {
                 password, and we'll send the verification link to the corrected address instead.
               </p>
 
-              <label className="form-label" htmlFor="change-username">Username</label>
-              <input
-                id="change-username" type="text" className="form-input"
-                value={changeUsername} onChange={(e) => setChangeUsername(e.target.value)}
-                autoComplete="username" required
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="change-username">Username</label>
+                <input
+                  id="change-username" type="text" className="field-box-input"
+                  value={changeUsername} onChange={(e) => setChangeUsername(e.target.value)}
+                  autoComplete="username" required
+                />
+              </div>
 
-              <label className="form-label" htmlFor="change-password">Password</label>
-              <PasswordInput
-                id="change-password"
-                value={changePassword} onChange={(e) => setChangePassword(e.target.value)}
-                autoComplete="current-password" required
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="change-password">Password</label>
+                <PasswordInput
+                  id="change-password" className="field-box-input"
+                  value={changePassword} onChange={(e) => setChangePassword(e.target.value)}
+                  autoComplete="current-password" required
+                />
+              </div>
 
-              <label className="form-label" htmlFor="change-new-email">New email</label>
-              <input
-                id="change-new-email" type="email" className="form-input"
-                value={newEmail} onChange={(e) => setNewEmail(e.target.value)}
-                autoComplete="email" required
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="change-new-email">New email</label>
+                <input
+                  id="change-new-email" type="email" className="field-box-input"
+                  value={newEmail} onChange={(e) => setNewEmail(e.target.value)}
+                  autoComplete="email" required
+                />
+              </div>
 
               {changeError && <p className="form-error" role="alert">{changeError}</p>}
 

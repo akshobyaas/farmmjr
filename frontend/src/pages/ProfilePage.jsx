@@ -51,35 +51,45 @@ export default function ProfilePage() {
         <div className={`status-card ${styles["profile-card"]}`}>
           {form && (
             <form onSubmit={handleSubmit} noValidate>
-              <label className="form-label" htmlFor="username">{t("profile.username")}</label>
-              <input
-                id="username" name="username" type="text" className="form-input"
-                value={form.username} disabled readOnly
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="username">{t("profile.username")}</label>
+                <input
+                  id="username" name="username" type="text" className="field-box-input"
+                  value={form.username} disabled readOnly
+                />
+              </div>
 
-              <label className="form-label" htmlFor="first_name">{t("profile.firstName")}</label>
-              <input
-                id="first_name" name="first_name" type="text" className="form-input"
-                value={form.first_name} onChange={handleChange}
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="first_name">{t("profile.firstName")}</label>
+                <input
+                  id="first_name" name="first_name" type="text" className="field-box-input"
+                  value={form.first_name} onChange={handleChange}
+                />
+              </div>
 
-              <label className="form-label" htmlFor="last_name">{t("profile.lastName")}</label>
-              <input
-                id="last_name" name="last_name" type="text" className="form-input"
-                value={form.last_name} onChange={handleChange}
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="last_name">{t("profile.lastName")}</label>
+                <input
+                  id="last_name" name="last_name" type="text" className="field-box-input"
+                  value={form.last_name} onChange={handleChange}
+                />
+              </div>
 
-              <label className="form-label" htmlFor="phone_number">{t("profile.phoneNumber")}</label>
-              <input
-                id="phone_number" name="phone_number" type="tel" className="form-input"
-                value={form.phone_number} onChange={handleChange}
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="phone_number">{t("profile.phoneNumber")}</label>
+                <input
+                  id="phone_number" name="phone_number" type="tel" className="field-box-input"
+                  value={form.phone_number} onChange={handleChange}
+                />
+              </div>
 
-              <label className="form-label" htmlFor="home_location">{t("profile.homeLocation")}</label>
-              <input
-                id="home_location" name="home_location" type="text" className="form-input"
-                value={form.home_location} onChange={handleChange}
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="home_location">{t("profile.homeLocation")}</label>
+                <input
+                  id="home_location" name="home_location" type="text" className="field-box-input"
+                  value={form.home_location} onChange={handleChange}
+                />
+              </div>
 
               <p className="form-label" style={{ marginTop: 20, color: "var(--color-text-secondary)" }}>
                 {t("profile.emailNote", { email: form.email })}

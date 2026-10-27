@@ -34,17 +34,19 @@ export default function WeatherPage() {
 
       <main className="app-main">
         <form className={styles["weather-search-form"]} onSubmit={handleCitySubmit}>
-          <label htmlFor="weather-city" className="sr-only">
-            {t("locator.placeLabel")}
-          </label>
-          <input
-            id="weather-city"
-            type="text"
-            placeholder={t("weather.placePlaceholder")}
-            value={cityInput}
-            onChange={(e) => setCityInput(e.target.value)}
-            className={styles["weather-city-input"]}
-          />
+          <div className={`field-box ${styles["weather-city-field"]}`}>
+            <label htmlFor="weather-city" className="field-box-label">
+              {t("locator.placeLabel")}
+            </label>
+            <input
+              id="weather-city"
+              type="text"
+              placeholder={t("weather.placePlaceholder")}
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              className="field-box-input"
+            />
+          </div>
           <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
             {t("common.search")}
           </button>
@@ -65,15 +67,22 @@ export default function WeatherPage() {
               <p className={styles["weather-temp"]}>{Math.round(weather.temperature)}°C</p>
             )}
             {weather.description && <p className={styles["weather-description"]}>{weather.description}</p>}
+            {/* UI Polish Pass -- each reading now sits in its own stat-tile
+                (shared.css), but keeps using the existing fully-interpolated
+                translation strings (e.g. "Feels like 27°C") as a single
+                stat-tile-value rather than splitting label/value, so every
+                locale's existing copy (en/hi/kn) keeps working unchanged. */}
             <div className={styles["weather-meta"]}>
               {typeof weather.feels_like === "number" && (
-                <span>{t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}</span>
+                <span className="stat-tile-value">
+                  {t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}
+                </span>
               )}
               {typeof weather.humidity === "number" && (
-                <span>{t("weather.humidity", { value: weather.humidity })}</span>
+                <span className="stat-tile-value">{t("weather.humidity", { value: weather.humidity })}</span>
               )}
               {typeof weather.wind_speed === "number" && (
-                <span>{t("weather.wind", { value: weather.wind_speed })}</span>
+                <span className="stat-tile-value">{t("weather.wind", { value: weather.wind_speed })}</span>
               )}
             </div>
           </div>

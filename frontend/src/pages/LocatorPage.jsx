@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { useLocatorSearch } from "../hooks/useLocatorSearch";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./LocatorPage.module.css";
 
 // react-leaflet's default marker icon references image paths that don't
@@ -53,17 +54,19 @@ export default function LocatorPage() {
 
       <main className="app-main">
         <form className={styles["locator-search-form"]} onSubmit={handlePlaceSubmit}>
-          <label htmlFor="locator-place" className="sr-only">
-            {t("locator.placeLabel")}
-          </label>
-          <input
-            id="locator-place"
-            type="text"
-            placeholder={t("locator.placePlaceholder")}
-            value={placeInput}
-            onChange={(e) => setPlaceInput(e.target.value)}
-            className={styles["locator-place-input"]}
-          />
+          <div className={`field-box ${styles["locator-place-field"]}`}>
+            <label htmlFor="locator-place" className="field-box-label">
+              {t("locator.placeLabel")}
+            </label>
+            <input
+              id="locator-place"
+              type="text"
+              placeholder={t("locator.placePlaceholder")}
+              value={placeInput}
+              onChange={(e) => setPlaceInput(e.target.value)}
+              className="field-box-input"
+            />
+          </div>
           <button type="submit" className="btn-primary" disabled={loading || !placeInput.trim()}>
             {t("common.search")}
           </button>
@@ -108,13 +111,17 @@ export default function LocatorPage() {
             {view === "list" && (
               <div className={styles["locator-list"]}>
                 {results.map((service) => (
-                  <div key={service.id} className={styles["locator-card"]}>
-                    <p className={styles["locator-card-name"]}>{service.name}</p>
-                    <p className={styles["locator-card-category"]}>{service.category}</p>
-                    <p className={styles["locator-card-meta"]}>
-                      {t("locator.kmAway", { km: service.distance_km })}
-                      {service.address && ` · ${service.address}`}
-                    </p>
+                  <div key={service.id} className="list-row">
+                    <span className="list-row-icon" aria-hidden="true">
+                      <Icon name="pin" size={20} />
+                    </span>
+                    <span className="list-row-text">
+                      <span className="list-row-title">{service.name}</span>
+                      <span className="list-row-subtitle">
+                        {service.category} · {t("locator.kmAway", { km: service.distance_km })}
+                        {service.address && ` · ${service.address}`}
+                      </span>
+                    </span>
                   </div>
                 ))}
               </div>

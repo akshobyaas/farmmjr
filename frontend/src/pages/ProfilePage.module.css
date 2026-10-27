@@ -2,3 +2,11 @@
   width: 100%;
   max-width: 400px;
 }
+/* UI Polish Pass -- form fields now use the shared boxed-field style
+   (.field-box / shared.css); the username's readonly state and the
+   email note immediately below the last field still need breathing
+   room against the Save/Log Out buttons that follow. */
+.profile-card form {
+  display: flex;
+  flex-direction: column;
+}

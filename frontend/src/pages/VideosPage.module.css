@@ -4,64 +4,33 @@
   width: 100%;
   max-width: 500px;
 }
-.videos-query-input {
+/* Pre-existing layout bug, surfaced (not introduced) by the UI Polish Pass:
+   .btn-primary defaults to width:100% for its normal standalone use, which
+   -- unchecked inside this flex row -- claimed the whole row and squeezed
+   the field box down to a sliver. Same fix WeatherPage.module.css already
+   carries for its identical search-row layout; see its own note on why
+   this override belongs on the page, not in shared.css. */
+.videos-search-form :global(.btn-primary) {
+  width: auto;
+  min-width: 100px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+/* UI Polish Pass -- the input itself is now the shared .field-box /
+   .field-box-input (shared.css); this just flexes the box to fill the row
+   next to the Search button, same role the old bespoke input class had. */
+.videos-query-field {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  box-shadow: none;
-  transition: border-color 0.15s ease, outline-color 0.15s ease;
 }
-.videos-query-input:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-.videos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  width: 100%;
-  max-width: 700px;
-}
-.video-card {
+/* UI Polish Pass -- each result is now the shared .list-row (shared.css,
+   its icon-badge slot showing the video thumbnail when present, same
+   pattern ScanHistoryPage uses for scan photos); this just keeps the
+   list's own layout/width, replacing the old card grid. */
+.videos-list {
   display: flex;
   flex-direction: column;
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-  text-decoration: none;
-  color: var(--color-text);
-  transition: border-color 0.18s ease, transform 0.18s ease;
-}
-.video-card:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-.video-thumbnail {
+  gap: 10px;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  display: block;
-}
-.video-info {
-  padding: 12px 14px;
-}
-.video-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0 0 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.video-meta {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  margin: 0;
+  max-width: 500px;
 }

@@ -27,19 +27,25 @@ export default function ResetPasswordPage() {
         <p className="auth-subtitle">Choose a new password below</p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <label className="form-label" htmlFor="new_password">New Password</label>
-          <PasswordInput
-            id="new_password"
-            value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-            autoComplete="new-password" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="new_password">New Password</label>
+            <PasswordInput
+              id="new_password"
+              className="field-box-input"
+              value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password" required
+            />
+          </div>
 
-          <label className="form-label" htmlFor="confirm">Confirm New Password</label>
-          <PasswordInput
-            id="confirm"
-            value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)}
-            autoComplete="new-password" required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="confirm">Confirm New Password</label>
+            <PasswordInput
+              id="confirm"
+              className="field-box-input"
+              value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)}
+              autoComplete="new-password" required
+            />
+          </div>
 
           {error && <p className="form-error" role="alert">{error}</p>}
 
