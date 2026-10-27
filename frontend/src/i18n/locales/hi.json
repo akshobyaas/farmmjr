@@ -88,12 +88,12 @@
   },
   "profile": {
     "title": "आपकी प्रोफ़ाइल",
+    "username": "उपयोगकर्ता नाम",
     "firstName": "पहला नाम",
     "lastName": "अंतिम नाम",
     "phoneNumber": "फ़ोन नंबर",
     "homeLocation": "घर का स्थान",
-    "preferredLanguage": "पसंदीदा भाषा",
-    "emailNote": "ईमेल ({{email}}) और उपयोगकर्ता नाम यहां नहीं बदला जा सकता।"
+    "emailNote": "ईमेल ({{email}}) यहां नहीं बदला जा सकता।"
   },
   "crops": {
     "title": "फसल मार्गदर्शन",

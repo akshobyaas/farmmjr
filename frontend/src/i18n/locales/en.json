@@ -88,12 +88,12 @@
   },
   "profile": {
     "title": "Your Profile",
+    "username": "Username",
     "firstName": "First Name",
     "lastName": "Last Name",
     "phoneNumber": "Phone Number",
     "homeLocation": "Home Location",
-    "preferredLanguage": "Preferred Language",
-    "emailNote": "Email ({{email}}) and username cannot be changed here."
+    "emailNote": "Email ({{email}}) cannot be changed here."
   },
   "crops": {
     "title": "Crop Guidance",
