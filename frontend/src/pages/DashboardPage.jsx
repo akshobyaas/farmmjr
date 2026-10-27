@@ -60,7 +60,7 @@ export default function DashboardPage() {
       <AppHeader title={t("common.appName")} />
 
       <main className="app-main">
-        <Link to="/profile" className={`status-card status-ok ${styles["dashboard-profile-card"]}`}>
+        <Link to="/profile" className={styles["dashboard-profile-card"]}>
           <span
             className={`${styles["dashboard-profile-avatar"]}${isAdmin ? ` ${styles["dashboard-profile-avatar-admin"]}` : ""}`}
             aria-hidden="true"
@@ -69,7 +69,7 @@ export default function DashboardPage() {
             {avatarInitial}
           </span>
           <span className={styles["dashboard-profile-text"]}>
-            <p className="status-title">{t(greetingKey(), { username: displayName })}</p>
+            <p className={`status-title ${styles["dashboard-profile-greeting"]}`}>{t(greetingKey(), { username: displayName })}</p>
             <span className={styles["dashboard-profile-chips"]}>
               <span className={`chip${isAdmin ? ` ${styles["dashboard-chip-role-admin"]}` : ""}`}>
                 {t(isAdmin ? "dashboard.roleAdmin" : "dashboard.roleFarmer")}

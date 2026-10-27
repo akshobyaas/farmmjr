@@ -74,21 +74,46 @@
   border-radius: 10px;
 }
 /* ===== Dashboard profile summary & highlights ===== */
+/* Restyle pass -- this card used to borrow the shared .status-card/
+   .status-ok classes (a thick green border-left "status accent" meant
+   for loading/success/error banners elsewhere in the app -- see
+   shared.css). That border-left kept winning over an override here on
+   source-order/specificity ties, since .status-card's rule is declared
+   in a separately-loaded global stylesheet. Rather than fight the
+   cascade (or reach for !important), this card is now fully
+   self-contained: it no longer carries status-card/status-ok in its
+   className (DashboardPage.jsx) and defines its own background, border,
+   radius and padding here, replacing the old left accent with a soft
+   drop shadow for depth instead. Other pages that still use
+   .status-card for genuine status banners are unaffected. Shadow
+   intentionally doesn't come from --shadow-card (that token is "none"
+   app-wide under the Minimal theme); this is a deliberate one-off
+   elevation for the card the user taps most often on the dashboard. */
 .dashboard-profile-card {
   display: flex;
   align-items: center;
   gap: 14px;
   text-align: left;
-  /* Phase 22 -- the whole card is now a Link to /profile (it was a plain
-     div), so it needs the same anchor resets .dashboard-highlight-card
-     already uses rather than inheriting link blue/underline. */
   text-decoration: none;
   color: var(--color-text);
-  transition: border-color 0.18s ease, transform 0.18s ease;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 22px 24px;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
 }
 .dashboard-profile-card:hover {
-  border-color: var(--color-primary);
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.1), 0 2px 6px rgba(17, 24, 39, 0.06);
   transform: translateY(-2px);
+}
+/* Replaces the green title color this card used to inherit from the
+   shared .status-ok .status-title rule, now that the card no longer
+   carries those classes. */
+.dashboard-profile-greeting {
+  color: var(--color-primary);
 }
 .dashboard-profile-avatar {
   flex-shrink: 0;
