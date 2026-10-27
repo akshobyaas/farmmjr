@@ -27,6 +27,7 @@ export default function RegisterPage() {
             id="username" name="username" type="text" className="form-input"
             value={form.username} onChange={handleChange} autoComplete="username" required
           />
+          <p className="field-hint">{t("register.usernameHint")}</p>
 
           <label className="form-label" htmlFor="email">{t("register.email")}</label>
           <input

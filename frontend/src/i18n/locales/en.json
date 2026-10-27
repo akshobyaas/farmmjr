@@ -74,6 +74,7 @@
     "title": "Create Your Account",
     "subtitle": "Join Smart Farming",
     "username": "Username",
+    "usernameHint": "This cannot be changed later, so pick carefully.",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",

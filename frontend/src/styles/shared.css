@@ -213,6 +213,12 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
+.field-hint {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 6px 0 0;
+  text-align: left;
+}
 .password-field {
   position: relative;
 }

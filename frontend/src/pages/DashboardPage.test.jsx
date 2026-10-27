@@ -62,6 +62,41 @@ describe("DashboardPage", () => {
     expect(screen.getByText(/good (morning|afternoon|evening), farmer_ravi/i)).toBeInTheDocument();
   });
 
+  // Prefers the editable display name (first_name) over the fixed login
+  // username wherever the dashboard greets or represents the user, since
+  // the username is just an immutable login id and not meant to be shown
+  // off as someone's name.
+  it("greets the logged-in user by first name when one is set, not by username", () => {
+    useAuth.mockReturnValue({
+      user: { ...farmerUser, first_name: "Ravi" },
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/good (morning|afternoon|evening), Ravi/i)).toBeInTheDocument();
+    expect(screen.queryByText(/farmer_ravi/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the first letter of the first name as the avatar initial when a first name is set", () => {
+    useAuth.mockReturnValue({
+      user: { ...farmerUser, first_name: "Ravi" },
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId("dashboard-profile-avatar")).toHaveTextContent("R");
+  });
+
   it("shows the farmer-facing 'Ask an Expert' link for a farmer, not the admin queries link", () => {
     useAuth.mockReturnValue({ user: farmerUser, logout: vi.fn() });
 
