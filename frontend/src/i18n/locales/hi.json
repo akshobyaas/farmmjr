@@ -12,7 +12,7 @@
     "geoDenied": "स्थान की अनुमति अस्वीकृत। कृपया स्थान का नाम टाइप करें।",
     "previous": "पिछला",
     "next": "अगला",
-    "languageSwitcherLabel": "भाषा चुनें"
+    "languageSwitcherLabel": "भाषा चुनें। वर्तमान में {{language}}।"
   },
   "dashboard": {
     "greetingMorning": "सुप्रभात, {{username}}!",
