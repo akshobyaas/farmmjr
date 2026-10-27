@@ -1,4 +1,48 @@
-/* ===== Phase 16 — Chatbot (Basic) ===== */
+/* ===== Phase 16 — Chatbot (Basic) =====
+   UI Polish Pass -- the voice-toggle and mic buttons (.btn-icon,
+   .chatbot-voice-toggle, .chatbot-mic-button/-listening in ChatbotPage.jsx)
+   had no CSS anywhere in the project and were rendering as bare, unstyled
+   browser buttons; this fills that gap with the same hairline-border/green-
+   accent language as every other control, rather than redesigning the
+   layout. :global(...) because these are plain classNames (not CSS-Module
+   references) on elements from this page. */
+:global(.btn-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+:global(.btn-icon:hover) {
+  border-color: var(--color-primary);
+}
+:global(.btn-icon:disabled) {
+  opacity: 0.5;
+  cursor: default;
+}
+/* .dashboard-page is a column flexbox with the default align-items:
+   stretch, so without this the button -- a flex child sitting right
+   after AppHeader, before <main> -- stretched to the page's full width
+   as a bare, borderless strip. align-self pulls it back to its own
+   intrinsic size, anchored to the right edge under the header. */
+:global(.chatbot-voice-toggle) {
+  align-self: flex-end;
+  margin: 10px 18px 0;
+}
+:global(.chatbot-mic-listening) {
+  border-color: var(--color-alert);
+  background: var(--color-alert-tint);
+  color: var(--color-alert);
+}
 .chatbot-main {
   display: flex;
   flex-direction: column;

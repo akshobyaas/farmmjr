@@ -6,9 +6,12 @@ import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 import styles from "./AdvisoryPage.module.css";
 
+// UI Polish Pass -- reuses the shared .chip pill (shared.css) instead of a
+// bespoke badge: green tint for "answered" (chip's own default), amber
+// warning tint for "pending".
 function StatusBadge({ status, t }) {
   return (
-    <span className={`${styles["advisory-status-badge"]} ${styles[`advisory-status-${status}`]}`}>
+    <span className={`chip ${status === "pending" ? "chip-warning" : ""}`}>
       {status === "answered" ? t("advisory.statusAnswered") : t("advisory.statusPending")}
     </span>
   );
@@ -50,18 +53,20 @@ export default function AdvisoryPage() {
       <main className={`app-main ${styles["advisory-main"]}`}>
         {!isAdmin && (
           <form className={styles["advisory-form"]} onSubmit={handleAsk}>
-            <label htmlFor="advisory-question" className="sr-only">
-              {t("advisory.questionLabel")}
-            </label>
-            <textarea
-              id="advisory-question"
-              className={styles["advisory-textarea"]}
-              placeholder={t("advisory.questionPlaceholder")}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              disabled={submitting}
-              rows={3}
-            />
+            <div className="field-box">
+              <label htmlFor="advisory-question" className="field-box-label">
+                {t("advisory.questionLabel")}
+              </label>
+              <textarea
+                id="advisory-question"
+                className="field-box-input"
+                placeholder={t("advisory.questionPlaceholder")}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                disabled={submitting}
+                rows={3}
+              />
+            </div>
             <button type="submit" className="btn-primary" disabled={submitting || !question.trim()}>
               {submitting ? t("advisory.sending") : t("advisory.askButton")}
             </button>
@@ -128,18 +133,20 @@ export default function AdvisoryPage() {
 
               {isAdmin && q.status === "pending" && (
                 <div className={styles["advisory-answer-form"]}>
-                  <label htmlFor={`answer-${q.id}`} className="sr-only">
-                    {t("advisory.answerLabel", { name: q.farmer_username })}
-                  </label>
-                  <textarea
-                    id={`answer-${q.id}`}
-                    className={styles["advisory-textarea"]}
-                    placeholder={t("advisory.answerPlaceholder")}
-                    value={drafts[q.id] || ""}
-                    onChange={(e) => setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))}
-                    disabled={answering === q.id}
-                    rows={2}
-                  />
+                  <div className="field-box">
+                    <label htmlFor={`answer-${q.id}`} className="field-box-label">
+                      {t("advisory.answerLabel", { name: q.farmer_username })}
+                    </label>
+                    <textarea
+                      id={`answer-${q.id}`}
+                      className="field-box-input"
+                      placeholder={t("advisory.answerPlaceholder")}
+                      value={drafts[q.id] || ""}
+                      onChange={(e) => setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                      disabled={answering === q.id}
+                      rows={2}
+                    />
+                  </div>
                   <button
                     type="button"
                     className="btn-primary"

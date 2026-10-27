@@ -21,25 +21,30 @@ export default function LoginPage() {
         <p className="auth-subtitle">{t("login.subtitle")}</p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <label className="form-label" htmlFor="username">{t("login.username")}</label>
-          <input
-            id="username"
-            type="text"
-            className="form-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="username">{t("login.username")}</label>
+            <input
+              id="username"
+              type="text"
+              className="field-box-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              required
+            />
+          </div>
 
-          <label className="form-label" htmlFor="password">{t("login.password")}</label>
-          <PasswordInput
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
+          <div className="field-box">
+            <label className="field-box-label" htmlFor="password">{t("login.password")}</label>
+            <PasswordInput
+              id="password"
+              className="field-box-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
 
           {error && (
             <p className="form-error" role="alert">

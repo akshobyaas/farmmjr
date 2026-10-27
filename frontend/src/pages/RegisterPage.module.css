@@ -1,7 +1,11 @@
 .password-hints {
   list-style: none;
   padding: 0;
-  margin: 8px 0 0;
+  /* UI Polish Pass -- fields are now .field-box (shared.css), spaced by
+     its "+ .field-box" adjacent-sibling rule; this hint list (and
+     field-hint, global) breaks that adjacency for the field-box right
+     after it, so its own bottom margin stands in for the gap instead. */
+  margin: 8px 0 12px;
   font-size: 14px;
   text-align: left;
 }

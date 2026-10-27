@@ -5,20 +5,24 @@
   width: 100%;
   max-width: 450px;
 }
-.locator-place-input {
+/* Pre-existing layout bug, surfaced (not introduced) by the UI Polish Pass:
+   .btn-primary defaults to width:100% for its normal standalone use, which
+   -- unchecked inside this flex row -- claimed the whole row and squeezed
+   the field box down to a sliver. Same fix WeatherPage.module.css already
+   carries for its identical search-row layout; see its own note on why
+   this override belongs on the page, not in shared.css. */
+.locator-search-form :global(.btn-primary) {
+  width: auto;
+  min-width: 100px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+/* UI Polish Pass -- the input itself is now the shared .field-box /
+   .field-box-input (shared.css); this just flexes the box to fill the row
+   next to the Search button, same role the old bespoke input class had. */
+.locator-place-field {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  box-shadow: none;
-  transition: border-color 0.15s ease, outline-color 0.15s ease;
-}
-.locator-place-input:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
 }
 .locator-view-toggle {
   display: flex;
@@ -46,35 +50,14 @@
   color: var(--color-primary-dark);
   box-shadow: none;
 }
+/* UI Polish Pass -- each result is now the shared .list-row (shared.css);
+   this just keeps the list's own layout/width. */
 .locator-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
   max-width: 500px;
-}
-.locator-card {
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 16px 18px;
-}
-.locator-card-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text);
-  margin: 0 0 4px;
-}
-.locator-card-category {
-  font-size: 14px;
-  color: var(--color-primary-dark);
-  margin: 0 0 4px;
-}
-.locator-card-meta {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  margin: 0;
 }
 .locator-map-wrap {
   width: 100%;
