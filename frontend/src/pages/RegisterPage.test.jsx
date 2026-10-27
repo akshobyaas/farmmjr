@@ -100,6 +100,18 @@ describe("RegisterPage", () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
+  it("shows a hint that the username cannot be changed after registration", () => {
+    useAuth.mockReturnValue({ register: vi.fn() });
+
+    render(
+      <MemoryRouter>
+        <RegisterPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/cannot be changed/i)).toBeInTheDocument();
+  });
+
   it("shows live password hints that update as the user types", async () => {
     useAuth.mockReturnValue({ register: vi.fn() });
 

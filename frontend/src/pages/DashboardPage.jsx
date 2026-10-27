@@ -23,7 +23,14 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const isAdmin = user?.role === "admin";
-  const avatarInitial = user?.username?.charAt(0)?.toUpperCase() || "?";
+  // Prefer the editable display name (first_name) over the fixed login
+  // username wherever the dashboard represents the user -- the username
+  // is just an immutable login id (see ProfileSerializer/LanguageSwitcher
+  // precedent), not meant to be shown off as someone's name. Most seeded
+  // and early accounts have no first_name set, so this falls back to the
+  // username exactly as before.
+  const displayName = user?.first_name?.trim() || user?.username || "";
+  const avatarInitial = displayName.charAt(0)?.toUpperCase() || "?";
 
   const { riskAlert, todaysTasks } = useDashboardData();
 
@@ -57,11 +64,12 @@ export default function DashboardPage() {
           <span
             className={`${styles["dashboard-profile-avatar"]}${isAdmin ? ` ${styles["dashboard-profile-avatar-admin"]}` : ""}`}
             aria-hidden="true"
+            data-testid="dashboard-profile-avatar"
           >
             {avatarInitial}
           </span>
           <span className={styles["dashboard-profile-text"]}>
-            <p className="status-title">{t(greetingKey(), { username: user?.username })}</p>
+            <p className="status-title">{t(greetingKey(), { username: displayName })}</p>
             <span className={styles["dashboard-profile-chips"]}>
               <span className={`chip${isAdmin ? ` ${styles["dashboard-chip-role-admin"]}` : ""}`}>
                 {t(isAdmin ? "dashboard.roleAdmin" : "dashboard.roleFarmer")}
