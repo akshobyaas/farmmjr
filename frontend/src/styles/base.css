@@ -4,8 +4,19 @@
    foundation every page sits on, so they get their own file rather than
    living in tokens.css (design tokens only) or shared.css (component
    classes). Moved here from App.css as part of Task 8 -- App.css itself
-   is deleted once nothing real is left in it. */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+   is deleted once nothing real is left in it.
+   Font pass: switched from Inter (+ a "Noto Sans" fallback that was
+   never actually loaded -- it only worked if the viewer's OS happened to
+   have it installed, so Kannada/Hindi text was silently falling back to
+   whatever generic system font the browser picked) to the real Noto Sans
+   family across all three scripts the app ships: Noto Sans (Latin),
+   Noto Sans Kannada, and Noto Sans Devanagari. These are sibling cuts
+   Google designed together specifically so they match -- same x-height,
+   baseline, and weight range -- so there's no visual seam when English,
+   Kannada, and Hindi text sit side by side in the same UI. Listing all
+   three in one font-family stack lets the browser pick whichever has the
+   right glyphs per character automatically; no per-language CSS needed. */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap");
 
 * {
   box-sizing: border-box;
@@ -15,7 +26,7 @@ body {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: "Inter", "Noto Sans", sans-serif;
+  font-family: "Noto Sans", "Noto Sans Kannada", "Noto Sans Devanagari", sans-serif;
   /* Polish pass: more generous line-height for a calmer, easier-to-read
      page (descriptions/status text especially) -- the browser default of
      ~1.2 reads cramped once there's real paragraph-length content. */
