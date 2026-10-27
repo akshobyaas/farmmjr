@@ -15,33 +15,39 @@ afterEach(() => {
 });
 
 describe("LanguageSwitcher", () => {
-  it("renders a short, always-visible button for each supported language", () => {
+  it("renders a single button showing the currently active language", () => {
     render(<LanguageSwitcher />);
-    expect(screen.getByRole("button", { name: "EN" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ಕನ್ನಡ" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "हिं" })).toBeInTheDocument();
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent("EN");
   });
 
-  it("marks the currently active language's button, and only that one", async () => {
+  it("cycles English -> Kannada -> Hindi -> English on repeated taps", async () => {
     render(<LanguageSwitcher />);
-    expect(screen.getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "ಕನ್ನಡ" })).toHaveAttribute("aria-pressed", "false");
+    const button = screen.getByRole("button");
+    expect(button).toHaveTextContent("EN");
 
-    await userEvent.click(screen.getByRole("button", { name: "ಕನ್ನಡ" }));
+    await userEvent.click(button);
+    expect(button).toHaveTextContent("ಕನ್ನಡ");
+    expect(i18n.language).toBe("kn");
 
-    expect(screen.getByRole("button", { name: "ಕನ್ನಡ" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "false");
-  });
-
-  it("switches the UI language immediately when a button is tapped", async () => {
-    render(<LanguageSwitcher />);
-    await userEvent.click(screen.getByRole("button", { name: "हिं" }));
+    await userEvent.click(button);
+    expect(button).toHaveTextContent("हिं");
     expect(i18n.language).toBe("hi");
+
+    await userEvent.click(button);
+    expect(button).toHaveTextContent("EN");
+    expect(i18n.language).toBe("en");
   });
 
-  it("when nobody is logged in (no AuthContext value), saves the pick to browser storage", async () => {
+  it("describes the current language in its accessible label", () => {
     render(<LanguageSwitcher />);
-    await userEvent.click(screen.getByRole("button", { name: "ಕನ್ನಡ" }));
+    expect(screen.getByRole("button").getAttribute("aria-label")).toMatch(/english/i);
+  });
+
+  it("when nobody is logged in (no AuthContext value), saves each pick to browser storage", async () => {
+    render(<LanguageSwitcher />);
+    await userEvent.click(screen.getByRole("button"));
     expect(localStorage.getItem("smartfarming_lang")).toBe("kn");
   });
 
@@ -51,8 +57,8 @@ describe("LanguageSwitcher", () => {
         <LanguageSwitcher />
       </AuthContext.Provider>
     );
-    await userEvent.click(screen.getByRole("button", { name: "हिं" }));
-    expect(localStorage.getItem("smartfarming_lang")).toBe("hi");
+    await userEvent.click(screen.getByRole("button"));
+    expect(localStorage.getItem("smartfarming_lang")).toBe("kn");
   });
 
   it("when someone is logged in, saves the pick to their account instead of browser storage", async () => {
@@ -62,21 +68,10 @@ describe("LanguageSwitcher", () => {
         <LanguageSwitcher />
       </AuthContext.Provider>
     );
-    await userEvent.click(screen.getByRole("button", { name: "ಕನ್ನಡ" }));
+    await userEvent.click(screen.getByRole("button"));
 
     expect(updateProfile).toHaveBeenCalledWith({ preferred_language: "kn" });
     expect(localStorage.getItem("smartfarming_lang")).toBeNull();
-  });
-
-  it("does nothing when the already-active language's button is tapped again", async () => {
-    const updateProfile = vi.fn();
-    render(
-      <AuthContext.Provider value={{ user: { id: 1 }, updateProfile }}>
-        <LanguageSwitcher />
-      </AuthContext.Provider>
-    );
-    await userEvent.click(screen.getByRole("button", { name: "EN" }));
-    expect(updateProfile).not.toHaveBeenCalled();
   });
 
   it("keeps working, saving to browser storage, when rendered with no AuthProvider at all", async () => {
@@ -84,8 +79,8 @@ describe("LanguageSwitcher", () => {
     // AppHeader (and so this component) without any AuthContext mock --
     // see AuthContext.jsx's own comment on why this must not throw.
     render(<LanguageSwitcher />);
-    await userEvent.click(screen.getByRole("button", { name: "हिं" }));
-    expect(i18n.language).toBe("hi");
-    expect(localStorage.getItem("smartfarming_lang")).toBe("hi");
+    await userEvent.click(screen.getByRole("button"));
+    expect(i18n.language).toBe("kn");
+    expect(localStorage.getItem("smartfarming_lang")).toBe("kn");
   });
 });

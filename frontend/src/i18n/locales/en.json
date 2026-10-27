@@ -12,7 +12,7 @@
     "geoDenied": "Location permission denied. Please type a place name instead.",
     "previous": "Previous",
     "next": "Next",
-    "languageSwitcherLabel": "Choose language"
+    "languageSwitcherLabel": "Choose language. Currently {{language}}."
   },
   "dashboard": {
     "greetingMorning": "Good morning, {{username}}!",
