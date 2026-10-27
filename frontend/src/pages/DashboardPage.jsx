@@ -79,6 +79,9 @@ export default function DashboardPage() {
               </span>
             </span>
           </span>
+          <span className="list-row-chevron" aria-hidden="true">
+            <Icon name="chevronRight" size={18} />
+          </span>
         </Link>
 
         <div className={styles["dashboard-highlights"]}>
