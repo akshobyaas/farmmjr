@@ -172,6 +172,24 @@ class MeViewTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_response_includes_first_and_last_name(self):
+        # Bug: the dashboard greets the user by first_name, falling back to
+        # username only when first_name is unset. That fallback was firing
+        # on every fresh login/page-load, even for users who *had* a saved
+        # first/last name -- because /auth/me/ (hit on login and on every
+        # session restore) never returned those fields at all, only the
+        # profile PATCH endpoint did. So the dashboard showed the username
+        # until the user visited Profile and pressed Save, which refreshed
+        # AuthContext's user object from the profile endpoint instead.
+        self.user.first_name = "Ravi"
+        self.user.last_name = "Kumar"
+        self.user.save(update_fields=["first_name", "last_name"])
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["first_name"], "Ravi")
+        self.assertEqual(response.data["last_name"], "Kumar")
+
 
 class ProfileAuthorizationTests(APITestCase):
     """Phase 6's object-level authorization, kept as a permanent regression test."""

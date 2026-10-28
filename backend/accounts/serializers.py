@@ -72,11 +72,25 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserPublicSerializer(serializers.ModelSerializer):
-    """Safe-to-expose user fields — used for 'who am I' responses. No password, ever."""
+    """
+    Safe-to-expose user fields — used for 'who am I' responses. No password, ever.
+
+    Bug fix: first_name/last_name used to be left out of this list. /auth/me/
+    (this serializer) is what AuthContext.fetchMe() calls on every login and
+    every page-load session restore, so the frontend's `user` object never
+    had a first/last name until the user separately visited Profile and
+    pressed Save (which hits ProfileSerializer instead, and does carry
+    those fields) -- the dashboard greeting fell back to the username every
+    time until then. Included here now so first/last name survive login and
+    reload, the same as every other saved profile field.
+    """
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "role", "preferred_language", "phone_number", "is_verified"]
+        fields = [
+            "id", "username", "email", "first_name", "last_name",
+            "role", "preferred_language", "phone_number", "is_verified",
+        ]
         read_only_fields = fields
 
 
