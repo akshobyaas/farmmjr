@@ -120,6 +120,26 @@ class NearbyServicesViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @patch("locator.views.requests.post")
+    def test_overpass_primary_mirror_502_falls_back_to_secondary_mirror(self, mock_post):
+        # Real-world bug report: overpass-api.de (the single public Overpass
+        # instance this view called) returned HTTP 502 -- a known, fairly
+        # common failure mode for that specific free shared instance under
+        # load, confirmed from the user's own backend log:
+        # "WARNING:locator.views:Overpass returned HTTP 502 for locator
+        # lookup -- nearby services unavailable." Reproduced here by having
+        # the first requests.post() call return a 502, the second (the
+        # fallback mirror) succeed -- the view should try the next mirror
+        # instead of giving up on the first one's failure.
+        mock_post.side_effect = [mock_response(502), mock_response(200, OVERPASS_HIT)]
+        self.client.force_authenticate(self.user)
+
+        response = self.client.get(self.url, {"lat": "12.90", "lon": "74.85"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(mock_post.call_count, 2)
+
+    @patch("locator.views.requests.post")
     def test_no_nearby_services_found_is_a_normal_empty_result_not_an_error(self, mock_post):
         mock_post.return_value = mock_response(200, {"elements": []})
         self.client.force_authenticate(self.user)

@@ -12,7 +12,18 @@ from .throttles import LocatorRateThrottle
 logger = logging.getLogger(__name__)
 
 NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search"
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+# Bug fix: overpass-api.de is a single, heavily-shared free public instance
+# that returns HTTP 502 fairly often when it's under load (confirmed from a
+# real failure: "Overpass returned HTTP 502 for locator lookup"). Trying a
+# second public mirror before giving up turns that into a transient retry
+# instead of an outright "nearby services unavailable" for the farmer.
+# overpass.kumi.systems is the commonly-recommended alternative public
+# instance (listed on the OSM wiki's Overpass API page) -- same query
+# language and response shape, no API key, just a different operator.
+OVERPASS_URLS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+]
 REQUEST_TIMEOUT_SECONDS = 10
 SEARCH_RADIUS_METERS = 15000  # 15km -- rural agri services can be sparse,
 # so this is wider than a typical "nearby" radius for an urban POI search.
@@ -88,6 +99,40 @@ def _build_overpass_query(lat, lon):
     return f"[out:json][timeout:15];\n(\n{clauses});\nout center {MAX_RESULTS * 2};"
 
 
+def _query_overpass(query):
+    """Runs the Overpass query against each mirror in OVERPASS_URLS in
+    order, returning (elements, None) from the first one that succeeds, or
+    (None, "unavailable") if every mirror failed (network error, non-200,
+    or unparseable JSON)."""
+    for url in OVERPASS_URLS:
+        try:
+            response = requests.post(
+                url, data={"data": query}, headers=_HEADERS, timeout=REQUEST_TIMEOUT_SECONDS
+            )
+        except requests.RequestException as exc:
+            logger.warning(
+                "Overpass request to %s failed for locator lookup: %s -- trying next mirror if any.",
+                url, type(exc).__name__,
+            )
+            continue
+        if response.status_code != 200:
+            logger.warning(
+                "Overpass mirror %s returned HTTP %s for locator lookup -- trying next mirror if any.",
+                url, response.status_code,
+            )
+            continue
+        try:
+            return response.json().get("elements", []), None
+        except ValueError:
+            logger.warning(
+                "Overpass mirror %s response was not valid JSON for locator lookup -- trying next mirror if any.",
+                url,
+            )
+            continue
+    logger.warning("All Overpass mirrors failed for locator lookup -- nearby services unavailable.")
+    return None, "unavailable"
+
+
 def _label_for_tags(tags):
     for key, value, label in _OVERPASS_TAG_QUERIES:
         if tags.get(key) == value:
@@ -140,30 +185,8 @@ class NearbyServicesView(APIView):
             return Response(cached, status=status.HTTP_200_OK)
 
         query = _build_overpass_query(lat, lon)
-        try:
-            response = requests.post(
-                OVERPASS_URL, data={"data": query}, headers=_HEADERS, timeout=REQUEST_TIMEOUT_SECONDS
-            )
-        except requests.RequestException as exc:
-            logger.warning(
-                "Overpass request failed for locator lookup: %s -- nearby services unavailable.",
-                type(exc).__name__,
-            )
-            return service_unavailable("Nearby services are unavailable right now. Please try again later.")
-
-        if response.status_code != 200:
-            logger.warning(
-                "Overpass returned HTTP %s for locator lookup -- nearby services unavailable.",
-                response.status_code,
-            )
-            return service_unavailable("Nearby services are unavailable right now. Please try again later.")
-
-        try:
-            elements = response.json().get("elements", [])
-        except ValueError:
-            logger.warning(
-                "Overpass response was not valid JSON for locator lookup -- nearby services unavailable."
-            )
+        elements, overpass_error = _query_overpass(query)
+        if overpass_error:
             return service_unavailable("Nearby services are unavailable right now. Please try again later.")
 
         results = []
