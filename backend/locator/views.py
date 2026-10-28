@@ -25,6 +25,18 @@ OVERPASS_URLS = [
     "https://overpass.kumi.systems/api/interpreter",
 ]
 REQUEST_TIMEOUT_SECONDS = 10
+# Bug fix: _build_overpass_query() below bakes "[out:json][timeout:15]"
+# into the query -- it tells the Overpass SERVER it has up to 15 seconds
+# to compute. Using the generic 10s REQUEST_TIMEOUT_SECONDS as the HTTP
+# CLIENT's timeout for that same call meant a mirror that was merely slow
+# (still working within the budget the query itself asked for) got killed
+# early by `requests`, surfacing as a ReadTimeout and burning through the
+# fallback mirror for no real reason. This has to be longer than the
+# server-side budget plus margin for network/response-transfer time, not
+# just equal to it. Nominatim keeps using REQUEST_TIMEOUT_SECONDS --
+# geocoding a place name has no such server-side timeout directive and is
+# normally fast.
+OVERPASS_REQUEST_TIMEOUT_SECONDS = 20
 SEARCH_RADIUS_METERS = 15000  # 15km -- rural agri services can be sparse,
 # so this is wider than a typical "nearby" radius for an urban POI search.
 MAX_RESULTS = 20
@@ -107,7 +119,7 @@ def _query_overpass(query):
     for url in OVERPASS_URLS:
         try:
             response = requests.post(
-                url, data={"data": query}, headers=_HEADERS, timeout=REQUEST_TIMEOUT_SECONDS
+                url, data={"data": query}, headers=_HEADERS, timeout=OVERPASS_REQUEST_TIMEOUT_SECONDS
             )
         except requests.RequestException as exc:
             logger.warning(
