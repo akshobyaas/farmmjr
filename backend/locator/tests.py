@@ -140,6 +140,27 @@ class NearbyServicesViewTests(APITestCase):
         self.assertEqual(mock_post.call_count, 2)
 
     @patch("locator.views.requests.post")
+    def test_overpass_request_timeout_covers_the_querys_own_15s_budget(self, mock_post):
+        # Real-world follow-up to the 502-fallback fix: after falling back
+        # to the second mirror, that mirror itself then failed with
+        # ReadTimeout. _build_overpass_query() bakes "[out:json][timeout:15]"
+        # into the query -- i.e. it tells the Overpass SERVER it has up to
+        # 15 seconds to compute -- but the HTTP CLIENT was only waiting 10
+        # seconds (REQUEST_TIMEOUT_SECONDS) before giving up, so a mirror
+        # that was merely slow (not actually broken) got killed prematurely
+        # before the budget the query itself declared was even up. The
+        # client-side timeout for the Overpass call must be at least as
+        # long as the budget the query asks the server for, plus margin for
+        # network/transfer time.
+        mock_post.return_value = mock_response(200, OVERPASS_HIT)
+        self.client.force_authenticate(self.user)
+
+        self.client.get(self.url, {"lat": "12.90", "lon": "74.85"})
+
+        used_timeout = mock_post.call_args.kwargs["timeout"]
+        self.assertGreater(used_timeout, 15)
+
+    @patch("locator.views.requests.post")
     def test_no_nearby_services_found_is_a_normal_empty_result_not_an_error(self, mock_post):
         mock_post.return_value = mock_response(200, {"elements": []})
         self.client.force_authenticate(self.user)
