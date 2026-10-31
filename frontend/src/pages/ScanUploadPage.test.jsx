@@ -30,6 +30,28 @@ async function selectFile(file) {
 }
 
 describe("ScanUploadPage", () => {
+  it("offers a direct camera capture option alongside the gallery picker", async () => {
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    // capture="environment" is what makes this input open the camera
+    // directly on a phone, instead of the ambiguous "choose a file"
+    // chooser the existing #scan-image gallery input shows.
+    const cameraInput = document.getElementById("scan-image-camera");
+    expect(cameraInput).toHaveAttribute("capture", "environment");
+    expect(cameraInput).toHaveAttribute("accept", "image/*");
+
+    await userEvent.upload(cameraInput, makeImageFile());
+
+    await waitFor(() => {
+      expect(screen.getByAltText(/selected crop preview/i)).toBeInTheDocument();
+    });
+    expect(screen.getByRole("button", { name: /upload photo/i })).not.toBeDisabled();
+  });
+
   it("shows a preview and enables upload once a photo is chosen", async () => {
     render(
       <MemoryRouter>
