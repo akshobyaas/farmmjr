@@ -50,7 +50,11 @@
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-lift);
+  /* A soft sky-blue glow ring around the glass panel (same --color-sky
+     family as .weather-main's backdrop), layered with the existing
+     --shadow-lift for real depth -- the "glowing border" look this whole
+     pass is going for, not just a flat drop shadow. */
+  box-shadow: 0 0 0 1px rgba(47, 143, 194, 0.12), 0 14px 34px rgba(47, 143, 194, 0.18), var(--shadow-lift);
   padding: 24px;
   width: 100%;
   max-width: 320px;
@@ -88,10 +92,25 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 14px;
+  gap: 8px;
   margin-top: 4px;
   padding-top: 14px;
   border-top: 1px solid rgba(17, 24, 39, 0.1);
+}
+/* Each reading is now its own small glass chip (icon + value) instead of
+   plain text in a row -- a mini bento widget rather than a stat list. */
+.weather-meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+.weather-meta-icon {
+  font-size: 15px;
+  line-height: 1;
 }
 .weather-meta span.stat-tile-value {
   font-size: 14px;

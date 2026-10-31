@@ -59,7 +59,7 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       <AppHeader title={t("common.appName")} />
 
-      <main className="app-main">
+      <main className={`app-main ${styles["dashboard-main"]}`}>
         <Link to="/profile" className={styles["dashboard-profile-card"]}>
           <span
             className={`${styles["dashboard-profile-avatar"]}${isAdmin ? ` ${styles["dashboard-profile-avatar-admin"]}` : ""}`}
