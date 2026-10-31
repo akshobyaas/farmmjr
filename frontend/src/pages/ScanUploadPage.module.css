@@ -28,6 +28,18 @@
   font-size: 16px;
   color: var(--color-text-secondary);
 }
+/* Same "label wearing .btn-secondary" pattern as .low-confidence-ask-link
+   in shared.css -- that shared class has no display rule of its own
+   (buttons center their text by default; a <label> doesn't), so this
+   fills that in rather than fighting the cascade. */
+.scan-upload-camera-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  text-decoration: none;
+}
 /* Visually hidden but still keyboard/screen-reader accessible — the
    label above acts as the large, farmer-friendly tap target instead. */
 .scan-upload-input {

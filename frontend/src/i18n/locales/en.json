@@ -203,6 +203,7 @@
   "scan": {
     "uploadTitle": "Scan a Crop",
     "tapToChoose": "📷 Tap to choose a photo of the crop leaf",
+  "takePhoto": "📸 Take Photo",
     "tooLarge": "Image too large. Maximum size is 5MB.",
     "networkError": "Could not reach the server. Check your connection and try again.",
     "sessionExpired": "Your session has expired. Please log in again.",

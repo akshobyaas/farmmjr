@@ -35,6 +35,25 @@ export default function ScanUploadPage() {
               className={styles["scan-upload-input"]}
             />
 
+            {/* Direct camera capture, separate from the dropzone above.
+                capture="environment" skips the OS's "choose source" sheet
+                and opens the back camera straight away -- a farmer in the
+                field wants to snap a photo now, not pick through a generic
+                file chooser. Feeds the same handleFileChange as the
+                gallery input above, so preview/validation/upload are
+                unchanged. */}
+            <label htmlFor="scan-image-camera" className={`btn-secondary ${styles["scan-upload-camera-btn"]}`}>
+              {t("scan.takePhoto")}
+            </label>
+            <input
+              id="scan-image-camera"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className={styles["scan-upload-input"]}
+            />
+
             {error && <p className="form-error" role="alert">{error}</p>}
 
             <button type="submit" className="btn-primary" disabled={submitting || !file}>
