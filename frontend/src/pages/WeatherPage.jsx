@@ -74,15 +74,24 @@ export default function WeatherPage() {
                 locale's existing copy (en/hi/kn) keeps working unchanged. */}
             <div className={styles["weather-meta"]}>
               {typeof weather.feels_like === "number" && (
-                <span className="stat-tile-value">
-                  {t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}
+                <span className={styles["weather-meta-chip"]}>
+                  <span className={styles["weather-meta-icon"]} aria-hidden="true">🌡️</span>
+                  <span className="stat-tile-value">
+                    {t("weather.feelsLike", { temp: Math.round(weather.feels_like) })}
+                  </span>
                 </span>
               )}
               {typeof weather.humidity === "number" && (
-                <span className="stat-tile-value">{t("weather.humidity", { value: weather.humidity })}</span>
+                <span className={styles["weather-meta-chip"]}>
+                  <span className={styles["weather-meta-icon"]} aria-hidden="true">💧</span>
+                  <span className="stat-tile-value">{t("weather.humidity", { value: weather.humidity })}</span>
+                </span>
               )}
               {typeof weather.wind_speed === "number" && (
-                <span className="stat-tile-value">{t("weather.wind", { value: weather.wind_speed })}</span>
+                <span className={styles["weather-meta-chip"]}>
+                  <span className={styles["weather-meta-icon"]} aria-hidden="true">💨</span>
+                  <span className="stat-tile-value">{t("weather.wind", { value: weather.wind_speed })}</span>
+                </span>
               )}
             </div>
           </div>
