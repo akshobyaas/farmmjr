@@ -1,4 +1,13 @@
 /* ===== Phase 13 — Weather ===== */
+/* Glass makeover: a soft sky-colored backdrop behind the whole page's
+   content (using the existing --color-sky-light token, not a new color)
+   gives the frosted weather-card below something real to sit on top of
+   -- a flat white page under a translucent-blur card would barely read
+   as "glass" at all. Scoped to this page only via this module class
+   stacked alongside the global .app-main in WeatherPage.jsx. */
+.weather-main {
+  background: linear-gradient(165deg, var(--color-sky-light) 0%, #EAF6FB 45%, var(--color-bg) 100%);
+}
 .weather-search-form {
   display: flex;
   gap: 8px;
@@ -29,12 +38,19 @@
   flex-shrink: 0;
   margin-top: 0;
 }
+/* Frosted-glass panel: translucent white + a blur of whatever's behind
+   it (the sky gradient on .weather-main above), instead of a flat
+   bordered box -- the modern "glass card over a colored backdrop" look.
+   -webkit-backdrop-filter covers Safari/iOS; browsers with neither just
+   render the semi-transparent background on its own, which still looks
+   intentional rather than broken. */
 .weather-card {
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-top: none;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-card);
-  box-shadow: none;
+  box-shadow: var(--shadow-lift);
   padding: 24px;
   width: 100%;
   max-width: 320px;
@@ -75,7 +91,7 @@
   gap: 14px;
   margin-top: 4px;
   padding-top: 14px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(17, 24, 39, 0.1);
 }
 .weather-meta span.stat-tile-value {
   font-size: 14px;

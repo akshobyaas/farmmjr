@@ -32,7 +32,7 @@ export default function WeatherPage() {
     <div className="dashboard-page">
       <AppHeader title={t("weather.title")} className="weather-header" />
 
-      <main className="app-main">
+      <main className={`app-main ${styles["weather-main"]}`}>
         <form className={styles["weather-search-form"]} onSubmit={handleCitySubmit}>
           <div className={`field-box ${styles["weather-city-field"]}`}>
             <label htmlFor="weather-city" className="field-box-label">

@@ -108,7 +108,6 @@
 .status-card {
   background: white;
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-primary);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 22px 24px;
@@ -139,14 +138,18 @@
   max-width: 400px;
   box-sizing: border-box;
 }
+/* "Elevate Minimal" v2: status used to signal ok/error with a colored
+   left-accent stripe on an otherwise white card -- the dated "info box"
+   look. It's now a tinted surface instead, matching the existing
+   .app-main > .status-message loading/empty-state pattern above. */
 .status-ok {
-  border-left-color: var(--color-primary);
+  background: var(--color-primary-tint);
 }
 .status-ok .status-title {
   color: var(--color-primary);
 }
 .status-error {
-  border-left-color: var(--color-alert);
+  background: var(--color-alert-tint);
 }
 .status-error .status-title {
   color: var(--color-alert);
@@ -343,7 +346,6 @@
 .low-confidence-nudge {
   background: var(--color-warning-tint);
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-warning);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 16px 18px;
