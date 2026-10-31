@@ -4,6 +4,7 @@ import { useProfileForm } from "../hooks/useProfileForm";
 import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import PageSkeleton from "../components/PageSkeleton";
 import styles from "./ProfilePage.module.css";
 
 export default function ProfilePage() {
@@ -31,7 +32,7 @@ export default function ProfilePage() {
       <div className="dashboard-page">
         <AppHeader title={t("profile.title")} />
         <main className="app-main">
-          <div className="loading-screen">{t("common.loading")}</div>
+          <PageSkeleton label={t("common.loading")} inline />
           {logoutButton}
         </main>
         <BottomNav />

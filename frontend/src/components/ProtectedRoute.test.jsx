@@ -33,9 +33,14 @@ function renderProtected() {
 
 describe("ProtectedRoute", () => {
   it("shows a loading state while the session check is in progress", () => {
+    // Modern-UI polish pass: the loading state is now PageSkeleton's
+    // shimmer shape, not visible "Checking your session…" text -- the
+    // equivalent accessible-tech announcement moved to the status role's
+    // aria-label instead (see PageSkeleton.test.jsx for that component's
+    // own coverage).
     useAuth.mockReturnValue({ user: null, loading: true });
     renderProtected();
-    expect(screen.getByText(/checking your session/i)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAccessibleName(/checking your session/i);
     expect(screen.queryByText(/secret dashboard content/i)).not.toBeInTheDocument();
   });
 

@@ -26,6 +26,16 @@
   --color-gold-light: #F0C877;
   --radius-card: 16px;
   --radius-btn: 12px;
-  --shadow-card: none;
-  --shadow-lift: none;
+  /* "Elevate Minimal" polish pass (Nov 2026): the Minimal theme pass
+     zeroed these out entirely -- hairline borders were the only thing
+     separating a card from the page. Reintroducing a soft, layered
+     shadow (not the old heavy India-focused-era shadows) gives surfaces
+     real depth without abandoning the restrained accent-color/no-
+     gradient system; the hairline border stays too, the shadow is
+     additive. Same two-layer values already proven on the dashboard
+     profile card earlier this session. --shadow-card-hover is a new
+     token, used for the hover-deepen effect on interactive cards/rows. */
+  --shadow-card: 0 2px 10px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-card-hover: 0 8px 20px rgba(17, 24, 39, 0.1), 0 2px 6px rgba(17, 24, 39, 0.06);
+  --shadow-lift: 0 4px 16px rgba(17, 24, 39, 0.08), 0 1px 3px rgba(17, 24, 39, 0.04);
 }

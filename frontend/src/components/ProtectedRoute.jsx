@@ -1,11 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PageSkeleton from "./PageSkeleton";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="loading-screen">Checking your session…</div>;
+    return <PageSkeleton label="Checking your session…" />;
   }
 
   if (!user) {

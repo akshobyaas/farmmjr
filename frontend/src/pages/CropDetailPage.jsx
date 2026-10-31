@@ -5,6 +5,7 @@ import { fetchCropDetail } from "../api/crops";
 import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import PageSkeleton from "../components/PageSkeleton";
 import { useCropTracker } from "../hooks/useCropTracker";
 import { useDiaryEntries } from "../hooks/useDiaryEntries";
 import styles from "./CropDetailPage.module.css";
@@ -73,7 +74,7 @@ export default function CropDetailPage() {
   }
 
   if (!crop) {
-    return <div className="loading-screen">{t("common.loading")}</div>;
+    return <PageSkeleton label={t("common.loading")} />;
   }
 
   const cropName = localizeField(crop, "name", i18n.language);
