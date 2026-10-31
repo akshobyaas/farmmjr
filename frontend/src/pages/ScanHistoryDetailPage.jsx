@@ -4,6 +4,7 @@ import { useScanDetail } from "../hooks/useScanDetail";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 import LowConfidenceNudge from "../components/LowConfidenceNudge";
+import PageSkeleton from "../components/PageSkeleton";
 
 export default function ScanHistoryDetailPage() {
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ export default function ScanHistoryDetailPage() {
   }
 
   if (!scan) {
-    return <div className="loading-screen">{t("scan.detailLoading")}</div>;
+    return <PageSkeleton label={t("scan.detailLoading")} />;
   }
 
   return (
