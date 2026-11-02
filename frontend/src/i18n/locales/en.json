@@ -258,6 +258,7 @@
     "introEyebrow": "Local Weather",
     "introHeading": "Weather for your farm",
     "introBody": "Search a place to see the forecast and field conditions.",
-    "recentLabel": "Recent searches"
+    "recentLabel": "Recent searches",
+    "useMyLocation": "Use My Location"
   }
 }

@@ -47,6 +47,11 @@ const PATHS = {
   // @material-symbols/svg-400@0.48.0 package/version as every other icon
   // above, see this folder's README.md.
   close: <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" />,
+  // Weather search-card restyle (user-supplied reference mockup) -- the
+  // crosshair/GPS icon on "Use My Location", distinct from the teardrop
+  // `pin` icon above (that one marks a place; this one means "locate me").
+  // Same package/version as every other icon, see this folder's README.md.
+  myLocation: <path d="M450-42v-75q-137-14-228-105T117-450H42v-60h75q14-137 105-228t228-105v-75h60v75q137 14 228 105t105 228h75v60h-75q-14 137-105 228T510-117v75h-60Zm244.5-223.5Q784-355 784-480t-89.5-214.5Q605-784 480-784t-214.5 89.5Q176-605 176-480t89.5 214.5Q355-176 480-176t214.5-89.5Zm-321-108Q330-417 330-480t43.5-106.5Q417-630 480-630t106.5 43.5Q630-543 630-480t-43.5 106.5Q543-330 480-330t-106.5-43.5ZM544-416q26-26 26-64t-26-64q-26-26-64-26t-64 26q-26 26-26 64t26 64q26 26 64 26t64-26Zm-64-64Z" />,
 };
 
 export default function Icon({ name, size = 22, className = "" }) {

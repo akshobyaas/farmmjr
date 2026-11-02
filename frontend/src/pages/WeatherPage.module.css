@@ -37,100 +37,133 @@
   color: var(--color-text-secondary);
   margin: 0;
 }
-/* design.md section 5.3 ("generous spacing... subtle borders and soft
-   shadows sparingly so cards remain distinct") -- the gap and the shadows
-   below are this page's response to that, without adopting the spec's own
-   color tokens or a new icon family (kept on the app's existing design
-   system per the earlier scope decision). */
-.weather-search-form {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
+/* Search card restyle (user-supplied reference mockup): one rounded card
+   (icon+label row above a single merged pill-shaped search bar) instead of
+   the previous boxed-label field-box beside a separate rectangular Search
+   button. Colors are still entirely this app's existing tokens --
+   --color-primary-tint is the same pale-mint token already used elsewhere
+   (e.g. the dashboard's icon badges), not a new color, used here as the
+   "card stands out from the page" surface the reference showed as a warm
+   cream -- and no new font was introduced, per the user's explicit "keep
+   current colors ... use font also same" direction. Icon family, shape,
+   and layout follow the reference; the palette and typeface do not. */
+.search-card {
   width: 100%;
   max-width: 400px;
-}
-/* UI Polish Pass -- the input itself is now the shared .field-box /
-   .field-box-input (shared.css); this just keeps the box, not the old
-   bespoke input, flexing to fill the row next to the Search button.
-   The soft shadow is this page's own addition (field-box has none by
-   default) -- design.md's "premium, approachable" direction applied as
-   shape/elevation only, not a palette change. */
-.weather-city-field {
-  flex: 1;
-  min-width: 0;
+  background: var(--color-primary-tint);
+  border-radius: 24px;
+  padding: 18px 20px 20px;
   box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
 }
-/* Leading search icon inside the city input, per design.md -- without
-   touching the shared .field-box-input (shared.css). The icon sits in a
-   small flex wrapper local to this page; :global(...) reaches into the
-   shared input class to make room for it, same escape-hatch pattern as
-   .weather-search-form :global(.btn-primary) below. */
-.search-input-wrap {
-  position: relative;
+.search-card-label-row {
   display: flex;
   align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  cursor: text;
 }
-.search-input-wrap :global(.field-box-input) {
-  padding-left: 24px;
-  /* Room for the clear button (below) once text is typed; harmless empty
-     space when it isn't rendered. */
-  padding-right: 22px;
+.search-card-label-icon {
+  color: var(--color-primary-dark);
+  flex-shrink: 0;
 }
-.search-input-icon {
-  position: absolute;
-  left: 0;
-  color: var(--color-text-secondary);
-  pointer-events: none;
+.search-card-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+/* The merged search bar: input and submit button live inside one pill
+   instead of two separate controls side by side. The subtle left-to-right
+   tint-to-white gradient (both stops already existing tokens) echoes the
+   reference's shaded bar without introducing any new color value. */
+.search-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, var(--color-primary-tint) 0%, var(--color-bg) 65%);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 4px 4px 16px;
+}
+.search-pill-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+  min-height: 26px;
 }
 /* design.md's LocationSearch: "a clear action after text is entered." Only
-   rendered once cityInput is non-empty (WeatherPage.jsx). Borderless,
-   icon-only, sized under the 44x44 touch-target guideline on purpose --
-   it sits inside a field already comfortably tall enough that a full
-   44px hit area isn't needed here (matches the search icon beside it). */
+   rendered once cityInput is non-empty (WeatherPage.jsx). */
 .search-clear-btn {
-  position: absolute;
-  right: 0;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-secondary);
   background: none;
   border: none;
-  padding: 2px;
+  padding: 4px;
   cursor: pointer;
   border-radius: 999px;
 }
 .search-clear-btn:hover {
   color: var(--color-text);
 }
-/* .btn-primary defaults to width:100% for its normal standalone use; inside
-   this flex row that fights the input's flex:1 and collapses it to a sliver,
-   so give the button a fixed, content-driven width here instead.
-   :global(...) because .btn-primary is the shared, un-scoped class (lives
-   in shared.css) while .weather-search-form above is this module's own
-   locally-scoped class -- moved here from shared.css, where it had been
-   mis-swept in Task 2 (that pass matched on the shared .btn-primary token
-   inside this compound selector and moved the whole rule, missing that
-   its ancestor, .weather-search-form, was page-specific). Left there, it
-   would have silently stopped matching the instant .weather-search-form
-   became a hashed module class name.
-   border-radius/box-shadow here are design.md's 14-16px button radius and
-   "soft shadow" guidance (the shared .btn-primary default is a flatter
-   12px/no-shadow) -- scoped to this page rather than changed globally. */
-.weather-search-form :global(.btn-primary) {
-  width: auto;
-  min-width: 100px;
+/* The round icon-only submit button anchored at the pill's right edge,
+   matching the reference's circular search button inline in the bar. */
+.search-pill-submit {
   flex-shrink: 0;
-  margin-top: 0;
-  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
   box-shadow: 0 4px 14px rgba(47, 158, 68, 0.28);
 }
-/* Use My Location -- same 16px/soft-shadow treatment as the Search button
-   above, so the two actions on this row read as one matched pair rather
-   than two differently-shaped controls. */
+.search-pill-submit:disabled {
+  background: var(--color-primary-light);
+  box-shadow: none;
+  cursor: default;
+}
+/* Use My Location -- an outlined pill (green border/text on white,
+   matching the reference) instead of the shared .btn-secondary's neutral
+   gray border/text. Rewritten as its own class rather than layering onto
+   .btn-secondary, since every property that class sets for color is
+   overridden here anyway. */
 .use-location-btn {
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  min-height: 50px;
+  background: var(--color-bg);
+  color: var(--color-primary-dark);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 20px;
+}
+.use-location-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.use-location-icon {
+  flex-shrink: 0;
 }
 /* Frosted-glass panel: translucent white + a blur of whatever's behind
    it (the sky gradient on .weather-main above), instead of a flat

@@ -73,49 +73,66 @@ export default function WeatherPage() {
           </div>
         )}
 
-        <form className={styles["weather-search-form"]} onSubmit={handleCitySubmit}>
-          <div className={`field-box ${styles["weather-city-field"]}`}>
-            <label htmlFor="weather-city" className="field-box-label">
-              {t("locator.placeLabel")}
-            </label>
-            <div className={styles["search-input-wrap"]}>
-              <Icon name="search" size={16} className={styles["search-input-icon"]} />
-              <input
-                id="weather-city"
-                type="text"
-                placeholder={t("weather.placePlaceholder")}
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                className="field-box-input"
-              />
-              {/* design.md's LocationSearch component: "a clear action after
-                  text is entered." Only takes over cityInput -- it never
-                  clears the weather result that's already on screen, same
-                  as typing over the field and not resubmitting. */}
-              {cityInput && (
-                <button
-                  type="button"
-                  className={styles["search-clear-btn"]}
-                  onClick={() => setCityInput("")}
-                  aria-label={t("common.clear")}
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-          <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
-            {t("common.search")}
-          </button>
-        </form>
+        {/* Search card restyle (user-supplied reference mockup) -- a single
+            rounded card (label row + one merged pill-shaped search bar with
+            an inline circular submit button) instead of the previous
+            boxed-label field-box beside a separate rectangular Search
+            button. Still the app's own green/white tokens and existing
+            font throughout -- only the shape/icon/layout changed, per the
+            user's explicit "keep current colors" direction. */}
+        <div className={styles["search-card"]}>
+          <label htmlFor="weather-city" className={styles["search-card-label-row"]}>
+            <Icon name="pin" size={16} className={styles["search-card-label-icon"]} />
+            <span className={styles["search-card-label"]}>{t("locator.placeLabel")}</span>
+          </label>
+          <form className={styles["search-pill"]} onSubmit={handleCitySubmit}>
+            <input
+              id="weather-city"
+              type="text"
+              placeholder={t("weather.placePlaceholder")}
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              className={styles["search-pill-input"]}
+            />
+            {/* design.md's LocationSearch component: "a clear action after
+                text is entered." Only takes over cityInput -- it never
+                clears the weather result that's already on screen, same
+                as typing over the field and not resubmitting. */}
+            {cityInput && (
+              <button
+                type="button"
+                className={styles["search-clear-btn"]}
+                onClick={() => setCityInput("")}
+                aria-label={t("common.clear")}
+              >
+                <Icon name="close" size={14} />
+              </button>
+            )}
+            <button
+              type="submit"
+              className={styles["search-pill-submit"]}
+              disabled={loading || !cityInput.trim()}
+              aria-label={t("common.search")}
+            >
+              <Icon name="search" size={18} />
+            </button>
+          </form>
+        </div>
 
+        {/* A plain, non-emoji weather.useMyLocation string (new key, kept
+            separate from the shared common.useMyLocation used on
+            LocatorPage) since the icon is now rendered for real via
+            <Icon name="myLocation" /> -- stripping the emoji keeps this
+            page's string from showing both at once, without touching
+            LocatorPage's own untouched copy/behavior. */}
         <button
           type="button"
-          className={`btn-secondary ${styles["use-location-btn"]}`}
+          className={styles["use-location-btn"]}
           onClick={handleUseMyLocation}
           disabled={loading}
         >
-          {t("common.useMyLocation")}
+          <Icon name="myLocation" size={18} className={styles["use-location-icon"]} />
+          {t("weather.useMyLocation")}
         </button>
 
         {/* Lightweight "recent searches" -- design.md's location chips,
