@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { fetchWeather, fetchForecast } from "../api/weather";
+import { recentLocationsStorage } from "./recentLocationsStorage";
 
 // Extracted verbatim from WeatherPage.jsx's state/handlers, as part of the
 // frontend structure cleanup (Sub-project 1). See
@@ -13,6 +14,9 @@ export function useWeather() {
   const [forecast, setForecast] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Weather page design pass (pre-search screen) -- recent-search chips.
+  // Lazily read from localStorage once on mount, via recentLocationsStorage.
+  const [recentLocations, setRecentLocations] = useState(() => recentLocationsStorage.get());
 
   const runFetch = async (params) => {
     setLoading(true);
@@ -22,6 +26,12 @@ export function useWeather() {
     try {
       const data = await fetchWeather(params);
       setWeather(data);
+      // Only a typed city search is worth remembering -- it's the one case
+      // the farmer could actually retype later. A geolocation lookup has
+      // no place name here to save (params.city is undefined for it).
+      if (params.city) {
+        setRecentLocations(recentLocationsStorage.add(params.city));
+      }
       // The hourly/daily strip is an enhancement on top of the main
       // reading, not core -- if it fails, the farmer still gets today's
       // weather, just without the "Today"/upcoming-days sections.
@@ -41,6 +51,13 @@ export function useWeather() {
     e.preventDefault();
     if (!cityInput.trim()) return;
     return runFetch({ city: cityInput.trim() });
+  };
+
+  // Recent-location chip click -- same as typing the place and hitting
+  // Search, so it goes through the same remembering/forecast/error path.
+  const selectRecentLocation = (city) => {
+    setCityInput(city);
+    return runFetch({ city });
   };
 
   const handleUseMyLocation = () => {
@@ -66,5 +83,16 @@ export function useWeather() {
     });
   };
 
-  return { cityInput, setCityInput, weather, forecast, loading, error, handleCitySubmit, handleUseMyLocation };
+  return {
+    cityInput,
+    setCityInput,
+    weather,
+    forecast,
+    loading,
+    error,
+    handleCitySubmit,
+    handleUseMyLocation,
+    recentLocations,
+    selectRecentLocation,
+  };
 }

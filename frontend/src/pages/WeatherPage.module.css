@@ -2,6 +2,41 @@
 .weather-main {
   background: var(--color-bg);
 }
+/* Pre-search intro (design.md's "location discovery" state) -- layout and
+   copy only, kept in this page's existing light theme/typography/icon set
+   rather than the spec's new design system or scenic hero imagery.
+   .app-main (shared.css) centers text page-wide, which is actually what
+   this block wants (unlike the full-width sections further down), so no
+   text-align override here -- same box-width-hugs-content case as the
+   Profile page's summary card. */
+.weather-intro {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 4px;
+}
+.weather-intro-icon {
+  color: var(--color-primary);
+  filter: drop-shadow(0 4px 10px rgba(47, 143, 194, 0.2));
+}
+.weather-intro-eyebrow {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 8px 0 2px;
+}
+.weather-intro-heading {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0 0 6px;
+}
+.weather-intro-body {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
 .weather-search-form {
   display: flex;
   gap: 8px;
@@ -14,6 +49,25 @@
 .weather-city-field {
   flex: 1;
   min-width: 0;
+}
+/* Leading search icon inside the city input, per design.md -- without
+   touching the shared .field-box-input (shared.css). The icon sits in a
+   small flex wrapper local to this page; :global(...) reaches into the
+   shared input class to make room for it, same escape-hatch pattern as
+   .weather-search-form :global(.btn-primary) below. */
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-input-wrap :global(.field-box-input) {
+  padding-left: 24px;
+}
+.search-input-icon {
+  position: absolute;
+  left: 0;
+  color: var(--color-text-secondary);
+  pointer-events: none;
 }
 /* .btn-primary defaults to width:100% for its normal standalone use; inside
    this flex row that fights the input's flex:1 and collapses it to a sliver,
@@ -260,4 +314,41 @@
 .daily-temp-min {
   font-size: 13px;
   color: var(--color-text-secondary);
+}
+
+/* Recent-searches chip row -- design.md's location chips, but backed by
+   this app's own search history (hooks/recentLocationsStorage.js) rather
+   than a hardcoded "popular places" list. Only shown pre-search, so it
+   inherits .app-main's centered text like .weather-intro above. */
+.recent-locations {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 4px;
+}
+.recent-locations-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 8px;
+}
+.recent-locations-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.recent-location-chip {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.recent-location-chip:disabled {
+  opacity: 0.6;
+  cursor: default;
 }

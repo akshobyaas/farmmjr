@@ -253,6 +253,10 @@
     "humidity": "आर्द्रता {{value}}%",
     "wind": "हवा {{value}} मी/से",
     "todayTitle": "आज",
-    "forecastTitle": "5-दिन का पूर्वानुमान"
+    "forecastTitle": "5-दिन का पूर्वानुमान",
+    "introEyebrow": "स्थानीय मौसम",
+    "introHeading": "आपके खेत का मौसम",
+    "introBody": "पूर्वानुमान और खेत की स्थिति देखने के लिए कोई स्थान खोजें।",
+    "recentLabel": "हाल की खोजें"
   }
 }

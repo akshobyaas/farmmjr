@@ -9,6 +9,7 @@ describe("useWeather", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete global.navigator.geolocation;
+    localStorage.clear();
   });
 
   test("handleCitySubmit fetches weather for the typed city", async () => {
@@ -108,5 +109,68 @@ describe("useWeather", () => {
     });
     expect(weatherApi.fetchForecast).not.toHaveBeenCalled();
     expect(result.current.forecast).toBeNull();
+  });
+
+  test("a successful city search is remembered as a recent location", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "Mysuru", temperature: 28 });
+    const { result } = renderHook(() => useWeather());
+    act(() => result.current.setCityInput("Mysuru"));
+    await act(async () => {
+      await result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    expect(result.current.recentLocations).toEqual(["Mysuru"]);
+  });
+
+  test("a failed city search is not remembered as a recent location", async () => {
+    weatherApi.fetchWeather.mockRejectedValue({ response: { data: { detail: "City not found" } } });
+    const { result } = renderHook(() => useWeather());
+    act(() => result.current.setCityInput("Nowhereville"));
+    await act(async () => {
+      await result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    expect(result.current.recentLocations).toEqual([]);
+  });
+
+  test("a geolocation-based lookup is not remembered as a recent location (nothing typed to replay)", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "Here", temperature: 20 });
+    global.navigator.geolocation = {
+      getCurrentPosition: (success) => success({ coords: { latitude: 12.3, longitude: 76.6 } }),
+    };
+    const { result } = renderHook(() => useWeather());
+    await act(async () => {
+      await result.current.handleUseMyLocation();
+    });
+    expect(result.current.recentLocations).toEqual([]);
+  });
+
+  test("recent locations persist across hook instances (survives remount) and dedupe case-insensitively, most-recent-first", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "x", temperature: 1 });
+    const first = renderHook(() => useWeather());
+    act(() => first.result.current.setCityInput("Mysuru"));
+    await act(async () => {
+      await first.result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    act(() => first.result.current.setCityInput("Puttur"));
+    await act(async () => {
+      await first.result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    act(() => first.result.current.setCityInput("mysuru"));
+    await act(async () => {
+      await first.result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+
+    const second = renderHook(() => useWeather());
+    expect(second.result.current.recentLocations).toEqual(["mysuru", "Puttur"]);
+  });
+
+  test("selectRecentLocation sets the city input and re-runs the search", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "Mysuru", temperature: 28 });
+    const { result } = renderHook(() => useWeather());
+    await act(async () => {
+      await result.current.selectRecentLocation("Mysuru");
+    });
+    expect(result.current.cityInput).toBe("Mysuru");
+    expect(weatherApi.fetchWeather).toHaveBeenCalledWith({ city: "Mysuru" });
+    expect(result.current.weather).toEqual({ location: "Mysuru", temperature: 28 });
   });
 });

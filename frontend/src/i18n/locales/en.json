@@ -253,6 +253,10 @@
     "humidity": "Humidity {{value}}%",
     "wind": "Wind {{value}} m/s",
     "todayTitle": "Today",
-    "forecastTitle": "5-Day Forecast"
+    "forecastTitle": "5-Day Forecast",
+    "introEyebrow": "Local Weather",
+    "introHeading": "Weather for your farm",
+    "introBody": "Search a place to see the forecast and field conditions.",
+    "recentLabel": "Recent searches"
   }
 }
