@@ -38,40 +38,27 @@
   margin: 0;
 }
 /* Search card restyle (user-supplied reference mockup): one rounded card
-   (icon+label row above a single merged pill-shaped search bar) instead of
-   the previous boxed-label field-box beside a separate rectangular Search
-   button. Colors are still entirely this app's existing tokens --
+   wrapping a single merged pill-shaped search bar, instead of the previous
+   boxed-label field-box beside a separate rectangular Search button.
+   Colors are still entirely this app's existing tokens --
    --color-primary-tint is the same pale-mint token already used elsewhere
    (e.g. the dashboard's icon badges), not a new color, used here as the
    "card stands out from the page" surface the reference showed as a warm
    cream -- and no new font was introduced, per the user's explicit "keep
    current colors ... use font also same" direction. Icon family, shape,
-   and layout follow the reference; the palette and typeface do not. */
+   and layout follow the reference; the palette and typeface do not.
+   The reference's pin-icon "PLACE NAME" label row above the bar was
+   removed per explicit follow-up request -- the card now wraps the pill
+   directly, with symmetric top/bottom padding since there's no label row
+   above it anymore; the field's accessible label moved to a visually-
+   hidden <label> (WeatherPage.jsx, shared.css's .sr-only). */
 .search-card {
   width: 100%;
   max-width: 400px;
   background: var(--color-primary-tint);
   border-radius: 24px;
-  padding: 18px 20px 20px;
+  padding: 20px;
   box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
-}
-.search-card-label-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  cursor: text;
-}
-.search-card-label-icon {
-  color: var(--color-primary-dark);
-  flex-shrink: 0;
-}
-.search-card-label {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 /* The merged search bar: input and submit button live inside one pill
    instead of two separate controls side by side. The subtle left-to-right
