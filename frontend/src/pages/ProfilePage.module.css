@@ -3,6 +3,12 @@
    one icon-prefixed row inside a single rounded card with hairline
    dividers between rows, instead of five separate boxed fields with gaps
    between them. */
+/* .app-main (shared.css) sets text-align: center on the whole page, for
+   its usual centered-card layout -- harmless here only because this card's
+   text box hugs its own content width. The field rows below stretch full
+   width, where that inherited centering becomes very visible (label/value
+   floating away from their icon instead of sitting next to it), so both
+   are reset to left explicitly rather than relying on box-width luck. */
 .profile-summary-card {
   display: flex;
   align-items: center;
@@ -15,6 +21,7 @@
   padding: 18px 20px;
   margin-bottom: 14px;
   box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  text-align: left;
 }
 .profile-summary-avatar {
   flex-shrink: 0;
@@ -79,6 +86,7 @@
   gap: 14px;
   padding: 14px 2px;
   border-bottom: 1px solid var(--color-border);
+  text-align: left;
 }
 .profile-field-row:last-child {
   border-bottom: none;
