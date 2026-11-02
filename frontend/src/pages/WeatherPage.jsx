@@ -120,13 +120,25 @@ export default function WeatherPage() {
           <div className={styles["hourly-section"]}>
             <h2 className={styles["forecast-section-title"]}>{t("weather.todayTitle")}</h2>
             <div className={styles["hourly-strip"]}>
-              {forecast.hourly.map((slot) => (
-                <div className={styles["hourly-chip"]} key={slot.time}>
-                  <span className={styles["hourly-time"]}>{formatHour(slot.time)}</span>
-                  <span className={styles["hourly-icon"]} aria-hidden="true">{iconFor(slot.icon)}</span>
-                  <span className={styles["hourly-temp"]}>{Math.round(slot.temperature)}°</span>
-                </div>
-              ))}
+              {forecast.hourly.map((slot, index) => {
+                // The backend already orders hourly entries chronologically
+                // (weather/views.py's _build_hourly slices OpenWeatherMap's
+                // own ordered list), so the first slot is always the
+                // soonest -- the one highlight the mockup's blue "11:00"
+                // card was going for, here in the app's own accent color.
+                const isCurrent = index === 0;
+                return (
+                  <div
+                    className={`${styles["hourly-chip"]} ${isCurrent ? styles["hourly-chip-current"] : ""}`}
+                    data-current-hour={isCurrent}
+                    key={slot.time}
+                  >
+                    <span className={styles["hourly-time"]}>{formatHour(slot.time)}</span>
+                    <span className={styles["hourly-icon"]} aria-hidden="true">{iconFor(slot.icon)}</span>
+                    <span className={styles["hourly-temp"]}>{Math.round(slot.temperature)}°</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
