@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 13 SVG files in this folder are the real, unmodified artwork from Google's
+The 14 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -47,3 +47,4 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `visibility.svg` | `eye` | Password show/hide |
 | `visibility_off.svg` | `eyeOff` | Password show/hide |
 | `call.svg` | `call` | Profile phone number row |
+| `close.svg` | `close` | Weather location search field's clear button |

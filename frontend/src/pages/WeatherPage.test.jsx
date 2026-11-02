@@ -261,4 +261,23 @@ describe("WeatherPage", () => {
     });
     expect(weatherApi.fetchWeather).toHaveBeenCalledWith({ city: "Mysuru" });
   });
+
+  it("shows a clear button once text is typed in the city field, and clicking it empties the field", async () => {
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
+
+    const input = screen.getByPlaceholderText(/enter a place name/i);
+    await userEvent.type(input, "Mangaluru");
+
+    const clearButton = screen.getByRole("button", { name: /clear/i });
+    await userEvent.click(clearButton);
+
+    expect(input).toHaveValue("");
+    expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
+  });
 });

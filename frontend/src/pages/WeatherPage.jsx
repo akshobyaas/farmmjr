@@ -88,6 +88,20 @@ export default function WeatherPage() {
                 onChange={(e) => setCityInput(e.target.value)}
                 className="field-box-input"
               />
+              {/* design.md's LocationSearch component: "a clear action after
+                  text is entered." Only takes over cityInput -- it never
+                  clears the weather result that's already on screen, same
+                  as typing over the field and not resubmitting. */}
+              {cityInput && (
+                <button
+                  type="button"
+                  className={styles["search-clear-btn"]}
+                  onClick={() => setCityInput("")}
+                  aria-label={t("common.clear")}
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              )}
             </div>
           </div>
           <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
@@ -95,7 +109,12 @@ export default function WeatherPage() {
           </button>
         </form>
 
-        <button type="button" className="btn-secondary" onClick={handleUseMyLocation} disabled={loading}>
+        <button
+          type="button"
+          className={`btn-secondary ${styles["use-location-btn"]}`}
+          onClick={handleUseMyLocation}
+          disabled={loading}
+        >
           {t("common.useMyLocation")}
         </button>
 

@@ -42,6 +42,11 @@ const PATHS = {
   // Plain geometric arrow, same 960-grid/flipped-Y coordinate system as
   // every other icon here so it drops in at any call site unchanged.
   chevronRight: <path d="M360-660 600-480 360-300 330-340 570-480 330-620Z" />,
+  // Weather pre-search redesign (design.md's "clear action after text is
+  // entered" requirement on the location search field) -- same
+  // @material-symbols/svg-400@0.48.0 package/version as every other icon
+  // above, see this folder's README.md.
+  close: <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z" />,
 };
 
 export default function Icon({ name, size = 22, className = "" }) {

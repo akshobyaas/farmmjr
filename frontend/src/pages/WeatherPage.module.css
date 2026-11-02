@@ -37,18 +37,28 @@
   color: var(--color-text-secondary);
   margin: 0;
 }
+/* design.md section 5.3 ("generous spacing... subtle borders and soft
+   shadows sparingly so cards remain distinct") -- the gap and the shadows
+   below are this page's response to that, without adopting the spec's own
+   color tokens or a new icon family (kept on the app's existing design
+   system per the earlier scope decision). */
 .weather-search-form {
   display: flex;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 10px;
   width: 100%;
   max-width: 400px;
 }
 /* UI Polish Pass -- the input itself is now the shared .field-box /
    .field-box-input (shared.css); this just keeps the box, not the old
-   bespoke input, flexing to fill the row next to the Search button. */
+   bespoke input, flexing to fill the row next to the Search button.
+   The soft shadow is this page's own addition (field-box has none by
+   default) -- design.md's "premium, approachable" direction applied as
+   shape/elevation only, not a palette change. */
 .weather-city-field {
   flex: 1;
   min-width: 0;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
 }
 /* Leading search icon inside the city input, per design.md -- without
    touching the shared .field-box-input (shared.css). The icon sits in a
@@ -62,12 +72,36 @@
 }
 .search-input-wrap :global(.field-box-input) {
   padding-left: 24px;
+  /* Room for the clear button (below) once text is typed; harmless empty
+     space when it isn't rendered. */
+  padding-right: 22px;
 }
 .search-input-icon {
   position: absolute;
   left: 0;
   color: var(--color-text-secondary);
   pointer-events: none;
+}
+/* design.md's LocationSearch: "a clear action after text is entered." Only
+   rendered once cityInput is non-empty (WeatherPage.jsx). Borderless,
+   icon-only, sized under the 44x44 touch-target guideline on purpose --
+   it sits inside a field already comfortably tall enough that a full
+   44px hit area isn't needed here (matches the search icon beside it). */
+.search-clear-btn {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.search-clear-btn:hover {
+  color: var(--color-text);
 }
 /* .btn-primary defaults to width:100% for its normal standalone use; inside
    this flex row that fights the input's flex:1 and collapses it to a sliver,
@@ -79,12 +113,24 @@
    inside this compound selector and moved the whole rule, missing that
    its ancestor, .weather-search-form, was page-specific). Left there, it
    would have silently stopped matching the instant .weather-search-form
-   became a hashed module class name. */
+   became a hashed module class name.
+   border-radius/box-shadow here are design.md's 14-16px button radius and
+   "soft shadow" guidance (the shared .btn-primary default is a flatter
+   12px/no-shadow) -- scoped to this page rather than changed globally. */
 .weather-search-form :global(.btn-primary) {
   width: auto;
   min-width: 100px;
   flex-shrink: 0;
   margin-top: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.28);
+}
+/* Use My Location -- same 16px/soft-shadow treatment as the Search button
+   above, so the two actions on this row read as one matched pair rather
+   than two differently-shaped controls. */
+.use-location-btn {
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
 }
 /* Frosted-glass panel: translucent white + a blur of whatever's behind
    it (the sky gradient on .weather-main above), instead of a flat
