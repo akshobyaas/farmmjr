@@ -74,16 +74,20 @@ export default function WeatherPage() {
         )}
 
         {/* Search card restyle (user-supplied reference mockup) -- a single
-            rounded card (label row + one merged pill-shaped search bar with
-            an inline circular submit button) instead of the previous
+            rounded card wrapping one merged pill-shaped search bar with an
+            inline circular submit button, instead of the previous
             boxed-label field-box beside a separate rectangular Search
             button. Still the app's own green/white tokens and existing
             font throughout -- only the shape/icon/layout changed, per the
-            user's explicit "keep current colors" direction. */}
+            user's explicit "keep current colors" direction.
+            The pin-icon "PLACE NAME" label row above the bar (present in
+            the reference) was removed per explicit follow-up request --
+            the label text moves to a visually-hidden <label> (shared.css's
+            .sr-only) so the field stays programmatically labeled for
+            screen readers even with nothing shown on screen for it. */}
         <div className={styles["search-card"]}>
-          <label htmlFor="weather-city" className={styles["search-card-label-row"]}>
-            <Icon name="pin" size={16} className={styles["search-card-label-icon"]} />
-            <span className={styles["search-card-label"]}>{t("locator.placeLabel")}</span>
+          <label htmlFor="weather-city" className="sr-only">
+            {t("locator.placeLabel")}
           </label>
           <form className={styles["search-pill"]} onSubmit={handleCitySubmit}>
             <input
