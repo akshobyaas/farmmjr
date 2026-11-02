@@ -161,6 +161,28 @@ describe("WeatherPage", () => {
     expect(screen.getByText("22°")).toBeInTheDocument();
   });
 
+  it("highlights the soonest hourly slot as the current hour", async () => {
+    weatherApi.fetchWeather.mockResolvedValue(mockWeather);
+    weatherApi.fetchForecast.mockResolvedValue(mockForecast);
+
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByPlaceholderText(/enter a place name/i), "Mangaluru");
+    await userEvent.click(screen.getByRole("button", { name: /search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("28°")).toBeInTheDocument();
+    });
+    // The backend already orders hourly entries chronologically, so the
+    // first slot is the soonest -- it alone gets the "current hour" marker.
+    expect(screen.getByText("28°").closest("[data-current-hour]")).toHaveAttribute("data-current-hour", "true");
+    expect(screen.getByText("25°").closest("[data-current-hour]")).toHaveAttribute("data-current-hour", "false");
+  });
+
   it("does not render the hourly/daily sections when no forecast is available", async () => {
     weatherApi.fetchWeather.mockResolvedValue(mockWeather);
     weatherApi.fetchForecast.mockRejectedValue(new Error("forecast down"));
