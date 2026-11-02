@@ -116,3 +116,132 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+/* ===== "Today" hourly strip + upcoming-days list =====
+   Mockup-inspired structure (big-temp card above, then an hourly scroll
+   strip, then a multi-day list) kept in this page's existing light/glass
+   language rather than the mockup's dark theme -- same frosted-glass
+   surfaces as .weather-card above, not a new visual system.
+   .app-main (shared.css) sets text-align: center page-wide; both
+   sections below reset it to left explicitly -- the Profile page redesign
+   earlier this session hit exactly this bug (label/value text floating
+   away from its icon instead of sitting next to it) when a full-width
+   row silently inherited that centering. */
+.hourly-section,
+.daily-section {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+.forecast-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 8px;
+}
+.hourly-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  /* No visible scrollbar track -- the strip's own horizontal bleed past
+     the chip edges already signals "more to scroll" without one. */
+  scrollbar-width: none;
+}
+.hourly-strip::-webkit-scrollbar {
+  display: none;
+}
+.hourly-chip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(47, 143, 194, 0.1), 0 8px 20px rgba(47, 143, 194, 0.12);
+  padding: 12px 8px;
+}
+.hourly-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.hourly-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.hourly-temp {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Same grouped-list visual language as the Profile page's field rows
+   (one rounded card, hairline dividers between rows) -- a pattern this
+   app now uses in more than one place for "a list of similar items",
+   just on a glass surface here instead of plain white. */
+.daily-list {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-card);
+  box-shadow: 0 0 0 1px rgba(47, 143, 194, 0.1), 0 8px 20px rgba(47, 143, 194, 0.12);
+  padding: 4px 16px;
+}
+.daily-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+.daily-row:last-child {
+  border-bottom: none;
+}
+.daily-day {
+  flex-shrink: 0;
+  width: 38px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.daily-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+.daily-desc {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.daily-temps {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.daily-temp-max {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.daily-temp-min {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}

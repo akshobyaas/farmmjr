@@ -251,6 +251,8 @@
     "fetchError": "Weather unavailable right now. Please try again later.",
     "feelsLike": "Feels like {{temp}}°C",
     "humidity": "Humidity {{value}}%",
-    "wind": "Wind {{value}} m/s"
+    "wind": "Wind {{value}} m/s",
+    "todayTitle": "Today",
+    "forecastTitle": "5-Day Forecast"
   }
 }
