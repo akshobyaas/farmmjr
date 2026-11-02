@@ -1,12 +1,6 @@
 /* ===== Phase 13 — Weather ===== */
-/* Glass makeover: a soft sky-colored backdrop behind the whole page's
-   content (using the existing --color-sky-light token, not a new color)
-   gives the frosted weather-card below something real to sit on top of
-   -- a flat white page under a translucent-blur card would barely read
-   as "glass" at all. Scoped to this page only via this module class
-   stacked alongside the global .app-main in WeatherPage.jsx. */
 .weather-main {
-  background: linear-gradient(165deg, var(--color-sky-light) 0%, #EAF6FB 45%, var(--color-bg) 100%);
+  background: var(--color-bg);
 }
 .weather-search-form {
   display: flex;
