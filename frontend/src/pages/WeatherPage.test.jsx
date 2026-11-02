@@ -17,6 +17,17 @@ const mockWeather = {
   icon: "04d",
 };
 
+const mockForecast = {
+  hourly: [
+    { time: "2026-11-02T15:00:00Z", temperature: 28, icon: "04d" },
+    { time: "2026-11-02T18:00:00Z", temperature: 25, icon: "10d" },
+  ],
+  daily: [
+    { date: "2026-11-02", temp_min: 24, temp_max: 30, icon: "04d", description: "broken clouds" },
+    { date: "2026-11-03", temp_min: 22, temp_max: 29, icon: "01d", description: "clear sky" },
+  ],
+};
+
 describe("WeatherPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -121,5 +132,52 @@ describe("WeatherPage", () => {
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/weather unavailable right now/i);
     });
+  });
+
+  it("shows an hourly strip and a multi-day forecast list when the forecast loads", async () => {
+    weatherApi.fetchWeather.mockResolvedValue(mockWeather);
+    weatherApi.fetchForecast.mockResolvedValue(mockForecast);
+
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByPlaceholderText(/enter a place name/i), "Mangaluru");
+    await userEvent.click(screen.getByRole("button", { name: /search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/today/i)).toBeInTheDocument();
+    });
+    // Two hourly chips, each showing its temperature.
+    expect(screen.getByText("28°")).toBeInTheDocument();
+    expect(screen.getByText("25°")).toBeInTheDocument();
+    // Two daily rows, each showing its high/low.
+    expect(screen.getByText(/5-day forecast/i)).toBeInTheDocument();
+    expect(screen.getByText("30°")).toBeInTheDocument();
+    expect(screen.getByText("24°")).toBeInTheDocument();
+    expect(screen.getByText("29°")).toBeInTheDocument();
+    expect(screen.getByText("22°")).toBeInTheDocument();
+  });
+
+  it("does not render the hourly/daily sections when no forecast is available", async () => {
+    weatherApi.fetchWeather.mockResolvedValue(mockWeather);
+    weatherApi.fetchForecast.mockRejectedValue(new Error("forecast down"));
+
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByPlaceholderText(/enter a place name/i), "Mangaluru");
+    await userEvent.click(screen.getByRole("button", { name: /search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Mangaluru, IN")).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/today/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/5-day forecast/i)).not.toBeInTheDocument();
   });
 });

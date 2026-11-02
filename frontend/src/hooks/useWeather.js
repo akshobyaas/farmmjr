@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { fetchWeather } from "../api/weather";
+import { fetchWeather, fetchForecast } from "../api/weather";
 
 // Extracted verbatim from WeatherPage.jsx's state/handlers, as part of the
 // frontend structure cleanup (Sub-project 1). See
@@ -10,6 +10,7 @@ export function useWeather() {
   const { t } = useTranslation();
   const [cityInput, setCityInput] = useState("");
   const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,9 +18,18 @@ export function useWeather() {
     setLoading(true);
     setError("");
     setWeather(null);
+    setForecast(null);
     try {
       const data = await fetchWeather(params);
       setWeather(data);
+      // The hourly/daily strip is an enhancement on top of the main
+      // reading, not core -- if it fails, the farmer still gets today's
+      // weather, just without the "Today"/upcoming-days sections.
+      try {
+        setForecast(await fetchForecast(params));
+      } catch {
+        setForecast(null);
+      }
     } catch (err) {
       setError(err.response?.data?.detail || t("weather.fetchError"));
     } finally {
@@ -56,5 +66,5 @@ export function useWeather() {
     });
   };
 
-  return { cityInput, setCityInput, weather, loading, error, handleCitySubmit, handleUseMyLocation };
+  return { cityInput, setCityInput, weather, forecast, loading, error, handleCitySubmit, handleUseMyLocation };
 }

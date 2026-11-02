@@ -73,4 +73,40 @@ describe("useWeather", () => {
     expect(result.current.error).toBeTruthy();
     expect(result.current.loading).toBe(false);
   });
+
+  test("handleCitySubmit also fetches the forecast for the same place", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "Mysuru", temperature: 28 });
+    weatherApi.fetchForecast.mockResolvedValue({ hourly: [{ time: "2026-11-02T15:00:00Z", temperature: 28, icon: "01d" }], daily: [] });
+    const { result } = renderHook(() => useWeather());
+    act(() => result.current.setCityInput("Mysuru"));
+    await act(async () => {
+      await result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    expect(weatherApi.fetchForecast).toHaveBeenCalledWith({ city: "Mysuru" });
+    expect(result.current.forecast.hourly).toHaveLength(1);
+  });
+
+  test("a failed forecast fetch does not block the main weather result", async () => {
+    weatherApi.fetchWeather.mockResolvedValue({ location: "Mysuru", temperature: 28 });
+    weatherApi.fetchForecast.mockRejectedValue(new Error("forecast down"));
+    const { result } = renderHook(() => useWeather());
+    act(() => result.current.setCityInput("Mysuru"));
+    await act(async () => {
+      await result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    expect(result.current.weather).toEqual({ location: "Mysuru", temperature: 28 });
+    expect(result.current.error).toBe("");
+    expect(result.current.forecast).toBeNull();
+  });
+
+  test("a failed weather fetch leaves the forecast untouched (never called)", async () => {
+    weatherApi.fetchWeather.mockRejectedValue({ response: { data: { detail: "City not found" } } });
+    const { result } = renderHook(() => useWeather());
+    act(() => result.current.setCityInput("Nowhere"));
+    await act(async () => {
+      await result.current.handleCitySubmit({ preventDefault: () => {} });
+    });
+    expect(weatherApi.fetchForecast).not.toHaveBeenCalled();
+    expect(result.current.forecast).toBeNull();
+  });
 });

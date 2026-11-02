@@ -24,9 +24,23 @@ function iconFor(code) {
   return map[prefix] || "🌦️";
 }
 
+// The backend returns real ISO-8601 timestamps/dates (see weather/views.py's
+// _to_iso_utc), so these are thin presentation wrappers, not new parsing
+// logic -- `undefined` locale means "the browser's own locale", same
+// convention ScanHistoryPage/VideosPage already use for dates.
+function formatHour(isoString) {
+  return new Date(isoString).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+function formatWeekday(dateString) {
+  // Parsed as UTC midnight (not local midnight) so the weekday shown always
+  // matches the calendar date the backend grouped by, regardless of the
+  // viewer's own timezone offset.
+  return new Date(`${dateString}T00:00:00Z`).toLocaleDateString(undefined, { weekday: "short" });
+}
+
 export default function WeatherPage() {
   const { t } = useTranslation();
-  const { cityInput, setCityInput, weather, loading, error, handleCitySubmit, handleUseMyLocation } = useWeather();
+  const { cityInput, setCityInput, weather, forecast, loading, error, handleCitySubmit, handleUseMyLocation } = useWeather();
 
   return (
     <div className="dashboard-page">
@@ -93,6 +107,45 @@ export default function WeatherPage() {
                   <span className="stat-tile-value">{t("weather.wind", { value: weather.wind_speed })}</span>
                 </span>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Mockup-inspired "Today" hourly strip and upcoming-days list --
+            best-effort enhancements on top of the main reading above: if
+            the forecast fetch failed, forecast is null and these two
+            sections just don't render (useWeather.js already isolates a
+            forecast failure from the main weather result). */}
+        {!loading && !error && forecast?.hourly?.length > 0 && (
+          <div className={styles["hourly-section"]}>
+            <h2 className={styles["forecast-section-title"]}>{t("weather.todayTitle")}</h2>
+            <div className={styles["hourly-strip"]}>
+              {forecast.hourly.map((slot) => (
+                <div className={styles["hourly-chip"]} key={slot.time}>
+                  <span className={styles["hourly-time"]}>{formatHour(slot.time)}</span>
+                  <span className={styles["hourly-icon"]} aria-hidden="true">{iconFor(slot.icon)}</span>
+                  <span className={styles["hourly-temp"]}>{Math.round(slot.temperature)}°</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && forecast?.daily?.length > 0 && (
+          <div className={styles["daily-section"]}>
+            <h2 className={styles["forecast-section-title"]}>{t("weather.forecastTitle")}</h2>
+            <div className={styles["daily-list"]}>
+              {forecast.daily.map((day) => (
+                <div className={styles["daily-row"]} key={day.date}>
+                  <span className={styles["daily-day"]}>{formatWeekday(day.date)}</span>
+                  <span className={styles["daily-icon"]} aria-hidden="true">{iconFor(day.icon)}</span>
+                  <span className={styles["daily-desc"]}>{day.description}</span>
+                  <span className={styles["daily-temps"]}>
+                    <span className={styles["daily-temp-max"]}>{Math.round(day.temp_max)}°</span>
+                    <span className={styles["daily-temp-min"]}>{Math.round(day.temp_min)}°</span>
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}
