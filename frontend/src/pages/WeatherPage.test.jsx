@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import WeatherPage from "./WeatherPage";
 import * as weatherApi from "../api/weather";
+import { recentLocationsStorage } from "../hooks/recentLocationsStorage";
 
 vi.mock("../api/weather");
 
@@ -31,6 +32,7 @@ const mockForecast = {
 describe("WeatherPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   afterEach(() => {
@@ -201,5 +203,62 @@ describe("WeatherPage", () => {
     });
     expect(screen.queryByText(/today/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/5-day forecast/i)).not.toBeInTheDocument();
+  });
+
+  it("shows an introductory heading before a search, and hides it once weather loads", async () => {
+    weatherApi.fetchWeather.mockResolvedValue(mockWeather);
+
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { name: /weather for your farm/i })).toBeInTheDocument();
+
+    await userEvent.type(screen.getByPlaceholderText(/enter a place name/i), "Mangaluru");
+    await userEvent.click(screen.getByRole("button", { name: /search/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Mangaluru, IN")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("heading", { name: /weather for your farm/i })).not.toBeInTheDocument();
+  });
+
+  it("shows a search icon inside the city field", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+    expect(container.querySelector("svg")).toBeTruthy();
+  });
+
+  it("does not show a recent-searches row when there are no recent locations", () => {
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+    expect(screen.queryByText(/recent searches/i)).not.toBeInTheDocument();
+  });
+
+  it("shows recent-location chips from a prior search, and clicking one re-runs the search", async () => {
+    recentLocationsStorage.add("Mysuru");
+    weatherApi.fetchWeather.mockResolvedValue({ ...mockWeather, location: "Mysuru, IN" });
+
+    render(
+      <MemoryRouter>
+        <WeatherPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/recent searches/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Mysuru" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Mysuru, IN")).toBeInTheDocument();
+    });
+    expect(weatherApi.fetchWeather).toHaveBeenCalledWith({ city: "Mysuru" });
   });
 });

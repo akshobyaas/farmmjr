@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useWeather } from "../hooks/useWeather";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./WeatherPage.module.css";
 
 // Simple, dependency-free mapping from OpenWeatherMap's icon code prefix to
@@ -40,26 +41,54 @@ function formatWeekday(dateString) {
 
 export default function WeatherPage() {
   const { t } = useTranslation();
-  const { cityInput, setCityInput, weather, forecast, loading, error, handleCitySubmit, handleUseMyLocation } = useWeather();
+  const {
+    cityInput,
+    setCityInput,
+    weather,
+    forecast,
+    loading,
+    error,
+    handleCitySubmit,
+    handleUseMyLocation,
+    recentLocations,
+    selectRecentLocation,
+  } = useWeather();
 
   return (
     <div className="dashboard-page">
       <AppHeader title={t("weather.title")} className="weather-header" />
 
       <main className={`app-main ${styles["weather-main"]}`}>
+        {/* Pre-search intro -- design.md's "location discovery" state, kept
+            in this page's existing design system (own tokens/icons/font,
+            no new scenic imagery) rather than adopting that spec's new
+            visual language. Hidden once a reading is on screen so it
+            doesn't compete with the weather card below. */}
+        {!weather && (
+          <div className={styles["weather-intro"]}>
+            <Icon name="cloudSun" size={32} className={styles["weather-intro-icon"]} />
+            <p className={styles["weather-intro-eyebrow"]}>{t("weather.introEyebrow")}</p>
+            <h2 className={styles["weather-intro-heading"]}>{t("weather.introHeading")}</h2>
+            <p className={styles["weather-intro-body"]}>{t("weather.introBody")}</p>
+          </div>
+        )}
+
         <form className={styles["weather-search-form"]} onSubmit={handleCitySubmit}>
           <div className={`field-box ${styles["weather-city-field"]}`}>
             <label htmlFor="weather-city" className="field-box-label">
               {t("locator.placeLabel")}
             </label>
-            <input
-              id="weather-city"
-              type="text"
-              placeholder={t("weather.placePlaceholder")}
-              value={cityInput}
-              onChange={(e) => setCityInput(e.target.value)}
-              className="field-box-input"
-            />
+            <div className={styles["search-input-wrap"]}>
+              <Icon name="search" size={16} className={styles["search-input-icon"]} />
+              <input
+                id="weather-city"
+                type="text"
+                placeholder={t("weather.placePlaceholder")}
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                className="field-box-input"
+              />
+            </div>
           </div>
           <button type="submit" className="btn-primary" disabled={loading || !cityInput.trim()}>
             {t("common.search")}
@@ -69,6 +98,29 @@ export default function WeatherPage() {
         <button type="button" className="btn-secondary" onClick={handleUseMyLocation} disabled={loading}>
           {t("common.useMyLocation")}
         </button>
+
+        {/* Lightweight "recent searches" -- design.md's location chips,
+            but backed by this app's own localStorage history (see
+            hooks/recentLocationsStorage.js) instead of a hardcoded
+            "popular cities" list, since the app has no such data. */}
+        {!weather && recentLocations.length > 0 && (
+          <div className={styles["recent-locations"]}>
+            <p className={styles["recent-locations-label"]}>{t("weather.recentLabel")}</p>
+            <div className={styles["recent-locations-row"]}>
+              {recentLocations.map((city) => (
+                <button
+                  type="button"
+                  key={city}
+                  className={styles["recent-location-chip"]}
+                  onClick={() => selectRecentLocation(city)}
+                  disabled={loading}
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {loading && <p className="status-message">{t("weather.loading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}
