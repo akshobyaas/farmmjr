@@ -24,7 +24,7 @@ export default function CropListPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="submit" className="btn-secondary">{t("crops.searchButton")}</button>
+          <button type="submit" className={styles["crop-search-submit"]}>{t("crops.searchButton")}</button>
         </form>
 
         {loading && <p className="status-message">{t("crops.loadingCrops")}</p>}
