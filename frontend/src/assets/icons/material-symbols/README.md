@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 19 SVG files in this folder are the real, unmodified artwork from Google's
+The 21 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -28,6 +28,12 @@ reconstructed from memory:
 - `volume_up.svg` and `volume_off.svg` are the same story again, same `24dp` native-grid exception as
   `mic.svg`/`mic_off.svg` just above (also covered by the `VIEWBOXES` override). Both are wired in --
   Chatbot's voice-output toggle swaps between them to show whether replies are being read aloud.
+- `image_search.svg` and `photo_camera.svg` are the same story again, same `24dp` native-grid
+  exception (also covered by the `VIEWBOXES` override). Both are wired into the Scan Upload page --
+  `image_search` in the empty dropzone's placeholder, `photo_camera` on the "Take Photo" button.
+  Their matching `tapToChoose`/`takePhoto` i18n strings (all three locales) had their own leftover
+  📷/📸 emoji prefixes stripped once the real icons took over, the same way `myLocation`'s emoji was
+  stripped when that icon was wired in -- otherwise the icon and the old emoji would have doubled up.
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -64,3 +70,5 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `mic_off.svg` | `micOff` | Not used yet -- no "muted mic" UI exists today |
 | `volume_up.svg` | `volumeUp` | Chatbot voice-output toggle (on) |
 | `volume_off.svg` | `volumeOff` | Chatbot voice-output toggle (off) |
+| `image_search.svg` | `imageSearch` | Scan Upload page's empty dropzone |
+| `photo_camera.svg` | `photoCamera` | Scan Upload page's "Take Photo" button |

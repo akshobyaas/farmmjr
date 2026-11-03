@@ -4,6 +4,7 @@ import { useScanUpload } from "../hooks/useScanUpload";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 import LowConfidenceNudge from "../components/LowConfidenceNudge";
+import Icon from "../components/Icon";
 import styles from "./ScanUploadPage.module.css";
 
 export default function ScanUploadPage() {
@@ -23,6 +24,7 @@ export default function ScanUploadPage() {
                 <img src={previewUrl} alt="Selected crop preview" className="scan-preview-image" />
               ) : (
                 <span className={styles["scan-upload-placeholder"]}>
+                  <Icon name="imageSearch" size={32} className={styles["scan-upload-placeholder-icon"]} />
                   {t("scan.tapToChoose")}
                 </span>
               )}
@@ -43,6 +45,7 @@ export default function ScanUploadPage() {
                 gallery input above, so preview/validation/upload are
                 unchanged. */}
             <label htmlFor="scan-image-camera" className={`btn-secondary ${styles["scan-upload-camera-btn"]}`}>
+              <Icon name="photoCamera" size={18} />
               {t("scan.takePhoto")}
             </label>
             <input

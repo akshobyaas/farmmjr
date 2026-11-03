@@ -71,6 +71,13 @@ const PATHS = {
   // -- see VIEWBOXES below and this folder's README.md.
   volumeUp: <path d="M14,20.73V18.68q2.25-0.65 3.63-2.5T19,11.98t-1.38-4.2Q16.25,5.93 14,5.27V3.22q3.1,0.7 5.05,3.14T21,11.98t-1.95,5.61T14,20.73ZM3,15V9H7l5-5V20L7,15H3Zm11,1V7.95Q15.18,8.5 15.84,9.6T16.5,12q0,1.27-0.66,2.36T14,16ZM10,8.85L7.85,11H5v2H7.85L10,15.15V8.85ZM7.5,12Z" />,
   volumeOff: <path d="M19.8,22.6l-3.02-3.03q-0.63,0.4-1.33,0.69T14,20.73V18.68q0.35-0.13 0.69-0.25q0.34-0.13 0.64-0.3L12,14.8V20L7,15H3V9H6.2L1.4,4.2L2.8,2.8L21.2,21.2l-1.4,1.4Zm-0.2-5.8l-1.45-1.45q0.42-0.78 0.64-1.63T19,11.98q0-2.35-1.38-4.2Q16.25,5.93 14,5.27V3.22q3.1,0.7 5.05,3.14T21,11.98q0,1.32-0.36,2.55T19.6,16.8Zm-3.35-3.35L14,11.2V7.95Q15.18,8.5 15.84,9.6T16.5,12q0,0.38-0.06,0.74t-0.19,0.71ZM12,9.2L9.4,6.6L12,4V9.2Zm-2,5.95V12.8L8.2,11H5v2H7.85L10,15.15ZM9.1,11.9Z" />,
+  // Scan Upload page's empty-state dropzone ("tap to choose a photo").
+  // Same user-supplied-export story and native 24x24 grid as mic/volumeUp
+  // above -- see VIEWBOXES below and this folder's README.md.
+  imageSearch: <path d="M6,17H18l-3.07-4.1q-0.28-0.05-0.56-0.13T13.8,12.6L11.25,16L9,13L6,17ZM5,21q-0.83,0-1.41-0.59T3,19V5Q3,4.17 3.59,3.59T5,3h5q0,0.45 0,0.95T10,5H5V19H19V13.68l2,2V19q0,0.82-0.59,1.41T19,21H5Zm7-9Zm9.55,1.4l-3.1-3.1q-0.52,0.35-1.13,0.53Q16.73,11 16.05,11Q14.2,11 12.9,9.69T11.6,6.5t1.31-3.19T16.1,2t3.19,1.31T20.6,6.5q0,0.68-0.2,1.3q-0.2,0.62-0.5,1.15L22.95,12l-1.4,1.4ZM16.1,9q1.05,0 1.77-0.73T18.6,6.5T17.88,4.72T16.1,4T14.33,4.72T13.6,6.5t0.72,1.77T16.1,9Z" />,
+  // Scan Upload page's "Take Photo" (direct camera capture) button. Same
+  // user-supplied-export story and native 24x24 grid as above.
+  photoCamera: <path d="M12,17.5q1.88,0 3.19-1.31T16.5,13T15.19,9.81T12,8.5T8.81,9.81T7.5,13t1.31,3.19T12,17.5Zm0-2q-1.05,0-1.77-0.72T9.5,13t0.73-1.78T12,10.5t1.78,0.72T14.5,13t-0.72,1.78T12,15.5ZM4,21q-0.82,0-1.41-0.59T2,19V7Q2,6.18 2.59,5.59T4,5H7.15L9,3h6l1.85,2H20q0.83,0 1.41,0.59Q22,6.18 22,7V19q0,0.82-0.59,1.41T20,21H4Zm0-2H20V7H15.95L14.13,5H9.88L8.05,7H4V19Zm8-6Z" />,
 };
 
 // Per-icon viewBox override for the rare icon (see `mic`/`micOff` above)
@@ -82,6 +89,8 @@ const VIEWBOXES = {
   micOff: "0 0 24 24",
   volumeUp: "0 0 24 24",
   volumeOff: "0 0 24 24",
+  imageSearch: "0 0 24 24",
+  photoCamera: "0 0 24 24",
 };
 
 export default function Icon({ name, size = 22, className = "" }) {
