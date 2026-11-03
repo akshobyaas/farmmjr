@@ -1,3 +1,14 @@
+/* .btn-primary (shared.css) is written for <button>; applied to the
+   "Go to Login" <Link> on the post-registration success screen, it also
+   needs block layout, centered text and no underline to actually look
+   like the other buttons on this page. */
+.go-to-login {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
 .password-hints {
   list-style: none;
   padding: 0;

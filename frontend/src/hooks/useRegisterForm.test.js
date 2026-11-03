@@ -44,7 +44,7 @@ describe("useRegisterForm", () => {
     expect(result.current.error).toBe("Passwords do not match.");
   });
 
-  test("handleSubmit registers as a farmer and navigates to /login on success", async () => {
+  test("handleSubmit registers as a farmer and marks registration as successful, without navigating", async () => {
     const register = vi.fn().mockResolvedValue({});
     useAuth.mockReturnValue({ register });
     const { result } = renderHook(() => useRegisterForm());
@@ -55,7 +55,10 @@ describe("useRegisterForm", () => {
       await result.current.handleSubmit({ preventDefault: () => {} });
     });
     expect(register).toHaveBeenCalledWith(expect.objectContaining({ username: "ravi", role: "farmer" }));
-    expect(mockNavigate).toHaveBeenCalledWith("/login");
+    expect(result.current.registered).toBe(true);
+    // The success screen (with its own "Go to Login" link) replaces the
+    // form instead of an automatic redirect -- see RegisterPage.jsx.
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   test("handleSubmit surfaces the backend's first field error", async () => {

@@ -89,7 +89,10 @@
     "haveAccount": "Already have an account?",
     "loginHere": "Log in here",
     "passwordHintLength": "At least 8 characters",
-    "passwordHintNotNumeric": "Not entirely numeric"
+    "passwordHintNotNumeric": "Not entirely numeric",
+    "successTitle": "Check Your Email",
+    "successBody": "We've sent a verification link to your email address. Click the link to activate your account, then log in below.",
+    "goToLogin": "Go to Login"
   },
   "profile": {
     "title": "Your Profile",
