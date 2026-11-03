@@ -9,6 +9,9 @@ Uses DRF's APITestCase (Django's TestCase + an API-friendly client) rather
 than pytest-django, matching the phase plan's "Django TestCase" option and
 avoiding a new test-runner dependency.
 """
+from smtplib import SMTPException
+from unittest import mock
+
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.urls import reverse
@@ -374,3 +377,59 @@ class PasswordResetTests(APITestCase):
         # the password hash into its signature, so reusing it must fail.
         replay = self.client.post(self.confirm_url, payload, format="json")
         self.assertEqual(replay.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class EmailFailSoftTests(APITestCase):
+    """
+    A broken mail server (timeout, auth failure, DNS blip -- anything
+    send_mail can raise) must never surface as a 500, and must never leave
+    account state changed with no success response reaching the user.
+    Mirrors the fail-soft pattern advisory/utils.py's
+    notify_admins_of_pending_query already uses for the same reason:
+    "a broken mail server should never block" the user-facing action.
+    """
+
+    def setUp(self):
+        cache.clear()
+
+    def test_registration_succeeds_even_when_sending_the_verification_email_fails(self):
+        payload = {
+            "username": "flaky_mail_farmer",
+            "email": "flaky@example.com",
+            "password": "StrongPass#123",
+            "password_confirm": "StrongPass#123",
+            "role": "farmer",
+        }
+        with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
+            response = self.client.post(reverse("register"), payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username="flaky_mail_farmer").exists())
+
+    def test_resend_verification_still_returns_generic_response_when_send_fails(self):
+        make_user(username="unverified_farmer", email="unverified@example.com", is_verified=False)
+        with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
+            response = self.client.post(
+                reverse("verify-email-resend"), {"email": "unverified@example.com"}, format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_change_unverified_email_keeps_the_new_address_even_if_sending_fails(self):
+        user = make_user(email="typo@example.com", is_verified=False)
+        with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
+            response = self.client.post(
+                reverse("verify-email-change-email"),
+                {"username": "farmer_ravi", "password": "FarmerPass#123", "new_email": "fixed@example.com"},
+                format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertEqual(user.email, "fixed@example.com")
+
+    def test_password_reset_request_still_returns_generic_response_when_send_fails(self):
+        make_user(email="ravi@example.com")
+        with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
+            response = self.client.post(
+                reverse("password-reset-request"), {"email": "ravi@example.com"}, format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
