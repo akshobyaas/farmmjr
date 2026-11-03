@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 17 SVG files in this folder are the real, unmodified artwork from Google's
+The 19 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -25,6 +25,9 @@ reconstructed from memory:
   instead of the shared `"0 -960 960 960"` -- every other icon is unaffected. `mic.svg` is wired in
   (Chatbot's voice-input button); `mic_off.svg` is saved and mapped to `Icon.jsx`'s `micOff` name but
   not yet used anywhere -- the app has no "muted microphone" UI state today.
+- `volume_up.svg` and `volume_off.svg` are the same story again, same `24dp` native-grid exception as
+  `mic.svg`/`mic_off.svg` just above (also covered by the `VIEWBOXES` override). Both are wired in --
+  Chatbot's voice-output toggle swaps between them to show whether replies are being read aloud.
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -59,3 +62,5 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `my_location.svg` | `myLocation` | Weather "Use My Location" button |
 | `mic.svg` | `mic` | Chatbot voice-input button |
 | `mic_off.svg` | `micOff` | Not used yet -- no "muted mic" UI exists today |
+| `volume_up.svg` | `volumeUp` | Chatbot voice-output toggle (on) |
+| `volume_off.svg` | `volumeOff` | Chatbot voice-output toggle (off) |

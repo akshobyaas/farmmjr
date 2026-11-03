@@ -66,6 +66,11 @@ const PATHS = {
   // "muted mic" state -- but kept here, ready, rather than left unused: see
   // the README's provenance note.
   micOff: <path d="M17.75,14.95L16.3,13.5q0.35-0.58 0.52-1.2T17,11h2q0,1.1-0.32,2.09q-0.32,0.99-0.93,1.86ZM12,9.15Zm2.8,2.8L13,10.15V5q0-0.43-0.29-0.71T12,4T11.29,4.29T11,5V8.15l-2-2V5Q9,3.75 9.88,2.88T12,2t2.13,0.88T15,5v6q0,0.27-0.06,0.5T14.8,11.95ZM11,21V17.93Q8.4,17.58 6.7,15.6T5,11H7q0,2.07 1.44,3.54T12,16q0.85,0 1.61-0.26Q14.38,15.48 15,15l1.43,1.43Q15.7,17 14.84,17.4T13,17.93V21H11Zm8.8,1.6L1.4,4.2L2.8,2.8L21.2,21.2l-1.4,1.4Z" />,
+  // Chatbot voice-OUTPUT toggle ("read replies aloud" on/off). Same
+  // user-supplied-export story and native 24x24 grid as mic/micOff above
+  // -- see VIEWBOXES below and this folder's README.md.
+  volumeUp: <path d="M14,20.73V18.68q2.25-0.65 3.63-2.5T19,11.98t-1.38-4.2Q16.25,5.93 14,5.27V3.22q3.1,0.7 5.05,3.14T21,11.98t-1.95,5.61T14,20.73ZM3,15V9H7l5-5V20L7,15H3Zm11,1V7.95Q15.18,8.5 15.84,9.6T16.5,12q0,1.27-0.66,2.36T14,16ZM10,8.85L7.85,11H5v2H7.85L10,15.15V8.85ZM7.5,12Z" />,
+  volumeOff: <path d="M19.8,22.6l-3.02-3.03q-0.63,0.4-1.33,0.69T14,20.73V18.68q0.35-0.13 0.69-0.25q0.34-0.13 0.64-0.3L12,14.8V20L7,15H3V9H6.2L1.4,4.2L2.8,2.8L21.2,21.2l-1.4,1.4Zm-0.2-5.8l-1.45-1.45q0.42-0.78 0.64-1.63T19,11.98q0-2.35-1.38-4.2Q16.25,5.93 14,5.27V3.22q3.1,0.7 5.05,3.14T21,11.98q0,1.32-0.36,2.55T19.6,16.8Zm-3.35-3.35L14,11.2V7.95Q15.18,8.5 15.84,9.6T16.5,12q0,0.38-0.06,0.74t-0.19,0.71ZM12,9.2L9.4,6.6L12,4V9.2Zm-2,5.95V12.8L8.2,11H5v2H7.85L10,15.15ZM9.1,11.9Z" />,
 };
 
 // Per-icon viewBox override for the rare icon (see `mic`/`micOff` above)
@@ -75,6 +80,8 @@ const PATHS = {
 const VIEWBOXES = {
   mic: "0 0 24 24",
   micOff: "0 0 24 24",
+  volumeUp: "0 0 24 24",
+  volumeOff: "0 0 24 24",
 };
 
 export default function Icon({ name, size = 22, className = "" }) {

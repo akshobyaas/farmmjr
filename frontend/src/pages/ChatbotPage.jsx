@@ -42,7 +42,7 @@ export default function ChatbotPage() {
           }}
           aria-label={voiceOutputOn ? t("chatbot.voiceOnLabel") : t("chatbot.voiceOffLabel")}
         >
-          {voiceOutputOn ? "🔊" : "🔇"}
+          <Icon name={voiceOutputOn ? "volumeUp" : "volumeOff"} size={20} />
         </button>
       )}
 
