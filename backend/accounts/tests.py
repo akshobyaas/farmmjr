@@ -493,3 +493,20 @@ class EmailFailSoftTests(APITestCase):
                 reverse("find-account"), {"email": "ravi@example.com"}, format="json",
             )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_email_timeout_is_bounded_well_below_the_frontend_request_timeout(self):
+        """
+        Live-bug regression: frontend/src/api/axios.js hard-caps every
+        request at 8s. With EMAIL_TIMEOUT unset, Django's smtplib call
+        blocks on the OS socket default (commonly 15-20+s on Windows) --
+        far longer than that 8s. The frontend gives up and shows a false
+        "something went wrong" error, then the backend's eventual response
+        write fails with a broken pipe, even though _send_mail_fail_soft
+        would have handled a *prompt* SMTP failure just fine. EMAIL_TIMEOUT
+        must stay well under 8s so a stalled mail server is always caught
+        before the client gives up.
+        """
+        from django.conf import settings
+
+        self.assertIsNotNone(settings.EMAIL_TIMEOUT)
+        self.assertLess(settings.EMAIL_TIMEOUT, 8)

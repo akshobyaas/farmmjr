@@ -201,6 +201,17 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 
+# Without this, Django leaves smtplib's socket timeout unset, so a stalled
+# or unreachable mail server blocks for the OS-level default (commonly
+# 15-20+ seconds on Windows) -- comfortably longer than the frontend's
+# 8-second request timeout (frontend/src/api/axios.js). That gap caused a
+# real bug: the client gives up and shows a false "something went wrong"
+# error, then the backend's eventual response write fails with a broken
+# pipe, even though _send_mail_fail_soft (accounts/utils.py) would have
+# handled a *prompt* SMTP failure fine. 5s leaves headroom under the
+# frontend's 8s cutoff for the rest of the request/response round trip.
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=5)
+
 # ---------------------------------------------------------------------------
 # Weather (Phase 13) — OpenWeatherMap. Server-side only, never sent to the
 # frontend. Left blank until a real key is added to .env; the weather view
