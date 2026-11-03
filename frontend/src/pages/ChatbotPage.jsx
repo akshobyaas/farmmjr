@@ -90,7 +90,11 @@ export default function ChatbotPage() {
               🎤
             </button>
           )}
-          <button type="submit" className="btn-primary" disabled={sending || !input.trim()}>
+          <button
+            type="submit"
+            className={styles["chatbot-send-button"]}
+            disabled={sending || !input.trim()}
+          >
             {t("chatbot.sendButton")}
           </button>
         </form>
