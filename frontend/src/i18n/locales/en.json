@@ -102,7 +102,13 @@
     "lastName": "Last Name",
     "phoneNumber": "Phone Number",
     "homeLocation": "Home Location",
-    "emailNote": "Email ({{email}}) cannot be changed here."
+    "emailNote": "Email ({{email}}) cannot be changed here.",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "This permanently deletes your account and all your data. This cannot be undone.",
+    "confirmPassword": "Confirm Password",
+    "deleteMyAccount": "Delete My Account",
+    "deleting": "Deleting…",
+    "cancel": "Cancel"
   },
   "crops": {
     "title": "Crop Guidance",

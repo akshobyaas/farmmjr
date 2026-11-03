@@ -102,7 +102,13 @@
     "lastName": "अंतिम नाम",
     "phoneNumber": "फ़ोन नंबर",
     "homeLocation": "घर का स्थान",
-    "emailNote": "ईमेल ({{email}}) यहां नहीं बदला जा सकता।"
+    "emailNote": "ईमेल ({{email}}) यहां नहीं बदला जा सकता।",
+    "deleteAccount": "खाता हटाएं",
+    "deleteAccountWarning": "यह आपके खाते और सभी डेटा को स्थायी रूप से हटा देगा। इसे पूर्ववत नहीं किया जा सकता।",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "deleteMyAccount": "मेरा खाता हटाएं",
+    "deleting": "हटाया जा रहा है…",
+    "cancel": "रद्द करें"
   },
   "crops": {
     "title": "फसल मार्गदर्शन",

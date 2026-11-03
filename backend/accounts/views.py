@@ -6,10 +6,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+
 from .serializers import (
     RegisterSerializer, UserPublicSerializer, ProfileSerializer, CustomTokenObtainPairSerializer,
     ResendVerificationSerializer, EmailVerificationConfirmSerializer, ChangeUnverifiedEmailSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer, FindAccountSerializer,
+    AccountDeleteSerializer,
 )
 from .permissions import IsProfileOwner
 from .throttles import LoginRateThrottle, RegisterRateThrottle, PasswordResetRateThrottle
@@ -83,9 +86,9 @@ class MeView(APIView):
         return Response(UserPublicSerializer(request.user).data)
 
 
-class ProfileDetailView(generics.RetrieveUpdateAPIView):
+class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieve or edit a user profile by ID.
+    Retrieve, edit, or delete a user profile by ID.
     Deliberately built to look up ANY user by primary key, not just
     request.user — this is what makes the object-level authorization check
     in IsProfileOwner meaningful and testable.
@@ -93,6 +96,27 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsProfileOwner]
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Self-service account deletion. A hard delete -- every user-linked
+        model already cascades on_delete=CASCADE by design (see
+        scans.models.ScanHistory's "right to erasure" comment), so this is
+        already a full erasure with no extra cascade logic needed here.
+        Requires the caller's own password (AccountDeleteSerializer) since
+        this is irreversible, and blacklists every refresh token this
+        account has ever been issued so a stale token already held by the
+        frontend can't authenticate afterward.
+        """
+        instance = self.get_object()  # enforces IsProfileOwner
+        serializer = AccountDeleteSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        for token in OutstandingToken.objects.filter(user=instance):
+            BlacklistedToken.objects.get_or_create(token=token)
+
+        self.perform_destroy(instance)
+        return Response({"detail": "Account deleted."}, status=status.HTTP_200_OK)
 
 
 class ResendVerificationView(APIView):

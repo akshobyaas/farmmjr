@@ -165,6 +165,26 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
+class AccountDeleteSerializer(serializers.Serializer):
+    """
+    Confirms the caller knows their own password before an irreversible
+    delete -- same "prove ownership before a destructive action" pattern
+    ChangeUnverifiedEmailSerializer uses below, but the username comes
+    from the already-authenticated request rather than being retyped.
+    """
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+
+    def validate(self, attrs):
+        from django.contrib.auth import authenticate
+
+        request = self.context["request"]
+        user = authenticate(username=request.user.username, password=attrs["password"])
+        if user is None:
+            raise serializers.ValidationError({"password": "Incorrect password."})
+        attrs["user"] = user
+        return attrs
+
+
 class ResendVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

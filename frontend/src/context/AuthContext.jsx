@@ -127,13 +127,20 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const deleteAccount = async (password) => {
+    const { data } = await api.delete(`auth/profile/${user.id}/`, { data: { password } });
+    tokenStorage.clear();
+    setUser(null);
+    return data;
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user, loading, login, register, logout,
         requestPasswordReset, findAccount, confirmPasswordReset,
         resendVerification, confirmEmailVerification, changeUnverifiedEmail,
-        getProfile, updateProfile,
+        getProfile, updateProfile, deleteAccount,
       }}
     >
       {children}

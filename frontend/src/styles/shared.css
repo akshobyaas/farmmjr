@@ -339,6 +339,42 @@
   color: var(--color-primary-dark);
   box-shadow: var(--shadow-card);
 }
+/* Delete-account "danger zone" (ProfilePage) -- same outline shape as
+   .btn-secondary, recolored into the existing alert tokens rather than a
+   new red, so a destructive action still reads as deliberate without
+   introducing an unrelated color. */
+.btn-danger {
+  min-height: 50px;
+  min-width: 120px;
+  background: #fff;
+  color: var(--color-alert);
+  border: 1.5px solid var(--color-alert);
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 20px;
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.btn-danger:hover {
+  background: var(--color-alert-tint);
+}
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.danger-zone {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+.danger-zone-text {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
 /* Low-confidence-prediction nudge toward "Ask an Expert" (scan upload
    result + scan-history detail). Pale amber, same warning tokens the
    advisory "pending" badge already uses, so a low-confidence result reads
