@@ -16,6 +16,42 @@
 .crop-search-form :global(.form-input) {
   flex: 1;
 }
+/* Filled-green Search CTA in place of the plain white .btn-secondary
+   outline it used to be -- same inline-row-friendly sizing (min-height,
+   horizontal padding, no width: 100%/margin-top the way .btn-primary
+   carries, which would overflow this flex row the same way ChatbotPage's
+   Send button did before that fix), just recolored to this app's primary
+   green so the one actionable control in the row reads as a real CTA. */
+.crop-search-submit {
+  flex-shrink: 0;
+  min-height: 50px;
+  padding: 0 20px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.crop-search-submit:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.32);
+}
+.crop-search-submit:active {
+  transform: scale(0.97);
+}
+.crop-search-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.crop-search-submit:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
 /* UI Polish Pass -- replaced the 2-up tile grid with a single-column list
    of .list-row items (shared.css), the same row shape ScanHistoryPage and
    the dashboard's quick actions use, so browsing crops reads as one
