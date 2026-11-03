@@ -28,7 +28,11 @@
       "weatherDesc": "अपने क्षेत्र की वर्तमान स्थिति देखें",
       "riskAlertText": "आज के पूर्वानुमान के आधार पर {{disease}} का {{risk}} जोखिम",
       "recentTitle": "हाल की गतिविधि",
-      "recentDesc": "अपने नवीनतम फसल स्कैन देखें"
+      "recentDesc": "अपने नवीनतम फसल स्कैन देखें",
+      "pendingQueriesTitle": "लंबित प्रश्न",
+      "pendingQueriesDesc": "किसानों के सवालों की समीक्षा करें और जवाब दें",
+      "pendingQueriesCount": "{{count}} प्रश्न आपके उत्तर की प्रतीक्षा में है",
+      "pendingQueriesCountPlural": "{{count}} प्रश्न आपके उत्तर की प्रतीक्षा में हैं"
     },
     "taskCategories": {
       "irrigation": "सिंचाई",

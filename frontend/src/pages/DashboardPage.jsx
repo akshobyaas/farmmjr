@@ -32,23 +32,29 @@ export default function DashboardPage() {
   const displayName = user?.first_name?.trim() || user?.username || "";
   const avatarInitial = displayName.charAt(0)?.toUpperCase() || "?";
 
-  const { riskAlert, todaysTasks } = useDashboardData();
+  const { riskAlert, todaysTasks, pendingQueriesCount } = useDashboardData({ isAdmin });
 
-  const quickLinks = [
-    { label: t("dashboard.links.profile"), desc: t("dashboard.links.profileDesc"), icon: "user", to: "/profile", ready: true },
-    { label: t("dashboard.links.crops"), desc: t("dashboard.links.cropsDesc"), icon: "leaf", to: "/crops", ready: true },
-    { label: t("dashboard.links.scan"), desc: t("dashboard.links.scanDesc"), icon: "search", to: "/scan", ready: true },
-    { label: t("dashboard.links.scanHistory"), desc: t("dashboard.links.scanHistoryDesc"), icon: "history", to: "/scan/history", ready: true },
-    { label: t("dashboard.links.weather"), desc: t("dashboard.links.weatherDesc"), icon: "cloudSun", to: "/weather", ready: true },
-    { label: t("dashboard.links.videos"), desc: t("dashboard.links.videosDesc"), icon: "play", to: "/videos", ready: true },
-    { label: t("dashboard.links.locator"), desc: t("dashboard.links.locatorDesc"), icon: "pin", to: "/locator", ready: true },
-    { label: t("dashboard.links.chatbot"), desc: t("dashboard.links.chatbotDesc"), icon: "chat", to: "/chatbot", ready: true },
-  ];
+  const profileLink = { label: t("dashboard.links.profile"), desc: t("dashboard.links.profileDesc"), icon: "user", to: "/profile", ready: true };
+  const advisoryAdminLink = { label: t("dashboard.links.advisoryAdmin"), desc: t("dashboard.links.advisoryAdminDesc"), icon: "inbox", to: "/advisory", ready: true };
 
-  const links =
-    user?.role === "admin"
-      ? [...quickLinks, { label: t("dashboard.links.advisoryAdmin"), desc: t("dashboard.links.advisoryAdminDesc"), icon: "inbox", to: "/advisory", ready: true }]
-      : [...quickLinks, { label: t("dashboard.links.advisoryAsk"), desc: t("dashboard.links.advisoryAskDesc"), icon: "inbox", to: "/advisory", ready: true }];
+  // The admin/expert role has exactly one app feature of its own --
+  // answering advisory queries (see advisory/views.py's IsAdminExpert
+  // gate) -- so its quick-actions list is just Profile + that, instead of
+  // every farmer tool (crop guidance, scanning, weather, videos, locator,
+  // chatbot) that an admin account has no real use for.
+  const links = isAdmin
+    ? [profileLink, advisoryAdminLink]
+    : [
+        profileLink,
+        { label: t("dashboard.links.crops"), desc: t("dashboard.links.cropsDesc"), icon: "leaf", to: "/crops", ready: true },
+        { label: t("dashboard.links.scan"), desc: t("dashboard.links.scanDesc"), icon: "search", to: "/scan", ready: true },
+        { label: t("dashboard.links.scanHistory"), desc: t("dashboard.links.scanHistoryDesc"), icon: "history", to: "/scan/history", ready: true },
+        { label: t("dashboard.links.weather"), desc: t("dashboard.links.weatherDesc"), icon: "cloudSun", to: "/weather", ready: true },
+        { label: t("dashboard.links.videos"), desc: t("dashboard.links.videosDesc"), icon: "play", to: "/videos", ready: true },
+        { label: t("dashboard.links.locator"), desc: t("dashboard.links.locatorDesc"), icon: "pin", to: "/locator", ready: true },
+        { label: t("dashboard.links.chatbot"), desc: t("dashboard.links.chatbotDesc"), icon: "chat", to: "/chatbot", ready: true },
+        { label: t("dashboard.links.advisoryAsk"), desc: t("dashboard.links.advisoryAskDesc"), icon: "inbox", to: "/advisory", ready: true },
+      ];
 
   const handleLogout = async () => {
     await logout();
@@ -84,43 +90,71 @@ export default function DashboardPage() {
           </span>
         </Link>
 
-        <div className={styles["dashboard-highlights"]}>
-          <Link to="/weather" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-weather"]}`}>
-            <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
-              <Icon name="cloudSun" size={20} />
-            </span>
-            <span className={styles["dashboard-highlight-text"]}>
-              <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.weatherTitle")}</span>
-              <span className={styles["dashboard-highlight-desc"]}>
-                {riskAlert
-                  ? t("dashboard.highlights.riskAlertText", {
-                      disease: riskAlert.disease_name,
-                      risk: riskAlert.risk_level
-                        ? riskAlert.risk_level.charAt(0).toUpperCase() + riskAlert.risk_level.slice(1)
-                        : "",
-                    })
-                  : t("dashboard.highlights.weatherDesc")}
+        {isAdmin ? (
+          // Admin's one highlight: how many advisory queries are waiting
+          // on an answer, instead of the farmer-only weather/recent-scan
+          // cards. pendingQueriesCount stays null (rather than a wrong
+          // "0") while loading or if the fetch failed, so the generic
+          // teaser copy shows instead of a bogus count.
+          <div className={styles["dashboard-highlights"]}>
+            <Link to="/advisory" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-activity"]}`}>
+              <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
+                <Icon name="inbox" size={20} />
               </span>
-            </span>
-            <span className="list-row-chevron" aria-hidden="true">
-              <Icon name="chevronRight" size={16} />
-            </span>
-          </Link>
-          <Link to="/scan/history" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-activity"]}`}>
-            <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
-              <Icon name="history" size={20} />
-            </span>
-            <span className={styles["dashboard-highlight-text"]}>
-              <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.recentTitle")}</span>
-              <span className={styles["dashboard-highlight-desc"]}>{t("dashboard.highlights.recentDesc")}</span>
-            </span>
-            <span className="list-row-chevron" aria-hidden="true">
-              <Icon name="chevronRight" size={16} />
-            </span>
-          </Link>
-        </div>
+              <span className={styles["dashboard-highlight-text"]}>
+                <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.pendingQueriesTitle")}</span>
+                <span className={styles["dashboard-highlight-desc"]}>
+                  {pendingQueriesCount === null
+                    ? t("dashboard.highlights.pendingQueriesDesc")
+                    : pendingQueriesCount === 1
+                      ? t("dashboard.highlights.pendingQueriesCount", { count: pendingQueriesCount })
+                      : t("dashboard.highlights.pendingQueriesCountPlural", { count: pendingQueriesCount })}
+                </span>
+              </span>
+              <span className="list-row-chevron" aria-hidden="true">
+                <Icon name="chevronRight" size={16} />
+              </span>
+            </Link>
+          </div>
+        ) : (
+          <div className={styles["dashboard-highlights"]}>
+            <Link to="/weather" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-weather"]}`}>
+              <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
+                <Icon name="cloudSun" size={20} />
+              </span>
+              <span className={styles["dashboard-highlight-text"]}>
+                <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.weatherTitle")}</span>
+                <span className={styles["dashboard-highlight-desc"]}>
+                  {riskAlert
+                    ? t("dashboard.highlights.riskAlertText", {
+                        disease: riskAlert.disease_name,
+                        risk: riskAlert.risk_level
+                          ? riskAlert.risk_level.charAt(0).toUpperCase() + riskAlert.risk_level.slice(1)
+                          : "",
+                      })
+                    : t("dashboard.highlights.weatherDesc")}
+                </span>
+              </span>
+              <span className="list-row-chevron" aria-hidden="true">
+                <Icon name="chevronRight" size={16} />
+              </span>
+            </Link>
+            <Link to="/scan/history" className={`${styles["dashboard-highlight-card"]} ${styles["dashboard-highlight-activity"]}`}>
+              <span className={styles["dashboard-highlight-icon"]} aria-hidden="true">
+                <Icon name="history" size={20} />
+              </span>
+              <span className={styles["dashboard-highlight-text"]}>
+                <span className={styles["dashboard-highlight-title"]}>{t("dashboard.highlights.recentTitle")}</span>
+                <span className={styles["dashboard-highlight-desc"]}>{t("dashboard.highlights.recentDesc")}</span>
+              </span>
+              <span className="list-row-chevron" aria-hidden="true">
+                <Icon name="chevronRight" size={16} />
+              </span>
+            </Link>
+          </div>
+        )}
 
-        {todaysTasks.length > 0 && (
+        {!isAdmin && todaysTasks.length > 0 && (
           <div className={styles["dashboard-tasks-card"]} data-testid="dashboard-tasks-card">
             <h2 className={styles["dashboard-section-title"]}>{t("dashboard.tasksCardTitle")}</h2>
             <ul className={styles["dashboard-task-list"]}>

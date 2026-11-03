@@ -28,7 +28,11 @@
       "weatherDesc": "ನಿಮ್ಮ ಪ್ರದೇಶದ ಪ್ರಸ್ತುತ ಸ್ಥಿತಿಯನ್ನು ನೋಡಿ",
       "riskAlertText": "ಇಂದಿನ ಮುನ್ಸೂಚನೆಯ ಆಧಾರದ ಮೇಲೆ {{disease}} ಗೆ {{risk}} ಅಪಾಯ",
       "recentTitle": "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
-      "recentDesc": "ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬೆಳೆ ಸ್ಕ್ಯಾನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+      "recentDesc": "ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬೆಳೆ ಸ್ಕ್ಯಾನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
+      "pendingQueriesTitle": "ಬಾಕಿ ಪ್ರಶ್ನೆಗಳು",
+      "pendingQueriesDesc": "ರೈತರ ಪ್ರಶ್ನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಉತ್ತರಿಸಿ",
+      "pendingQueriesCount": "{{count}} ಪ್ರಶ್ನೆ ನಿಮ್ಮ ಉತ್ತರಕ್ಕಾಗಿ ಕಾಯುತ್ತಿದೆ",
+      "pendingQueriesCountPlural": "{{count}} ಪ್ರಶ್ನೆಗಳು ನಿಮ್ಮ ಉತ್ತರಕ್ಕಾಗಿ ಕಾಯುತ್ತಿವೆ"
     },
     "taskCategories": {
       "irrigation": "ನೀರಾವರಿ",
