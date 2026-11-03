@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 21 SVG files in this folder are the real, unmodified artwork from Google's
+The 23 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -34,6 +34,15 @@ reconstructed from memory:
   Their matching `tapToChoose`/`takePhoto` i18n strings (all three locales) had their own leftover
   📷/📸 emoji prefixes stripped once the real icons took over, the same way `myLocation`'s emoji was
   stripped when that icon was wired in -- otherwise the icon and the old emoji would have doubled up.
+- Crop Detail page redesign: `water_drop.svg` and `landscape.svg` are newly downloaded from the same
+  npm package/version as every other non-exception file above (not user-supplied, genuinely on the
+  960-grid, no `VIEWBOXES` entry needed). `eco.svg` is NOT new -- it's the original npm-sourced crop
+  guidance icon mentioned in the first bullet above, left on disk unused since `yard.svg`/`leaf`
+  replaced it; it's wired into `Icon.jsx` as `eco` for the first time here rather than re-downloaded,
+  since the file already on disk is byte-identical to what a fresh download would give. All three are
+  used on the Crop Detail page: `landscape` on the soil row of the top info card, `eco` and
+  `water_drop` on each Fertilizer & Irrigation card's fertilizer/irrigation-guidance rows (replacing
+  the 🌿/💧 emoji that used to prefix those lines).
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -72,3 +81,6 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `volume_off.svg` | `volumeOff` | Chatbot voice-output toggle (off) |
 | `image_search.svg` | `imageSearch` | Scan Upload page's empty dropzone |
 | `photo_camera.svg` | `photoCamera` | Scan Upload page's "Take Photo" button |
+| `eco.svg` | `eco` | Crop Detail page's fertilizer-guidance rows |
+| `water_drop.svg` | `waterDrop` | Crop Detail page's irrigation-guidance rows |
+| `landscape.svg` | `landscape` | Crop Detail page's soil row |

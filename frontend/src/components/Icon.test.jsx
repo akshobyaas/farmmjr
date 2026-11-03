@@ -29,6 +29,9 @@ describe("Icon", () => {
       "volumeOff",
       "imageSearch",
       "photoCamera",
+      "eco",
+      "waterDrop",
+      "landscape",
     ];
     for (const name of names) {
       const { container } = render(<Icon name={name} />);

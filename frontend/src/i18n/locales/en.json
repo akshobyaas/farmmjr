@@ -119,7 +119,7 @@
     "soilLabel": "Soil",
     "climateLabel": "Climate",
     "plantingMethodLabel": "Planting Method",
-    "watchVideos": "▶️ Watch related videos about {{name}}",
+    "watchVideos": "Watch related videos about {{name}}",
     "grownWithTitle": "Grown With",
     "grownWithIntro": "This region traditionally grows {{name}} alongside:",
     "lifecycleTitle": "Lifecycle",
