@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 23 SVG files in this folder are the real, unmodified artwork from Google's
+The 24 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -43,6 +43,10 @@ reconstructed from memory:
   used on the Crop Detail page: `landscape` on the soil row of the top info card, `eco` and
   `water_drop` on each Fertilizer & Irrigation card's fertilizer/irrigation-guidance rows (replacing
   the 🌿/💧 emoji that used to prefix those lines).
+- Chatbot/Advisory compose-bar redesign: `send.svg` is newly downloaded from the same npm
+  package/version as every other non-exception file above (not user-supplied, genuinely on the
+  960-grid, no `VIEWBOXES` entry needed). Shared across three buttons: Chatbot's message-send button,
+  and Advisory's Ask Expert (farmer) and Send Answer (admin) buttons.
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -84,3 +88,4 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `eco.svg` | `eco` | Crop Detail page's fertilizer-guidance rows |
 | `water_drop.svg` | `waterDrop` | Crop Detail page's irrigation-guidance rows |
 | `landscape.svg` | `landscape` | Crop Detail page's soil row |
+| `send.svg` | `send` | Chatbot send button; Advisory's Ask Expert / Send Answer buttons |

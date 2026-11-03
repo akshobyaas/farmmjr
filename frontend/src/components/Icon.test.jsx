@@ -32,6 +32,7 @@ describe("Icon", () => {
       "eco",
       "waterDrop",
       "landscape",
+      "send",
     ];
     for (const name of names) {
       const { container } = render(<Icon name={name} />);

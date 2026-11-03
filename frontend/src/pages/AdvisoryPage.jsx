@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAdvisoryQueries } from "../hooks/useAdvisoryQueries";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./AdvisoryPage.module.css";
 
 // UI Polish Pass -- reuses the shared .chip pill (shared.css) instead of a
@@ -53,13 +54,18 @@ export default function AdvisoryPage() {
       <main className={`app-main ${styles["advisory-main"]}`}>
         {!isAdmin && (
           <form className={styles["advisory-form"]} onSubmit={handleAsk}>
-            <div className="field-box">
-              <label htmlFor="advisory-question" className="field-box-label">
+            {/* Compose-card restyle -- same rounded tinted card as
+                WeatherPage's search-card, replacing the old boxed-label
+                field-box, with the Ask Expert button restyled as a filled
+                pill carrying the shared send icon instead of the generic
+                full-width .btn-primary. */}
+            <div className={styles["compose-card"]}>
+              <label htmlFor="advisory-question" className="sr-only">
                 {t("advisory.questionLabel")}
               </label>
               <textarea
                 id="advisory-question"
-                className="field-box-input"
+                className={styles["compose-textarea"]}
                 placeholder={t("advisory.questionPlaceholder")}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
@@ -67,7 +73,8 @@ export default function AdvisoryPage() {
                 rows={3}
               />
             </div>
-            <button type="submit" className="btn-primary" disabled={submitting || !question.trim()}>
+            <button type="submit" className={styles["compose-submit-btn"]} disabled={submitting || !question.trim()}>
+              <Icon name="send" size={18} />
               {submitting ? t("advisory.sending") : t("advisory.askButton")}
             </button>
             {formError && (
@@ -133,13 +140,13 @@ export default function AdvisoryPage() {
 
               {isAdmin && q.status === "pending" && (
                 <div className={styles["advisory-answer-form"]}>
-                  <div className="field-box">
-                    <label htmlFor={`answer-${q.id}`} className="field-box-label">
+                  <div className={styles["compose-card"]}>
+                    <label htmlFor={`answer-${q.id}`} className="sr-only">
                       {t("advisory.answerLabel", { name: q.farmer_username })}
                     </label>
                     <textarea
                       id={`answer-${q.id}`}
-                      className="field-box-input"
+                      className={styles["compose-textarea"]}
                       placeholder={t("advisory.answerPlaceholder")}
                       value={drafts[q.id] || ""}
                       onChange={(e) => setDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))}
@@ -149,10 +156,11 @@ export default function AdvisoryPage() {
                   </div>
                   <button
                     type="button"
-                    className="btn-primary"
+                    className={styles["compose-submit-btn"]}
                     onClick={() => handleAnswer(q.id)}
                     disabled={answering === q.id || !(drafts[q.id] || "").trim()}
                   >
+                    <Icon name="send" size={18} />
                     {answering === q.id ? t("advisory.sending") : t("advisory.sendAnswerButton")}
                   </button>
                 </div>

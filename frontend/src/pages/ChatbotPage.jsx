@@ -67,38 +67,47 @@ export default function ChatbotPage() {
           <div ref={bottomRef} />
         </div>
 
-        <form className={styles["chatbot-input-form"]} onSubmit={handleSubmit}>
+        {/* Compose bar restyle -- same merged pill-shaped card as
+            WeatherPage's search-card/search-pill, instead of a plain
+            bordered input beside two separate buttons. Mic and Send are
+            both icon-only now (Send via the new `send` icon, aria-label
+            carries its accessible name so the test suite's
+            getByRole("button", { name: /send/i }) still matches). */}
+        <div className={styles["compose-card"]}>
           <label htmlFor="chatbot-input" className="sr-only">
             {t("chatbot.inputLabel")}
           </label>
-          <input
-            id="chatbot-input"
-            type="text"
-            placeholder={t("chatbot.inputPlaceholder")}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className={styles["chatbot-text-input"]}
-            disabled={sending}
-          />
-          {SpeechRecognitionCtor && (
+          <form className={styles["compose-pill"]} onSubmit={handleSubmit}>
+            <input
+              id="chatbot-input"
+              type="text"
+              placeholder={t("chatbot.inputPlaceholder")}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className={styles["compose-input"]}
+              disabled={sending}
+            />
+            {SpeechRecognitionCtor && (
+              <button
+                type="button"
+                className={`${styles["compose-mic-btn"]} ${isListening ? styles["compose-mic-listening"] : ""}`}
+                onClick={handleMicClick}
+                disabled={sending || isListening}
+                aria-label={isListening ? t("chatbot.micListening") : t("chatbot.micLabel")}
+              >
+                <Icon name="mic" size={18} />
+              </button>
+            )}
             <button
-              type="button"
-              className={`btn-icon chatbot-mic-button ${isListening ? "chatbot-mic-listening" : ""}`}
-              onClick={handleMicClick}
-              disabled={sending || isListening}
-              aria-label={isListening ? t("chatbot.micListening") : t("chatbot.micLabel")}
+              type="submit"
+              className={styles["compose-send-btn"]}
+              disabled={sending || !input.trim()}
+              aria-label={t("chatbot.sendButton")}
             >
-              <Icon name="mic" size={20} />
+              <Icon name="send" size={18} />
             </button>
-          )}
-          <button
-            type="submit"
-            className={styles["chatbot-send-button"]}
-            disabled={sending || !input.trim()}
-          >
-            {t("chatbot.sendButton")}
-          </button>
-        </form>
+          </form>
+        </div>
 
         <p className="auth-switch">
           <Link to="/dashboard">{t("common.backToDashboard")}</Link>
