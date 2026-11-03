@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import DashboardPage from "./DashboardPage";
 import { useAuth } from "../context/AuthContext";
 import { fetchRiskAlerts, fetchTodaysTasks } from "../api/cropTracker";
+import { listAdvisoryQueries } from "../api/advisory";
 
 // AuthContext is partially mocked: useAuth() is replaced so tests can
 // control the logged-in user, but the real AuthContext object export is
@@ -18,6 +19,7 @@ vi.mock("../context/AuthContext", async () => {
 // Task 13 -- auto-mocked the same way ScanHistoryPage.test.jsx mocks
 // api/scans: every export of api/cropTracker becomes a vi.fn().
 vi.mock("../api/cropTracker");
+vi.mock("../api/advisory");
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -48,6 +50,10 @@ describe("DashboardPage", () => {
     // above (which don't care about today's tasks) don't see an
     // unresolved promise or an unexpected card.
     vi.mocked(fetchTodaysTasks).mockResolvedValue({ tasks: [] });
+    // Admin dashboard default: no pending advisory queries, so admin
+    // tests that don't care about the count don't see an unresolved
+    // promise.
+    vi.mocked(listAdvisoryQueries).mockResolvedValue([]);
   });
 
   it("greets the logged-in user by username", () => {
@@ -337,5 +343,76 @@ describe("DashboardPage", () => {
 
     expect(await screen.findByText(/good (morning|afternoon|evening), farmer_ravi/i)).toBeInTheDocument();
     expect(screen.queryByTestId("dashboard-tasks-card")).not.toBeInTheDocument();
+  });
+
+  // The admin dashboard was previously just the farmer dashboard with an
+  // extra link appended -- every farmer-only card/link (weather highlight,
+  // recent-activity highlight, today's-tasks card, and all the farmer
+  // quick-links) showed up for admins too, even though none of it means
+  // anything for an admin/expert account.
+  it("hides every farmer-only highlight card and quick-link for an admin user", async () => {
+    useAuth.mockReturnValue({ user: adminUser, logout: vi.fn() });
+    vi.mocked(fetchRiskAlerts).mockResolvedValue({
+      trackers: [{ disease_name: "Mahali / Koleroga (Bud Rot)", risk_level: "high" }],
+    });
+    vi.mocked(fetchTodaysTasks).mockResolvedValue({
+      tasks: [{ id: 1, category: "irrigation", instruction: "Irrigate every 3 days." }],
+    });
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole("link", { name: /advisory queries/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /my profile/i })).toBeInTheDocument();
+
+    expect(screen.queryByText(/today.?s weather/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/recent activity/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("dashboard-tasks-card")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /crop guidance/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /scan a crop/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /scan history/i })).not.toBeInTheDocument();
+    // BottomNav (out of scope for this change -- it isn't role-gated) has
+    // its own "Weather" nav item, so assert there's only that one link
+    // named "Weather" rather than the dashboard's farmer quick-link too.
+    expect(screen.getAllByRole("link", { name: /^weather$/i })).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: /learning videos/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /nearby services/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^chatbot$/i })).not.toBeInTheDocument();
+
+    // Admin accounts have no crop tracker, so these farmer-only fetches
+    // should never even be issued for an admin caller.
+    expect(fetchRiskAlerts).not.toHaveBeenCalled();
+    expect(fetchTodaysTasks).not.toHaveBeenCalled();
+  });
+
+  it("shows a count of pending advisory queries for an admin user", async () => {
+    useAuth.mockReturnValue({ user: adminUser, logout: vi.fn() });
+    vi.mocked(listAdvisoryQueries).mockResolvedValue([{ id: 1 }, { id: 2 }]);
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText(/2 questions awaiting your answer/i)).toBeInTheDocument();
+    expect(listAdvisoryQueries).toHaveBeenCalledWith("pending");
+  });
+
+  it("falls back to generic copy, not a wrong zero, when the pending-queries fetch fails for an admin user", async () => {
+    useAuth.mockReturnValue({ user: adminUser, logout: vi.fn() });
+    vi.mocked(listAdvisoryQueries).mockRejectedValue(new Error("network error"));
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole("link", { name: /advisory queries/i })).toBeInTheDocument();
+    expect(screen.queryByText(/questions awaiting your answer/i)).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchRiskAlerts, fetchTodaysTasks } from "../api/cropTracker";
+import { listAdvisoryQueries } from "../api/advisory";
 
 // Extracted verbatim from DashboardPage.jsx's risk-alert/tasks state,
 // constants and effects (lines 21-99 of the pre-refactor file), as part of
@@ -57,7 +58,7 @@ function extractRiskAlert(data) {
   return best;
 }
 
-export function useDashboardData() {
+export function useDashboardData({ isAdmin } = {}) {
   // Task 13 -- fetched once on mount; failures (including the plain
   // {"detail": ...} no-home-location shape, handled inside
   // extractRiskAlert) just keep riskAlert null, so the card quietly
@@ -71,17 +72,36 @@ export function useDashboardData() {
   // "fail soft" treatment as fetchRiskAlerts.
   const [todaysTasks, setTodaysTasks] = useState([]);
 
+  // Admin accounts have no crop tracker of their own, so riskAlert/
+  // todaysTasks above are farmer-only data -- skip both fetches for an
+  // admin caller. The one admin-relevant stat is how many advisory
+  // queries are waiting to be answered; this reuses the existing
+  // advisory list endpoint client-side (GET .../?status=pending, taking
+  // the array length) rather than adding a new backend count endpoint.
+  // Stays null (never a wrong "0") when the fetch fails, same "fail
+  // soft" convention as riskAlert.
+  const [pendingQueriesCount, setPendingQueriesCount] = useState(null);
+
   useEffect(() => {
+    if (isAdmin) return;
     fetchRiskAlerts()
       .then((data) => setRiskAlert(extractRiskAlert(data)))
       .catch(() => setRiskAlert(null));
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
+    if (isAdmin) return;
     fetchTodaysTasks()
       .then((data) => setTodaysTasks(Array.isArray(data?.tasks) ? data.tasks : []))
       .catch(() => setTodaysTasks([]));
-  }, []);
+  }, [isAdmin]);
 
-  return { riskAlert, todaysTasks };
+  useEffect(() => {
+    if (!isAdmin) return;
+    listAdvisoryQueries("pending")
+      .then((data) => setPendingQueriesCount(Array.isArray(data) ? data.length : null))
+      .catch(() => setPendingQueriesCount(null));
+  }, [isAdmin]);
+
+  return { riskAlert, todaysTasks, pendingQueriesCount };
 }

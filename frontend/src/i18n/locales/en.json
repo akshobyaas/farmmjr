@@ -28,7 +28,11 @@
       "weatherDesc": "See current conditions for your area",
       "riskAlertText": "{{risk}} risk of {{disease}} based on today's forecast",
       "recentTitle": "Recent Activity",
-      "recentDesc": "View your latest crop scans"
+      "recentDesc": "View your latest crop scans",
+      "pendingQueriesTitle": "Pending Questions",
+      "pendingQueriesDesc": "Review and answer farmer questions",
+      "pendingQueriesCount": "{{count}} question awaiting your answer",
+      "pendingQueriesCountPlural": "{{count}} questions awaiting your answer"
     },
     "taskCategories": {
       "irrigation": "Irrigation",
