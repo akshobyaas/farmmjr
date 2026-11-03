@@ -213,7 +213,11 @@
     "viewList": "List",
     "viewMap": "Map",
     "kmAway": "{{km}} km away",
-    "yourLocation": "Your location"
+    "yourLocation": "Your location",
+    "useMyLocation": "Use My Location",
+    "introEyebrow": "Find help nearby",
+    "introHeading": "Agri services around you",
+    "introBody": "Search a place name or share your location to find input shops, agriculture offices and other farm services near you."
   },
   "scan": {
     "uploadTitle": "Scan a Crop",

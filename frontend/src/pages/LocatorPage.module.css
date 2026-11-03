@@ -1,29 +1,132 @@
 /* ===== Phase 15 — Nearby agriculture services locator ===== */
-.locator-search-form {
-  display: flex;
-  gap: 8px;
+
+/* Pre-search intro -- same structure as WeatherPage's .weather-intro
+   (icon + eyebrow + heading + body), this page's own copy/icon. Fills the
+   blank space that used to sit above the search form before any search
+   had been attempted. */
+.locator-intro {
   width: 100%;
-  max-width: 450px;
+  max-width: 360px;
+  margin-bottom: 4px;
 }
-/* Pre-existing layout bug, surfaced (not introduced) by the UI Polish Pass:
-   .btn-primary defaults to width:100% for its normal standalone use, which
-   -- unchecked inside this flex row -- claimed the whole row and squeezed
-   the field box down to a sliver. Same fix WeatherPage.module.css already
-   carries for its identical search-row layout; see its own note on why
-   this override belongs on the page, not in shared.css. */
-.locator-search-form :global(.btn-primary) {
-  width: auto;
-  min-width: 100px;
-  flex-shrink: 0;
-  margin-top: 0;
+.locator-intro-icon {
+  color: var(--color-primary);
+  filter: drop-shadow(0 4px 10px rgba(47, 143, 194, 0.2));
 }
-/* UI Polish Pass -- the input itself is now the shared .field-box /
-   .field-box-input (shared.css); this just flexes the box to fill the row
-   next to the Search button, same role the old bespoke input class had. */
-.locator-place-field {
+.locator-intro-eyebrow {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 8px 0 2px;
+}
+.locator-intro-heading {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0 0 6px;
+}
+.locator-intro-body {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Search card restyle -- same merged pill-shaped bar as WeatherPage's
+   .search-card/.search-pill, replacing the old field-box beside a
+   separate rectangular Search button. Existing tokens only. */
+.search-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-primary-tint);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
+}
+.search-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, var(--color-primary-tint) 0%, var(--color-bg) 65%);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 4px 4px 16px;
+}
+.search-pill-input {
   flex: 1;
   min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+  min-height: 26px;
 }
+.search-clear-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.search-clear-btn:hover {
+  color: var(--color-text);
+}
+.search-pill-submit {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.28);
+}
+.search-pill-submit:disabled {
+  background: var(--color-primary-light);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Use My Location -- WeatherPage's outlined pill (green border/text on
+   white) with an inline icon, replacing the shared .btn-secondary. */
+.use-location-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  min-height: 50px;
+  background: var(--color-bg);
+  color: var(--color-primary-dark);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 20px;
+}
+.use-location-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.use-location-icon {
+  flex-shrink: 0;
+}
+
 .locator-view-toggle {
   display: flex;
   gap: 4px;

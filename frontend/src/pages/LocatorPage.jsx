@@ -53,27 +53,73 @@ export default function LocatorPage() {
       <AppHeader title={t("locator.title")} className="locator-header" />
 
       <main className="app-main">
-        <form className={styles["locator-search-form"]} onSubmit={handlePlaceSubmit}>
-          <div className={`field-box ${styles["locator-place-field"]}`}>
-            <label htmlFor="locator-place" className="field-box-label">
-              {t("locator.placeLabel")}
-            </label>
+        {/* Pre-search intro, matching WeatherPage's "location discovery"
+            state -- same icon/eyebrow/heading/body structure, this page's
+            own copy. Hidden once a search has been attempted (searched
+            flips true on submit, same as weather hides its intro once a
+            reading is on screen) so it doesn't compete with results. */}
+        {!searched && (
+          <div className={styles["locator-intro"]}>
+            <Icon name="pin" size={32} className={styles["locator-intro-icon"]} />
+            <p className={styles["locator-intro-eyebrow"]}>{t("locator.introEyebrow")}</p>
+            <h2 className={styles["locator-intro-heading"]}>{t("locator.introHeading")}</h2>
+            <p className={styles["locator-intro-body"]}>{t("locator.introBody")}</p>
+          </div>
+        )}
+
+        {/* Search card restyle -- same merged pill-shaped bar + circular
+            icon-only submit button as WeatherPage's search-card/search-pill,
+            instead of the old boxed-label field-box beside a separate
+            rectangular Search button. The field's accessible label moves to
+            a visually-hidden <label> (shared.css's .sr-only), same as
+            Weather. */}
+        <div className={styles["search-card"]}>
+          <label htmlFor="locator-place" className="sr-only">
+            {t("locator.placeLabel")}
+          </label>
+          <form className={styles["search-pill"]} onSubmit={handlePlaceSubmit}>
             <input
               id="locator-place"
               type="text"
               placeholder={t("locator.placePlaceholder")}
               value={placeInput}
               onChange={(e) => setPlaceInput(e.target.value)}
-              className="field-box-input"
+              className={styles["search-pill-input"]}
             />
-          </div>
-          <button type="submit" className="btn-primary" disabled={loading || !placeInput.trim()}>
-            {t("common.search")}
-          </button>
-        </form>
+            {placeInput && (
+              <button
+                type="button"
+                className={styles["search-clear-btn"]}
+                onClick={() => setPlaceInput("")}
+                aria-label={t("common.clear")}
+              >
+                <Icon name="close" size={14} />
+              </button>
+            )}
+            <button
+              type="submit"
+              className={styles["search-pill-submit"]}
+              disabled={loading || !placeInput.trim()}
+              aria-label={t("common.search")}
+            >
+              <Icon name="search" size={18} />
+            </button>
+          </form>
+        </div>
 
-        <button type="button" className="btn-secondary" onClick={handleUseMyLocation} disabled={loading}>
-          {t("common.useMyLocation")}
+        {/* Use My Location restyle -- WeatherPage's outlined pill with an
+            inline icon, instead of the plain btn-secondary. New
+            locator.useMyLocation string without the baked-in emoji (same
+            precedent WeatherPage set for weather.useMyLocation); the old
+            common.useMyLocation key is left as-is, now unused here. */}
+        <button
+          type="button"
+          className={styles["use-location-btn"]}
+          onClick={handleUseMyLocation}
+          disabled={loading}
+        >
+          <Icon name="myLocation" size={18} className={styles["use-location-icon"]} />
+          {t("locator.useMyLocation")}
         </button>
 
         {loading && <p className="status-message">{t("locator.loading")}</p>}
