@@ -6,6 +6,7 @@ import { localizeField } from "../i18n/localize";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
 import PageSkeleton from "../components/PageSkeleton";
+import Icon from "../components/Icon";
 import { useCropTracker } from "../hooks/useCropTracker";
 import { useDiaryEntries } from "../hooks/useDiaryEntries";
 import styles from "./CropDetailPage.module.css";
@@ -84,10 +85,37 @@ export default function CropDetailPage() {
       <AppHeader title={cropName} />
 
       <main className={`app-main ${styles["crop-detail-main"]}`}>
-        <div className="status-card status-ok">
-          <p><strong>{t("crops.soilLabel")}:</strong> {localizeField(crop, "soil_type", i18n.language)}</p>
-          <p><strong>{t("crops.climateLabel")}:</strong> {localizeField(crop, "climate", i18n.language)}</p>
-          <p><strong>{t("crops.plantingMethodLabel")}:</strong> {localizeField(crop, "planting_method", i18n.language)}</p>
+        {/* Crop Detail page redesign -- a grouped icon-row list (same shape
+            as Weather's daily-list rows) in place of the previous plain
+            bold-label paragraph stack, so each fact reads at a glance. */}
+        <div className={styles["crop-info-card"]}>
+          <div className={styles["crop-info-row"]}>
+            <span className={styles["crop-info-icon"]} aria-hidden="true">
+              <Icon name="landscape" size={20} />
+            </span>
+            <span className={styles["crop-info-text"]}>
+              <span className={styles["crop-info-label"]}>{t("crops.soilLabel")}</span>
+              <span className={styles["crop-info-value"]}>{localizeField(crop, "soil_type", i18n.language)}</span>
+            </span>
+          </div>
+          <div className={styles["crop-info-row"]}>
+            <span className={styles["crop-info-icon"]} aria-hidden="true">
+              <Icon name="cloudSun" size={20} />
+            </span>
+            <span className={styles["crop-info-text"]}>
+              <span className={styles["crop-info-label"]}>{t("crops.climateLabel")}</span>
+              <span className={styles["crop-info-value"]}>{localizeField(crop, "climate", i18n.language)}</span>
+            </span>
+          </div>
+          <div className={styles["crop-info-row"]}>
+            <span className={styles["crop-info-icon"]} aria-hidden="true">
+              <Icon name="leaf" size={20} />
+            </span>
+            <span className={styles["crop-info-text"]}>
+              <span className={styles["crop-info-label"]}>{t("crops.plantingMethodLabel")}</span>
+              <span className={styles["crop-info-value"]}>{localizeField(crop, "planting_method", i18n.language)}</span>
+            </span>
+          </div>
         </div>
 
         {crop.trackable_stages && crop.trackable_stages.length > 0 && (
@@ -323,21 +351,34 @@ export default function CropDetailPage() {
           </section>
         )}
 
+        {/* Icon badge in place of the previous baked-in ▶️ emoji -- see the
+            i18n locale files, where that prefix was stripped. */}
         <Link to={`/videos?q=${encodeURIComponent(crop.name)}`} className={styles["video-link-card"]}>
-          {t("crops.watchVideos", { name: cropName })}
+          <span className={styles["video-link-icon"]} aria-hidden="true">
+            <Icon name="play" size={18} />
+          </span>
+          <span>{t("crops.watchVideos", { name: cropName })}</span>
         </Link>
 
         {crop.intercropped_with && crop.intercropped_with.length > 0 && (
           <section className={styles["crop-section"]}>
             <h2 className="crop-section-title">{t("crops.grownWithTitle")}</h2>
             <p>{t("crops.grownWithIntro", { name: cropName })}</p>
-            <ul className="intercrop-list">
+            {/* Green pill chips in place of the previous plain bulleted
+                list -- same chip language as Weather's recent-searches
+                row. */}
+            <div className={styles["grown-with-chips"]}>
               {crop.intercropped_with.map((companion) => (
-                <li key={companion.id}>
-                  <Link to={`/crops/${companion.id}`}>{localizeField(companion, "name", i18n.language)}</Link>
-                </li>
+                <Link
+                  key={companion.id}
+                  to={`/crops/${companion.id}`}
+                  className={styles["grown-with-chip"]}
+                >
+                  <Icon name="leaf" size={14} />
+                  {localizeField(companion, "name", i18n.language)}
+                </Link>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
@@ -358,11 +399,20 @@ export default function CropDetailPage() {
         {crop.fertilizer_schedules.length > 0 && (
           <section className={styles["crop-section"]}>
             <h2 className="crop-section-title">{t("crops.fertilizerTitle")}</h2>
+            {/* Icon rows in place of the previous 🌿/💧 emoji-prefixed
+                sentences, same icon-row language as the crop-info card
+                above. */}
             {crop.fertilizer_schedules.map((sched, idx) => (
               <div key={idx} className={styles["fertilizer-card"]}>
                 <p className={styles["fertilizer-stage"]}>{sched.growth_stage}</p>
-                <p>🌿 {sched.fertilizer_guidance}</p>
-                <p>💧 {sched.irrigation_guidance}</p>
+                <div className={styles["fertilizer-row"]}>
+                  <Icon name="eco" size={18} className={styles["fertilizer-row-icon"]} />
+                  <span>{sched.fertilizer_guidance}</span>
+                </div>
+                <div className={styles["fertilizer-row"]}>
+                  <Icon name="waterDrop" size={18} className={styles["fertilizer-row-icon"]} />
+                  <span>{sched.irrigation_guidance}</span>
+                </div>
               </div>
             ))}
           </section>
@@ -371,11 +421,19 @@ export default function CropDetailPage() {
         {crop.organic_methods.length > 0 && (
           <section className={styles["crop-section"]}>
             <h2 className="crop-section-title">{t("crops.organicTitle")}</h2>
+            {/* Structured label/value rows in place of the previous single
+                inline-bold sentence, easier to scan. */}
             {crop.organic_methods.map((method) => (
               <div key={method.id} className={styles["fertilizer-card"]}>
                 <p className={styles["fertilizer-stage"]}>{method.name}</p>
-                <p><strong>{t("crops.materialsLabel")}:</strong> {method.materials}</p>
-                <p><strong>{t("crops.stepsLabel")}:</strong> {method.steps}</p>
+                <div className={styles["organic-field"]}>
+                  <span className={styles["organic-field-label"]}>{t("crops.materialsLabel")}</span>
+                  <span className={styles["organic-field-value"]}>{method.materials}</span>
+                </div>
+                <div className={styles["organic-field"]}>
+                  <span className={styles["organic-field-label"]}>{t("crops.stepsLabel")}</span>
+                  <span className={styles["organic-field-value"]}>{method.steps}</span>
+                </div>
               </div>
             ))}
           </section>

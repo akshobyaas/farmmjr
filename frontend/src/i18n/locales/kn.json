@@ -119,7 +119,7 @@
     "soilLabel": "ಮಣ್ಣು",
     "climateLabel": "ಹವಾಮಾನ",
     "plantingMethodLabel": "ನಾಟಿ ವಿಧಾನ",
-    "watchVideos": "▶️ {{name}} ಕುರಿತು ಸಂಬಂಧಿತ ವೀಡಿಯೊಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
+    "watchVideos": "{{name}} ಕುರಿತು ಸಂಬಂಧಿತ ವೀಡಿಯೊಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
     "grownWithTitle": "ಜೊತೆಗೆ ಬೆಳೆಯಲಾಗುತ್ತದೆ",
     "grownWithIntro": "ಈ ಪ್ರದೇಶವು ಸಾಂಪ್ರದಾಯಿಕವಾಗಿ {{name}} ಜೊತೆಗೆ ಈ ಬೆಳೆಗಳನ್ನು ಬೆಳೆಯುತ್ತದೆ:",
     "lifecycleTitle": "ಜೀವನ ಚಕ್ರ",

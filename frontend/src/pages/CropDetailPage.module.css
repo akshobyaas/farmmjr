@@ -36,19 +36,116 @@
   width: 100%;
   margin-top: 8px;
 }
+/* ===== Crop Detail page redesign (same polish-pass language as Weather) =====
+   Top info card -- a grouped icon-row list (list-row/daily-list shape:
+   icon badge, hairline divider between rows) in place of the previous
+   plain bold-label paragraph stack. .app-main (shared.css) centers text
+   page-wide -- same bug class the Weather/Profile redesigns hit, reset
+   to left explicitly here. */
+.crop-info-card {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 4px 18px;
+  text-align: left;
+}
+.crop-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.crop-info-row:last-child {
+  border-bottom: none;
+}
+.crop-info-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.crop-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.crop-info-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.crop-info-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+/* Grown With -- a row of green pill chips in place of the previous plain
+   bulleted <ul>, same chip language as Weather's recent-searches row. */
+.grown-with-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.grown-with-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 7px 14px 7px 12px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.grown-with-chip:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
 .lifecycle-timeline {
   list-style: none;
   padding: 0;
   margin: 0;
   border-left: 2px solid var(--color-border);
 }
+/* Small filled dot marker at each stage, anchored on the existing
+   border-left line -- closer to a real timeline/stepper than a plain
+   rule. position:relative on the <li> itself is the positioning context
+   for the ::before below. */
 .lifecycle-stage {
+  position: relative;
   padding: 8px 0 8px 16px;
   text-align: left;
 }
+.lifecycle-stage::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 2px white;
+}
 .lifecycle-stage-name {
   display: block;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text);
 }
 .lifecycle-stage-duration {
@@ -72,6 +169,42 @@
 .fertilizer-stage {
   font-weight: 600;
   color: var(--color-primary-dark);
+}
+/* Icon rows in place of the previous 🌿/💧 emoji-prefixed sentences --
+   same icon-row language as .crop-info-row above, just inline (no
+   divider/badge, these already sit inside a bordered card). */
+.fertilizer-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 15px;
+  color: var(--color-text);
+}
+.fertilizer-row-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-primary-dark);
+}
+/* Organic Manure cards -- structured label/value rows in place of the
+   previous single inline-bold sentence. */
+.organic-field {
+  margin: 8px 0;
+}
+.organic-field-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.organic-field-value {
+  display: block;
+  font-size: 15px;
+  color: var(--color-text);
+  line-height: 1.4;
 }
 /* A level below .crop-section-title (17px/600) -- left unstyled, the
    browser's default h3 (~18.7px bold) would outrank the h2 above it. */
@@ -137,9 +270,14 @@
   font-style: italic;
   color: var(--color-text-secondary);
 }
-/* ===== Phase 14 — Learning videos ===== */
+/* ===== Phase 14 — Learning videos =====
+   Crop Detail page redesign -- an icon badge beside the text in place of
+   the previous baked-in ▶️ emoji inside the translated string (that
+   prefix was stripped from the locale files). */
 .video-link-card {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   max-width: 400px;
   background: white;
@@ -155,4 +293,15 @@
 .video-link-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
+}
+.video-link-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

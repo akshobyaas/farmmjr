@@ -78,6 +78,18 @@ const PATHS = {
   // Scan Upload page's "Take Photo" (direct camera capture) button. Same
   // user-supplied-export story and native 24x24 grid as above.
   photoCamera: <path d="M12,17.5q1.88,0 3.19-1.31T16.5,13T15.19,9.81T12,8.5T8.81,9.81T7.5,13t1.31,3.19T12,17.5Zm0-2q-1.05,0-1.77-0.72T9.5,13t0.73-1.78T12,10.5t1.78,0.72T14.5,13t-0.72,1.78T12,15.5ZM4,21q-0.82,0-1.41-0.59T2,19V7Q2,6.18 2.59,5.59T4,5H7.15L9,3h6l1.85,2H20q0.83,0 1.41,0.59Q22,6.18 22,7V19q0,0.82-0.59,1.41T20,21H4Zm0-2H20V7H15.95L14.13,5H9.88L8.05,7H4V19Zm8-6Z" />,
+  // Crop Detail page redesign -- fertilizer-guidance rows on the
+  // Fertilizer & Irrigation cards (replacing a plain 🌿 emoji). Real
+  // Material Symbols artwork via the same npm package/version as every
+  // other 960-grid icon above (not a user-supplied export), see this
+  // folder's README.md.
+  eco: <path d="M213-175q-43.59-45-68.3-104Q120-338 120-400q0-73 25.5-133.5T222-645q35-35 87-59t122.5-37.5Q502-755 591-758.5t198 3.5q8 108 5.5 197.5t-16 160.75q-13.5 71.25-38 124.56Q716-218.87 680-183q-51 51-110 77T444-80q-69 0-126.5-23.5T213-175Zm103 0q25 17 58 26t69.92 9Q497-140 547-162t91-64q27-27 46-70.5t31-103Q727-459 731-534t0-165q-94-2-168.5 2.5T431-680q-57 12-98 30.5T266-604q-42 43-64 91t-22 98q0 48 20.5 100.5T251-230q53-98 127-176t157-123q-87 75-141 162.5T316-175Zm0 0Zm0 0Z" />,
+  // Irrigation-guidance rows on the same cards (replacing a plain 💧
+  // emoji). Same package/version as above.
+  waterDrop: <path d="M479-208q16 0 24.5-5.5T512-230q0-11-8.5-17t-25.5-6q-42 0-85.5-26.5T337-373q-2-9-9-14.5t-15-5.5q-11 0-17 8.5t-4 17.5q15 84 71 121.5T479-208Zm-227.5 34Q160-268 160-408q0-100 79.5-217.5T480-880q161 137 240.5 254.5T800-408q0 140-91.5 234T480-80q-137 0-228.5-94ZM666-216.5Q740-293 740-408q0-79-66.5-179.5T480-800Q353-688 286.5-587.5T220-408q0 115 74 191.5T480-140q112 0 186-76.5ZM480-480Z" />,
+  // Soil row on the crop-info card at the top of the Crop Detail page.
+  // Same package/version as above.
+  landscape: <path d="m40-240 240-320 195 260h325L560-619 435-453l-38-50 163-217 360 480H40Zm510-60Zm-390 0h240L280-460 160-300Zm0 0h240-240Z" />,
 };
 
 // Per-icon viewBox override for the rare icon (see `mic`/`micOff` above)
