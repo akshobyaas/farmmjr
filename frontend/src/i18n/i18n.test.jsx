@@ -127,7 +127,7 @@ describe("Phase 18 — regression: core auth flow still works in a non-English l
 
     expect(screen.getByText("ಮತ್ತೆ ಸ್ವಾಗತ")).toBeInTheDocument();
 
-    await userEvent.type(screen.getByLabelText("ಬಳಕೆದಾರಹೆಸರು"), "farmer_ravi");
+    await userEvent.type(screen.getByLabelText("ಬಳಕೆದಾರಹೆಸರು ಅಥವಾ ಇಮೇಲ್"), "farmer_ravi");
     await userEvent.type(screen.getByLabelText("ಪಾಸ್‌ವರ್ಡ್"), "FarmerPass#123");
     await userEvent.click(screen.getByRole("button", { name: "ಲಾಗ್ ಇನ್" }));
 

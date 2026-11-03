@@ -134,6 +134,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         username = attrs.get(self.username_field, "")
+        # Allow logging in with either the username or the email address.
+        # Only consulted when the submitted value isn't already a real
+        # username, so this never changes behavior for existing logins.
+        # Resolves to the matching account's real username before handing
+        # off to SimpleJWT, which then runs its own unmodified credential
+        # check -- so a wrong email, an unknown email, and a wrong password
+        # all still produce the identical generic error below.
+        if username and not User.objects.filter(**{self.username_field: username}).exists():
+            try:
+                matched_user = User.objects.get(email__iexact=username)
+                attrs[self.username_field] = matched_user.username
+            except User.DoesNotExist:
+                pass
         try:
             data = super().validate(attrs)  # raises the generic error if credentials are wrong
         except Exception:
@@ -214,6 +227,10 @@ class ChangeUnverifiedEmailSerializer(serializers.Serializer):
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class FindAccountSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 

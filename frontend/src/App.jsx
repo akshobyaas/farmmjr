@@ -16,6 +16,7 @@ import LocatorPage from "./pages/LocatorPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import AdvisoryPage from "./pages/AdvisoryPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import FindAccountPage from "./pages/FindAccountPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ResendVerificationPage from "./pages/ResendVerificationPage";
@@ -31,6 +32,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/find-account" element={<FindAccountPage />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
           <Route path="/verify-email/:uid/:token" element={<VerifyEmailPage />} />
           <Route path="/resend-verification" element={<ResendVerificationPage />} />

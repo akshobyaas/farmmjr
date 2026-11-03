@@ -9,11 +9,11 @@ from rest_framework_simplejwt.exceptions import TokenError
 from .serializers import (
     RegisterSerializer, UserPublicSerializer, ProfileSerializer, CustomTokenObtainPairSerializer,
     ResendVerificationSerializer, EmailVerificationConfirmSerializer, ChangeUnverifiedEmailSerializer,
-    PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer, FindAccountSerializer,
 )
 from .permissions import IsProfileOwner
 from .throttles import LoginRateThrottle, RegisterRateThrottle, PasswordResetRateThrottle
-from .utils import send_verification_email, send_password_reset_email
+from .utils import send_verification_email, send_password_reset_email, send_account_found_email
 
 User = get_user_model()
 
@@ -179,6 +179,32 @@ class PasswordResetRequestView(APIView):
 
         return Response(
             {"detail": "If an account with that email exists, a password reset link has been sent."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class FindAccountView(APIView):
+    """
+    'Forgot username' entry point.
+    ALWAYS returns the same generic message, whether or not the email
+    exists -- same anti-enumeration shape as PasswordResetRequestView.
+    """
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [PasswordResetRateThrottle]
+
+    def post(self, request):
+        serializer = FindAccountSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email__iexact=email)
+            send_account_found_email(user)
+        except User.DoesNotExist:
+            pass
+
+        return Response(
+            {"detail": "If an account with that email exists, the username has been sent to it."},
             status=status.HTTP_200_OK,
         )
 
