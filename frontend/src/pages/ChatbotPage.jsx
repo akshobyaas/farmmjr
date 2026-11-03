@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useChatbot } from "../hooks/useChatbot";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
+import Icon from "../components/Icon";
 import styles from "./ChatbotPage.module.css";
 
 export default function ChatbotPage() {
@@ -87,7 +88,7 @@ export default function ChatbotPage() {
               disabled={sending || isListening}
               aria-label={isListening ? t("chatbot.micListening") : t("chatbot.micLabel")}
             >
-              🎤
+              <Icon name="mic" size={20} />
             </button>
           )}
           <button

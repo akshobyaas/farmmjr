@@ -1,6 +1,6 @@
 # Google Material Symbols — source icons
 
-The 15 SVG files in this folder are the real, unmodified artwork from Google's
+The 17 SVG files in this folder are the real, unmodified artwork from Google's
 **Material Symbols** icon set (the "Google icons" referenced in `Icon.jsx`),
 downloaded verbatim via the official npm package rather than hand-drawn or
 reconstructed from memory:
@@ -17,6 +17,14 @@ reconstructed from memory:
   filenames for consistency with the rest of this folder. Only the `<path d="...">` data is actually
   used (by `Icon.jsx`); the files' own `width`/`height`/`fill` attributes are cosmetic metadata from
   that export and aren't read by the app.
+- `mic.svg` and `mic_off.svg` are a further two exceptions, same user-supplied-export story as the
+  four above (`24dp`/`wght400`/`GRAD0`/`opsz24`, baked-in `#e3e3e3` fill, ignored by the app) --
+  **except these two are genuinely on the native 24x24 grid** (`viewBox="0 0 24 24"`), not the
+  960-grid the other 13 files (including the four exceptions above) all happen to share. `Icon.jsx`
+  therefore has a small `VIEWBOXES` override map so these two render at their own native viewBox
+  instead of the shared `"0 -960 960 960"` -- every other icon is unaffected. `mic.svg` is wired in
+  (Chatbot's voice-input button); `mic_off.svg` is saved and mapped to `Icon.jsx`'s `micOff` name but
+  not yet used anywhere -- the app has no "muted microphone" UI state today.
 
 `Icon.jsx` does not import these files directly — it embeds each one's
 `<path d="...">` data (copied byte-for-byte from these files, not retyped) into
@@ -49,3 +57,5 @@ matching Material Symbols icon, since Google doesn't have e.g. a "leaf" or
 | `call.svg` | `call` | Profile phone number row |
 | `close.svg` | `close` | Weather location search field's clear button |
 | `my_location.svg` | `myLocation` | Weather "Use My Location" button |
+| `mic.svg` | `mic` | Chatbot voice-input button |
+| `mic_off.svg` | `micOff` | Not used yet -- no "muted mic" UI exists today |

@@ -52,6 +52,29 @@ const PATHS = {
   // `pin` icon above (that one marks a place; this one means "locate me").
   // Same package/version as every other icon, see this folder's README.md.
   myLocation: <path d="M450-42v-75q-137-14-228-105T117-450H42v-60h75q14-137 105-228t228-105v-75h60v75q137 14 228 105t105 228h75v60h-75q-14 137-105 228T510-117v75h-60Zm244.5-223.5Q784-355 784-480t-89.5-214.5Q605-784 480-784t-214.5 89.5Q176-605 176-480t89.5 214.5Q355-176 480-176t214.5-89.5Zm-321-108Q330-417 330-480t43.5-106.5Q417-630 480-630t106.5 43.5Q630-543 630-480t-43.5 106.5Q543-330 480-330t-106.5-43.5ZM544-416q26-26 26-64t-26-64q-26-26-64-26t-64 26q-26 26-26 64t26 64q26 26 64 26t64-26Zm-64-64Z" />,
+  // Chatbot voice-input mic button. User-supplied directly (Google's
+  // Material Symbols icon-font-site export, 24dp/wght400/GRAD0/opsz24,
+  // baked-in #e3e3e3 fill -- same kind of exception as the four noted in
+  // this folder's README.md), but unlike those four, this one's path data
+  // is genuinely on the native 24x24 grid (viewBox="0 0 24 24"), not the
+  // 960-grid every other icon here shares -- see VIEWBOXES below, which is
+  // what lets one icon opt out of the shared viewBox without disturbing
+  // any other call site.
+  mic: <path d="M9.88,13.13Q9,12.25 9,11V5Q9,3.75 9.88,2.88T12,2t2.13,0.88T15,5v6q0,1.25-0.88,2.13T12,14T9.88,13.13ZM12,8ZM11,21V17.93Q8.4,17.58 6.7,15.6T5,11H7q0,2.07 1.46,3.54T12,16t3.54-1.46T17,11h2q0,2.63-1.7,4.6T13,17.93V21H11Zm1.71-9.29Q13,11.43 13,11V5q0-0.43-0.29-0.71T12,4T11.29,4.29T11,5v6q0,0.42 0.29,0.71T12,12t0.71-0.29Z" />,
+  // Mic-muted counterpart to the icon above, from the same user-supplied
+  // export. Not wired into any page yet -- no current UI represents a
+  // "muted mic" state -- but kept here, ready, rather than left unused: see
+  // the README's provenance note.
+  micOff: <path d="M17.75,14.95L16.3,13.5q0.35-0.58 0.52-1.2T17,11h2q0,1.1-0.32,2.09q-0.32,0.99-0.93,1.86ZM12,9.15Zm2.8,2.8L13,10.15V5q0-0.43-0.29-0.71T12,4T11.29,4.29T11,5V8.15l-2-2V5Q9,3.75 9.88,2.88T12,2t2.13,0.88T15,5v6q0,0.27-0.06,0.5T14.8,11.95ZM11,21V17.93Q8.4,17.58 6.7,15.6T5,11H7q0,2.07 1.44,3.54T12,16q0.85,0 1.61-0.26Q14.38,15.48 15,15l1.43,1.43Q15.7,17 14.84,17.4T13,17.93V21H11Zm8.8,1.6L1.4,4.2L2.8,2.8L21.2,21.2l-1.4,1.4Z" />,
+};
+
+// Per-icon viewBox override for the rare icon (see `mic`/`micOff` above)
+// whose source file's path data is on the native 24x24 grid instead of
+// the 960-grid every other icon in PATHS shares. Anything not listed here
+// uses the default below.
+const VIEWBOXES = {
+  mic: "0 0 24 24",
+  micOff: "0 0 24 24",
 };
 
 export default function Icon({ name, size = 22, className = "" }) {
@@ -62,7 +85,7 @@ export default function Icon({ name, size = 22, className = "" }) {
       className={className}
       width={size}
       height={size}
-      viewBox="0 -960 960 960"
+      viewBox={VIEWBOXES[name] || "0 -960 960 960"}
       fill="currentColor"
       aria-hidden="true"
     >
