@@ -9,14 +9,61 @@
   flex-direction: column;
   gap: 0.5rem;
 }
-/* UI Polish Pass -- the question/answer textareas now live inside the
-   shared .field-box (shared.css); .field-box-input covers their border,
-   font, and transparent background, but a textarea still needs its own
-   resize behavior, which that shared class deliberately leaves unset
-   since it's also used for plain <input>s. */
-.advisory-form textarea.field-box-input,
-.advisory-answer-form textarea.field-box-input {
+/* Compose-card restyle -- same rounded tinted card as WeatherPage's
+   .search-card, replacing the old boxed-label field-box. Used by both the
+   farmer's question form and the admin's inline answer form. */
+.compose-card {
+  width: 100%;
+  background: var(--color-primary-tint);
+  border-radius: 20px;
+  padding: 14px 16px;
+}
+.compose-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
   resize: vertical;
+}
+.compose-textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+/* Ask Expert / Send Answer -- a filled pill carrying the shared send
+   icon, replacing the generic full-width .btn-primary. */
+.compose-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+.compose-submit-btn:disabled {
+  background: var(--color-primary-light);
+  cursor: default;
+}
+.compose-submit-btn:not(:disabled):hover {
+  background: var(--color-primary-dark);
+}
+.compose-submit-btn:not(:disabled):active {
+  transform: scale(0.98);
+}
+.compose-submit-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 .advisory-filter-tabs {
   display: flex;

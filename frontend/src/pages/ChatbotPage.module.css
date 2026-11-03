@@ -1,11 +1,13 @@
 /* ===== Phase 16 — Chatbot (Basic) =====
-   UI Polish Pass -- the voice-toggle and mic buttons (.btn-icon,
-   .chatbot-voice-toggle, .chatbot-mic-button/-listening in ChatbotPage.jsx)
-   had no CSS anywhere in the project and were rendering as bare, unstyled
-   browser buttons; this fills that gap with the same hairline-border/green-
-   accent language as every other control, rather than redesigning the
-   layout. :global(...) because these are plain classNames (not CSS-Module
-   references) on elements from this page. */
+   UI Polish Pass -- the voice-toggle button (.btn-icon, .chatbot-voice-toggle
+   in ChatbotPage.jsx) had no CSS anywhere in the project and was rendering as
+   a bare, unstyled browser button; this fills that gap with the same
+   hairline-border/green-accent language as every other control.
+   :global(...) because these are plain classNames (not CSS-Module
+   references) on an element from this page. The mic button used to share
+   this same global styling (.chatbot-mic-button/-listening) but moved to
+   its own CSS-Module classes (.compose-mic-btn/-listening below) as part
+   of the compose-bar redesign -- see that section's own note. */
 :global(.btn-icon) {
   display: inline-flex;
   align-items: center;
@@ -37,11 +39,6 @@
 :global(.chatbot-voice-toggle) {
   align-self: flex-end;
   margin: 10px 18px 0;
-}
-:global(.chatbot-mic-listening) {
-  border-color: var(--color-alert);
-  background: var(--color-alert-tint);
-  color: var(--color-alert);
 }
 .chatbot-main {
   display: flex;
@@ -90,68 +87,93 @@
   font-style: italic;
   color: var(--color-text-secondary);
 }
-.chatbot-input-form {
+/* Compose bar restyle -- same merged pill-shaped card as WeatherPage's
+   .search-card/.search-pill, replacing the old plain bordered input beside
+   two separate buttons. Existing tokens only. */
+.compose-card {
   width: 100%;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--color-border);
+}
+.compose-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, var(--color-primary-tint) 0%, var(--color-bg) 65%);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 4px 4px 16px;
 }
 /* min-width: 0 overrides the browser's default min-width: auto on
    <input>, which otherwise floors a flex: 1 text input at its own
    intrinsic content width and stops it from shrinking -- the exact fix
    WeatherPage.module.css's .search-pill-input already uses for the same
-   flex-row-with-a-text-input shape. Without it, this input (plus the mic
-   and send buttons beside it) forced the whole row wider than the phone-
-   frame viewport, clipping the input's own placeholder text off the left
-   edge and the Send button off the right. */
-.chatbot-text-input {
+   flex-row-with-a-text-input shape. */
+.compose-input {
   flex: 1;
   min-width: 0;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.65rem;
-  font-size: 1rem;
-  box-shadow: none;
-  transition: border-color 0.15s ease, outline-color 0.15s ease;
-}
-.chatbot-text-input:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-/* The Send button used to just be .btn-primary (shared.css), which is
-   built for a standalone full-width form submit (width: 100%; min-height:
-   50px; margin-top: 24px) -- not a button sharing a row with a text input
-   and a mic button. Reusing it forced this row even wider (width: 100%
-   fighting flex-shrink) and pushed Send down out of line with its
-   row-mates (margin-top: 24px). Same colors/weight as .btn-primary, just
-   sized to sit inline instead. */
-.chatbot-send-button {
-  flex-shrink: 0;
-  padding: 0 20px;
-  min-height: 44px;
-  background-color: var(--color-primary);
-  color: white;
   border: none;
-  border-radius: var(--radius-btn);
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+  min-height: 26px;
+  padding: 0.3rem 0;
+}
+.compose-mic-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text-secondary);
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
-.chatbot-send-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.compose-mic-btn:hover {
+  border-color: var(--color-primary);
 }
-.chatbot-send-button:not(:disabled):hover {
-  background-color: var(--color-primary-dark);
+.compose-mic-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
-.chatbot-send-button:not(:disabled):active {
+.compose-mic-listening {
+  border-color: var(--color-alert);
+  background: var(--color-alert-tint);
+  color: var(--color-alert);
+}
+/* Icon-only circular submit button, same shape/sizing as WeatherPage's
+   .search-pill-submit. */
+.compose-send-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.28);
+}
+.compose-send-btn:disabled {
+  background: var(--color-primary-light);
+  box-shadow: none;
+  cursor: default;
+}
+.compose-send-btn:not(:disabled):active {
   transform: scale(0.97);
 }
-.chatbot-send-button:focus-visible {
+.compose-send-btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }

@@ -90,6 +90,11 @@ const PATHS = {
   // Soil row on the crop-info card at the top of the Crop Detail page.
   // Same package/version as above.
   landscape: <path d="m40-240 240-320 195 260h325L560-619 435-453l-38-50 163-217 360 480H40Zm510-60Zm-390 0h240L280-460 160-300Zm0 0h240-240Z" />,
+  // Chatbot/Advisory compose-bar redesign -- the paper-plane "send" icon,
+  // shared across the Chatbot send button and Advisory's Ask Expert / Send
+  // Answer buttons. Same package/version as every other 960-grid icon
+  // above, see this folder's README.md.
+  send: <path d="M120-160v-640l760 320-760 320Zm60-93 544-227-544-230v168l242 62-242 60v167Zm0 0v-457 457Z" />,
 };
 
 // Per-icon viewBox override for the rare icon (see `mic`/`micOff` above)
