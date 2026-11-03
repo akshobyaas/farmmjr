@@ -48,7 +48,15 @@
   flex-direction: column;
   height: calc(100vh - 120px);
 }
+/* .app-main (shared.css) sets align-items: center page-wide, which sizes
+   non-stretched flex children to their own content width ("fit-content")
+   instead of the available width -- the same class of bug the Weather
+   page's .hourly-section/.daily-section comment documents hitting twice
+   already. Both this and .chatbot-input-form below need an explicit
+   width: 100% so they fill the page instead of being centered at
+   whatever width their content happens to need. */
 .chatbot-messages {
+  width: 100%;
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -83,13 +91,25 @@
   color: var(--color-text-secondary);
 }
 .chatbot-input-form {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
+  align-items: center;
   gap: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--color-border);
 }
+/* min-width: 0 overrides the browser's default min-width: auto on
+   <input>, which otherwise floors a flex: 1 text input at its own
+   intrinsic content width and stops it from shrinking -- the exact fix
+   WeatherPage.module.css's .search-pill-input already uses for the same
+   flex-row-with-a-text-input shape. Without it, this input (plus the mic
+   and send buttons beside it) forced the whole row wider than the phone-
+   frame viewport, clipping the input's own placeholder text off the left
+   edge and the Send button off the right. */
 .chatbot-text-input {
   flex: 1;
+  min-width: 0;
   padding: 0.65rem 0.9rem;
   border: 1px solid var(--color-border);
   border-radius: 0.65rem;
@@ -100,4 +120,38 @@
 .chatbot-text-input:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
+}
+/* The Send button used to just be .btn-primary (shared.css), which is
+   built for a standalone full-width form submit (width: 100%; min-height:
+   50px; margin-top: 24px) -- not a button sharing a row with a text input
+   and a mic button. Reusing it forced this row even wider (width: 100%
+   fighting flex-shrink) and pushed Send down out of line with its
+   row-mates (margin-top: 24px). Same colors/weight as .btn-primary, just
+   sized to sit inline instead. */
+.chatbot-send-button {
+  flex-shrink: 0;
+  padding: 0 20px;
+  min-height: 44px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.chatbot-send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.chatbot-send-button:not(:disabled):hover {
+  background-color: var(--color-primary-dark);
+}
+.chatbot-send-button:not(:disabled):active {
+  transform: scale(0.97);
+}
+.chatbot-send-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
