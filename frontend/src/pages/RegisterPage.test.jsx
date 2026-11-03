@@ -53,8 +53,29 @@ describe("RegisterPage", () => {
           role: "farmer",
         })
       );
-      expect(mockNavigate).toHaveBeenCalledWith("/login");
     });
+    // No auto-redirect -- the success screen below replaces the form.
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("shows a check-your-email success screen with a link to Login after registering, instead of the form", async () => {
+    const mockRegister = vi.fn().mockResolvedValue(undefined);
+    useAuth.mockReturnValue({ register: mockRegister });
+
+    render(
+      <MemoryRouter>
+        <RegisterPage />
+      </MemoryRouter>
+    );
+
+    await fillValidForm();
+    await userEvent.click(screen.getByRole("button", { name: /register/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/check your email/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /register/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /go to login/i })).toHaveAttribute("href", "/login");
   });
 
   it("blocks submission client-side when password and confirmation don't match", async () => {

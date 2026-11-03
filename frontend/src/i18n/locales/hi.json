@@ -89,7 +89,10 @@
     "haveAccount": "पहले से खाता है?",
     "loginHere": "यहां लॉग इन करें",
     "passwordHintLength": "कम से कम 8 अक्षर",
-    "passwordHintNotNumeric": "पूरी तरह अंकों में नहीं"
+    "passwordHintNotNumeric": "पूरी तरह अंकों में नहीं",
+    "successTitle": "अपना ईमेल जांचें",
+    "successBody": "हमने आपके ईमेल पते पर एक सत्यापन लिंक भेजा है। अपना खाता सक्रिय करने के लिए लिंक पर क्लिक करें, फिर नीचे लॉग इन करें।",
+    "goToLogin": "लॉग इन पर जाएं"
   },
   "profile": {
     "title": "आपकी प्रोफ़ाइल",

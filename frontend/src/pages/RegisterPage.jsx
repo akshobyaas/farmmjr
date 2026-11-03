@@ -9,7 +9,23 @@ import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const { form, error, submitting, hints, handleChange, handleSubmit } = useRegisterForm();
+  const { form, error, submitting, hints, registered, handleChange, handleSubmit } = useRegisterForm();
+
+  if (registered) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="auth-lang-row">
+            <LanguageSwitcher />
+          </div>
+          <img src={logo} alt={t("common.appName")} className="auth-logo" />
+          <h1 className="auth-title">{t("register.successTitle")}</h1>
+          <p className="auth-subtitle">{t("register.successBody")}</p>
+          <Link to="/login" className={`btn-primary ${styles["go-to-login"]}`}>{t("register.goToLogin")}</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-page">

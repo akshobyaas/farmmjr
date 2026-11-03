@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { languageStorage } from "../i18n/languageStorage";
 
@@ -15,7 +14,6 @@ function getPasswordHints(password) {
 // FRONTEND_REFACTOR_IMPLEMENTATION_PLAN.md Task 7.
 export function useRegisterForm() {
   const { register } = useAuth();
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     username: "",
@@ -30,6 +28,11 @@ export function useRegisterForm() {
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Registration requires email verification before login works, so instead
+  // of auto-navigating to /login (which left a new user wondering whether
+  // anything happened), the page shows a "check your email" screen when
+  // this flips true -- see RegisterPage.jsx.
+  const [registered, setRegistered] = useState(false);
 
   const hints = getPasswordHints(form.password);
 
@@ -49,7 +52,7 @@ export function useRegisterForm() {
     setSubmitting(true);
     try {
       await register({ ...form, role: "farmer" });
-      navigate("/login");
+      setRegistered(true);
     } catch (err) {
       const data = err.response?.data;
       if (data && typeof data === "object") {
@@ -64,5 +67,5 @@ export function useRegisterForm() {
     }
   };
 
-  return { form, error, submitting, hints, handleChange, handleSubmit };
+  return { form, error, submitting, hints, registered, handleChange, handleSubmit };
 }
