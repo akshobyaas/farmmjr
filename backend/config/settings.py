@@ -186,11 +186,20 @@ PASSWORD_RESET_TIMEOUT = 1800  # 30 minutes, in seconds
 
 # ---------------------------------------------------------------------------
 # Email — console backend for dev (prints emails to the runserver terminal).
-# Swap EMAIL_BACKEND to the SMTP backend with real creds in .env when ready.
+# Swap EMAIL_BACKEND to 'django.core.mail.backends.smtp.EmailBackend' in .env
+# once real SMTP creds are set below, so verification/reset links actually
+# get emailed out. Gmail-friendly defaults for host/port/TLS; blank
+# user/password is fine while the console backend is still active.
 # ---------------------------------------------------------------------------
 EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@smartfarming.test')
 FRONTEND_URL_FOR_LINKS = env('FRONTEND_URL', default='http://localhost:5173')
+
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 
 # ---------------------------------------------------------------------------
 # Weather (Phase 13) — OpenWeatherMap. Server-side only, never sent to the
