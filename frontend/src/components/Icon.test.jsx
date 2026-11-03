@@ -27,6 +27,8 @@ describe("Icon", () => {
       "mic",
       "volumeUp",
       "volumeOff",
+      "imageSearch",
+      "photoCamera",
     ];
     for (const name of names) {
       const { container } = render(<Icon name={name} />);
