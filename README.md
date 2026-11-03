@@ -91,9 +91,10 @@ python manage.py seed_demo_data         # populates 4 crops + 3 pre-verified tes
 python manage.py runserver
 ```
 
-Backend now runs at `http://localhost:8000`. Emails print to this terminal (console backend) — there
-is no real SMTP configured. The CNN model loads at server startup, so the first boot takes roughly
-15–20 seconds; wait for "Starting development server" in the log.
+Backend now runs at `http://localhost:8000`. Emails print to this terminal (console backend) by
+default — there is no real SMTP configured until you set it up (see **Real email sending** below).
+The CNN model loads at server startup, so the first boot takes roughly 15–20 seconds; wait for
+"Starting development server" in the log.
 
 **Optional API keys** (the app runs fully without them; the affected feature just shows a
 plain-language "unavailable" message until the key is set in `backend/.env`):
@@ -103,6 +104,13 @@ plain-language "unavailable" message until the key is set in `backend/.env`):
 - `GEMINI_API_KEY` — free key at https://aistudio.google.com/apikey (Farming Diary AI analysis, and
   the Kannada Voice Assistant chatbot). The model defaults to `gemini-2.5-flash`; set `GEMINI_MODEL`
   only if Google retires that model name.
+
+**Real email sending** (optional — verification/reset links work fine without this, they just print
+to the console instead of being emailed): set `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` in
+`backend/.env` and switch `EMAIL_BACKEND` to the SMTP line, both commented in `.env.example`. For
+Gmail, `EMAIL_HOST_PASSWORD` must be a 16-character **App Password** (Google Account → Security →
+2-Step Verification → App Passwords) — never your normal Gmail password, since Gmail blocks plain
+passwords for app sign-in. Never commit real values for these — `.env` is already git-ignored.
 
 Test accounts from the seed command (pre-verified, ready to log in immediately):
 - `farmer_ravi` / `FarmerPass#123` (farmer role, Kannada preference)
