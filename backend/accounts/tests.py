@@ -113,6 +113,26 @@ class LoginTests(APITestCase):
         # reads (`err.response.data.code?.[0]`).
         self.assertEqual(response.data["code"][0], "email_not_verified")
 
+    def test_can_log_in_with_email_instead_of_username(self):
+        response = self.client.post(self.url, {"username": "ravi@example.com", "password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
+    def test_login_with_email_is_case_insensitive(self):
+        response = self.client.post(self.url, {"username": "RAVI@Example.com", "password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unknown_email_gives_the_identical_generic_message_as_wrong_password(self):
+        wrong_pw = self.client.post(self.url, {"username": "farmer_ravi", "password": "wrong"}, format="json")
+        unknown_email = self.client.post(self.url, {"username": "nobody@example.com", "password": "wrong"}, format="json")
+        self.assertEqual(unknown_email.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(wrong_pw.data["detail"], unknown_email.data["detail"])
+
+    def test_correct_email_but_wrong_password_is_rejected(self):
+        response = self.client.post(self.url, {"username": "ravi@example.com", "password": "wrong"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class LogoutTests(APITestCase):
     """Includes the Phase 19 audit fix as a permanent regression test."""
@@ -379,6 +399,38 @@ class PasswordResetTests(APITestCase):
         self.assertEqual(replay.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class FindAccountTests(APITestCase):
+    def setUp(self):
+        cache.clear()  # find-account/ is throttled, same as password-reset/request/
+        self.user = make_user()
+        self.url = reverse("find-account")
+
+    def test_find_account_gives_identical_generic_message_for_real_and_fake_emails(self):
+        real = self.client.post(self.url, {"email": "ravi@example.com"}, format="json")
+        fake = self.client.post(self.url, {"email": "nobody@example.com"}, format="json")
+        self.assertEqual(real.status_code, status.HTTP_200_OK)
+        self.assertEqual(fake.status_code, status.HTTP_200_OK)
+        self.assertEqual(real.data["detail"], fake.data["detail"])
+
+    def test_find_account_emails_the_username_when_the_account_exists(self):
+        from django.core import mail
+
+        self.client.post(self.url, {"email": "ravi@example.com"}, format="json")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("farmer_ravi", mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].to, ["ravi@example.com"])
+
+    def test_find_account_sends_no_email_when_the_address_is_unknown(self):
+        from django.core import mail
+
+        self.client.post(self.url, {"email": "nobody@example.com"}, format="json")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_find_account_rejects_a_malformed_email(self):
+        response = self.client.post(self.url, {"email": "not-an-email"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class EmailFailSoftTests(APITestCase):
     """
     A broken mail server (timeout, auth failure, DNS blip -- anything
@@ -431,5 +483,13 @@ class EmailFailSoftTests(APITestCase):
         with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
             response = self.client.post(
                 reverse("password-reset-request"), {"email": "ravi@example.com"}, format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_find_account_still_returns_generic_response_when_send_fails(self):
+        make_user(email="ravi@example.com")
+        with mock.patch("accounts.utils.send_mail", side_effect=SMTPException("boom")):
+            response = self.client.post(
+                reverse("find-account"), {"email": "ravi@example.com"}, format="json",
             )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

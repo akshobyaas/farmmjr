@@ -54,6 +54,19 @@ def send_verification_email(user):
     )
 
 
+def send_account_found_email(user):
+    _send_mail_fail_soft(
+        subject="Your Smart Farming username",
+        message=(
+            f"Hi,\n\n"
+            f"You (or someone using this email address) asked to recover the "
+            f"username for this Smart Farming account. It is:\n\n{user.username}\n\n"
+            f"If you didn't request this, you can safely ignore this email."
+        ),
+        recipient_list=[user.email],
+    )
+
+
 def send_password_reset_email(user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = password_reset_token.make_token(user)

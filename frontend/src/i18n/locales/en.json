@@ -67,11 +67,12 @@
   "login": {
     "title": "Welcome Back",
     "subtitle": "Log in to Smart Farming",
-    "username": "Username",
+    "usernameOrEmail": "Username or Email",
     "password": "Password",
     "submit": "Log In",
     "submitting": "Logging in…",
     "forgotPassword": "Forgot your password?",
+    "forgotUsername": "Forgot your username?",
     "noAccount": "Don't have an account?",
     "registerHere": "Register here"
   },
@@ -211,7 +212,7 @@
   "scan": {
     "uploadTitle": "Scan a Crop",
     "tapToChoose": "📷 Tap to choose a photo of the crop leaf",
-  "takePhoto": "📸 Take Photo",
+    "takePhoto": "📸 Take Photo",
     "tooLarge": "Image too large. Maximum size is 5MB.",
     "networkError": "Could not reach the server. Check your connection and try again.",
     "sessionExpired": "Your session has expired. Please log in again.",

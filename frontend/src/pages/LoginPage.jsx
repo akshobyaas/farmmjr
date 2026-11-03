@@ -22,7 +22,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="field-box">
-            <label className="field-box-label" htmlFor="username">{t("login.username")}</label>
+            <label className="field-box-label" htmlFor="username">{t("login.usernameOrEmail")}</label>
             <input
               id="username"
               type="text"
@@ -62,6 +62,8 @@ export default function LoginPage() {
 
         <p className="auth-switch">
           <Link to="/forgot-password">{t("login.forgotPassword")}</Link>
+          {" · "}
+          <Link to="/find-account">{t("login.forgotUsername")}</Link>
         </p>
         <p className="auth-switch">
           {t("login.noAccount")} <Link to="/register">{t("login.registerHere")}</Link>

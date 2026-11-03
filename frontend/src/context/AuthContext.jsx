@@ -87,6 +87,11 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const findAccount = async (email) => {
+    const { data } = await api.post("auth/find-account/", { email });
+    return data;
+  };
+
   const confirmPasswordReset = async (uid, token, newPassword, newPasswordConfirm) => {
     const { data } = await api.post("auth/password-reset/confirm/", {
       uid, token, new_password: newPassword, new_password_confirm: newPasswordConfirm,
@@ -126,7 +131,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user, loading, login, register, logout,
-        requestPasswordReset, confirmPasswordReset,
+        requestPasswordReset, findAccount, confirmPasswordReset,
         resendVerification, confirmEmailVerification, changeUnverifiedEmail,
         getProfile, updateProfile,
       }}
