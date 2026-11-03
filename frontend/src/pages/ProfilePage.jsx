@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useProfileForm } from "../hooks/useProfileForm";
+import { useDeleteAccountForm } from "../hooks/useDeleteAccountForm";
 import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
 import BottomNav from "../components/BottomNav";
@@ -26,6 +27,10 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { form, error, success, submitting, isDirty, handleChange, handleSubmit } = useProfileForm();
+  const {
+    confirming, startConfirming, cancelConfirming,
+    password, setPassword, error: deleteError, submitting: deleting, handleDelete,
+  } = useDeleteAccountForm();
 
   // Same "prefer the editable display name over the login username"
   // precedent as DashboardPage's greeting/avatar.
@@ -125,6 +130,43 @@ export default function ProfilePage() {
             </form>
           )}
           {error && !form && <p className="form-error" role="alert">{error}</p>}
+
+          {form && (
+            <div className="danger-zone">
+              <p className="danger-zone-text">{t("profile.deleteAccountWarning")}</p>
+              {confirming ? (
+                <form onSubmit={handleDelete} noValidate>
+                  <div className="field-box">
+                    <label className="field-box-label" htmlFor="delete-confirm-password">
+                      {t("profile.confirmPassword")}
+                    </label>
+                    <input
+                      id="delete-confirm-password"
+                      type="password"
+                      className="field-box-input"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                  </div>
+                  {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
+                  <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+                    <button type="submit" className="btn-danger" disabled={deleting}>
+                      {deleting ? t("profile.deleting") : t("profile.deleteMyAccount")}
+                    </button>
+                    <button type="button" className="btn-secondary" onClick={cancelConfirming}>
+                      {t("profile.cancel")}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button type="button" className="btn-danger" onClick={startConfirming}>
+                  {t("profile.deleteAccount")}
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {logoutButton}
       </main>

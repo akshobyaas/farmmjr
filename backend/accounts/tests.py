@@ -270,6 +270,71 @@ class ProfileAuthorizationTests(APITestCase):
         self.assertEqual(self.user.home_location, "")
 
 
+class AccountDeleteTests(APITestCase):
+    """
+    Self-service "delete my account" -- a hard delete, matching the
+    cascade behaviour already built into every user-linked model (see
+    scans.models.ScanHistory's explicit "right to erasure" comment).
+    Requires the caller's own password, same ownership-proof pattern
+    ChangeUnverifiedEmailSerializer already uses.
+    """
+
+    def setUp(self):
+        self.user = make_user()
+        self.other = make_user(username="farmer_asha", email="asha@example.com")
+        self.own_url = reverse("profile-detail", args=[self.user.id])
+        self.other_url = reverse("profile-detail", args=[self.other.id])
+
+    def test_wrong_password_is_rejected_and_account_survives(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.own_url, {"password": "WrongPassword#1"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(User.objects.filter(id=self.user.id).exists())
+
+    def test_missing_password_is_rejected(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.own_url, {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(User.objects.filter(id=self.user.id).exists())
+
+    def test_correct_password_deletes_the_account(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.own_url, {"password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(User.objects.filter(id=self.user.id).exists())
+
+    def test_deleting_the_account_cascades_to_scan_history(self):
+        from scans.models import ScanHistory
+
+        scan = ScanHistory.objects.create(user=self.user)
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.own_url, {"password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(ScanHistory.objects.filter(id=scan.id).exists())
+
+    def test_deletion_blacklists_outstanding_refresh_tokens(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.own_url, {"password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        refresh_response = self.client.post(
+            reverse("login-refresh"), {"refresh": str(refresh)}, format="json",
+        )
+        self.assertEqual(refresh_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_cannot_delete_someone_elses_account(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.other_url, {"password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(User.objects.filter(id=self.other.id).exists())
+
+    def test_unauthenticated_request_is_rejected(self):
+        response = self.client.delete(self.own_url, {"password": "FarmerPass#123"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(User.objects.filter(id=self.user.id).exists())
+
+
 class EmailVerificationTests(APITestCase):
     def setUp(self):
         self.user = make_user(is_verified=False)

@@ -208,4 +208,88 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("alert")).toHaveTextContent(/could not load your profile/i);
     });
   });
+
+  describe("Delete Account", () => {
+    const authWithDelete = (deleteAccount) => ({
+      getProfile: vi.fn().mockResolvedValue(mockProfile),
+      updateProfile: vi.fn(),
+      logout: vi.fn(),
+      deleteAccount,
+    });
+
+    it("shows a Delete Account button, with no password field visible yet", async () => {
+      useAuth.mockReturnValue(authWithDelete(vi.fn()));
+
+      render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => screen.getByLabelText(/first name/i));
+      expect(screen.getByRole("button", { name: /delete account/i })).toBeInTheDocument();
+      expect(screen.queryByLabelText(/confirm.*password/i)).not.toBeInTheDocument();
+    });
+
+    it("reveals a password-confirm step when Delete Account is clicked, and Cancel hides it again", async () => {
+      useAuth.mockReturnValue(authWithDelete(vi.fn()));
+
+      render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => screen.getByLabelText(/first name/i));
+      await userEvent.click(screen.getByRole("button", { name: /delete account/i }));
+      expect(screen.getByLabelText(/confirm.*password/i)).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
+      expect(screen.queryByLabelText(/confirm.*password/i)).not.toBeInTheDocument();
+    });
+
+    it("submits the typed password and navigates to login on success", async () => {
+      const mockDelete = vi.fn().mockResolvedValue({});
+      useAuth.mockReturnValue(authWithDelete(mockDelete));
+
+      render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => screen.getByLabelText(/first name/i));
+      await userEvent.click(screen.getByRole("button", { name: /delete account/i }));
+      await userEvent.type(screen.getByLabelText(/confirm.*password/i), "FarmerPass#123");
+      await userEvent.click(screen.getByRole("button", { name: /delete my account/i }));
+
+      await waitFor(() => {
+        expect(mockDelete).toHaveBeenCalledWith("FarmerPass#123");
+        expect(mockNavigate).toHaveBeenCalledWith("/login");
+      });
+    });
+
+    it("shows the server's error message on a wrong password, without navigating away", async () => {
+      const mockDelete = vi.fn().mockRejectedValue({
+        response: { status: 400, data: { password: ["Incorrect password."] } },
+      });
+      useAuth.mockReturnValue(authWithDelete(mockDelete));
+
+      render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => screen.getByLabelText(/first name/i));
+      await userEvent.click(screen.getByRole("button", { name: /delete account/i }));
+      await userEvent.type(screen.getByLabelText(/confirm.*password/i), "wrong");
+      await userEvent.click(screen.getByRole("button", { name: /delete my account/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent(/incorrect password/i);
+      });
+      expect(mockNavigate).not.toHaveBeenCalledWith("/login");
+    });
+  });
 });
