@@ -6,7 +6,15 @@ import { fetchScanHistory } from "../api/scans";
 // part of the frontend structure cleanup (Sub-project 1). See
 // FRONTEND_REFACTOR_IMPLEMENTATION_PLAN.md Task 7. formatDate() stays in
 // the page -- pure presentation, not data-fetching.
-export function useScanHistory() {
+//
+// `cropFilter` (Task 12 fix round 1) is an optional id read from the URL's
+// ?crop= param by the page -- the page still owns useSearchParams(), this
+// hook just takes the value it needs, same pattern as useVideoSearch's
+// initialQuery. Only passed through to fetchScanHistory when present, so
+// every pre-existing call site/test (no filter) keeps calling it with the
+// exact same single `page` argument as before -- no regression to the
+// unfiltered view.
+export function useScanHistory(cropFilter) {
   const { t } = useTranslation();
   const [results, setResults] = useState([]);
   const [count, setCount] = useState(0);
@@ -19,7 +27,7 @@ export function useScanHistory() {
   const loadPage = useCallback((pageNumber) => {
     setLoading(true);
     setError("");
-    fetchScanHistory(pageNumber)
+    (cropFilter ? fetchScanHistory(pageNumber, cropFilter) : fetchScanHistory(pageNumber))
       .then((data) => {
         setResults(data.results);
         setCount(data.count);
@@ -28,11 +36,19 @@ export function useScanHistory() {
       })
       .catch(() => setError(t("scan.historyLoadError")))
       .finally(() => setLoading(false));
-  }, [t]);
+  }, [t, cropFilter]);
+
+  // Reset to page 1 whenever the crop filter changes (e.g. following one
+  // crop's "View all" link right after another's) so the next fetch below
+  // starts the new filter from page 1 instead of re-requesting a stale
+  // page number against it.
+  useEffect(() => {
+    setPage(1);
+  }, [cropFilter]);
 
   useEffect(() => {
     loadPage(page);
-  }, [page, loadPage]);
+  }, [page, cropFilter, loadPage]);
 
   return { results, count, page, setPage, hasNext, hasPrevious, loading, error };
 }

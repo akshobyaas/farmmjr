@@ -20,6 +20,14 @@ const FIELD_ROWS = [
   { id: "last_name", icon: "user", nameKey: "lastName", editable: true, type: "text" },
   { id: "phone_number", icon: "call", nameKey: "phoneNumber", editable: true, type: "tel" },
   { id: "home_location", icon: "pin", nameKey: "homeLocation", editable: true, type: "text" },
+  {
+    id: "units_area", icon: "landscape", nameKey: "areaUnit", editable: true, type: "select",
+    options: ["acre", "hectare"],
+  },
+  {
+    id: "units_weight", icon: "leaf", nameKey: "weightUnit", editable: true, type: "select",
+    options: ["kg", "tonne"],
+  },
 ];
 
 export default function ProfilePage() {
@@ -96,16 +104,32 @@ export default function ProfilePage() {
                       <label className={styles["profile-field-label"]} htmlFor={field.id}>
                         {t(`profile.${field.nameKey}`)}
                       </label>
-                      <input
-                        id={field.id}
-                        name={field.id}
-                        type={field.type}
-                        className={styles["profile-field-input"]}
-                        value={form[field.id]}
-                        onChange={field.editable ? handleChange : undefined}
-                        disabled={!field.editable}
-                        readOnly={!field.editable}
-                      />
+                      {field.type === "select" ? (
+                        <select
+                          id={field.id}
+                          name={field.id}
+                          className={styles["profile-field-input"]}
+                          value={form[field.id]}
+                          onChange={handleChange}
+                        >
+                          {field.options.map((option) => (
+                            <option key={option} value={option}>
+                              {t(`profile.units.${option}`)}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          id={field.id}
+                          name={field.id}
+                          type={field.type}
+                          className={styles["profile-field-input"]}
+                          value={form[field.id]}
+                          onChange={field.editable ? handleChange : undefined}
+                          disabled={!field.editable}
+                          readOnly={!field.editable}
+                        />
+                      )}
                     </span>
                   </div>
                 ))}

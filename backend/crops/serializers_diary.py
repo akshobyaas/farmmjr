@@ -9,12 +9,15 @@ or serializers_catalog) since it's exclusively a Farming Diary concept —
 any test patching it should target `crops.serializers_diary.diary_today`
 now, not `crops.serializers.diary_today`.
 """
+import os
 from zoneinfo import ZoneInfo
 
+from django.core.files.base import ContentFile
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from scans import ml_model
+from scans.models import ScanHistory
 from scans.validators import validate_and_sanitize_image
 from .models import FarmingDiaryEntry
 
@@ -62,6 +65,15 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
 
     photo_diagnosis_confidence = serializers.FloatField(read_only=True)
 
+    # Task 8 -- lets a farmer copy a past scan's photo + diagnosis onto a
+    # diary entry instead of re-uploading the image (ScanHistory.image and
+    # FarmingDiaryEntry.photo are separate ImageFields; a past scan only
+    # exposes a URL in the browser, not raw bytes, so the copy has to
+    # happen server-side). write_only: this is an input-only pointer, never
+    # part of the entry's own representation. Not a model field, so it's
+    # declared here rather than relying on ModelSerializer's auto-generation.
+    scan_id = serializers.IntegerField(required=False, write_only=True)
+
     def validate_photo(self, value):
         # DRF turns an empty multipart `photo=""` or a JSON `"photo": null`
         # into None (the model field is null=True). That means "no photo",
@@ -74,9 +86,18 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
         fields = [
             "id", "tracker", "entry_date",
             "did_irrigation", "did_fertilizer", "did_spraying", "did_pruning",
-            "other_activity_note", "note", "photo",
+            "other_activity_note", "note", "photo", "scan_id",
             "photo_diagnosis_label", "photo_diagnosis_confidence",
             "ai_analysis", "ai_analysis_status",
+            # Task 10 -- optional activity-specific detail fields. Each has
+            # `blank=True`/`null=True` on the model (see models.py), which
+            # is what makes DRF's ModelSerializer infer `required=False`
+            # for them automatically, same as `other_activity_note`/`note`
+            # above -- no explicit `serializers.*Field(required=False)`
+            # declaration needed, unlike `scan_id`/`photo_diagnosis_confidence`
+            # which aren't plain optional model fields.
+            "duration_minutes", "quantity", "quantity_unit",
+            "product_name", "cost_amount", "harvest_quality_note",
         ]
         read_only_fields = [
             "id", "entry_date",
@@ -94,12 +115,26 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
             # request.
             raise PermissionDenied("You can only add diary entries to your own crop trackers.")
 
+        # Task 8 -- `scan_id` ownership check, same PermissionDenied (403)
+        # pattern as the tracker-ownership check just above: a cross-farmer
+        # scan id must never look like a plain bad request. The resolved
+        # scan is stashed on `self._scan` for create() to copy from -- it
+        # isn't a model field, so it can't just be carried through
+        # validated_data the way `tracker` is.
+        scan_id = attrs.get("scan_id")
+        self._scan = None
+        if scan_id is not None and user is not None:
+            scan = ScanHistory.objects.filter(id=scan_id, user=user).first()
+            if scan is None:
+                raise PermissionDenied("You can only copy your own scans into a diary entry.")
+            self._scan = scan
+
         has_activity = any(attrs.get(field) for field in (
             "did_irrigation", "did_fertilizer", "did_spraying", "did_pruning",
         ))
         has_note = bool(attrs.get("note", "").strip())
         has_other_note = bool(attrs.get("other_activity_note", "").strip())
-        has_photo = bool(attrs.get("photo"))
+        has_photo = bool(attrs.get("photo")) or self._scan is not None
         if not (has_activity or has_note or has_other_note or has_photo):
             raise serializers.ValidationError(
                 "A diary entry needs at least one activity, a note, or a photo."
@@ -123,6 +158,13 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
         # perform_create always calls serializer.save(), and 200 OK
         # correctly signals "your existing resource was updated" rather
         # than implying a new resource was just created, which 201 would.
+        # Task 8 -- `scan_id` isn't a model field (it's declared write_only
+        # on the serializer solely to carry the request's intent into
+        # validate()), so it must never reach FarmingDiaryEntry's
+        # constructor/setattr below. The scan itself was already resolved
+        # onto `self._scan` by validate().
+        validated_data.pop("scan_id", None)
+        scan = self._scan
         tracker = validated_data["tracker"]
         entry_date = diary_today()
         existing = FarmingDiaryEntry.objects.filter(tracker=tracker, entry_date=entry_date).first()
@@ -161,7 +203,14 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
             # An explicitly empty/null `photo` clears the photo (via the
             # setattr loop above), so its now-orphaned diagnosis is cleared
             # too rather than re-running the CNN on a photo that isn't there.
-            if "photo" in sent_fields:
+            if scan is not None:
+                # Task 8 -- a scan_id on a same-day update replaces today's
+                # photo + diagnosis from the scan, same "whatever was
+                # actually sent wins" rule as every other field here (an
+                # explicit `photo` upload is handled below and takes the
+                # normal CNN path; this is the scan_id alternative to it).
+                self._copy_scan_onto(existing, scan)
+            elif "photo" in sent_fields:
                 if existing.photo:
                     self._run_photo_diagnosis(existing)
                 else:
@@ -171,9 +220,26 @@ class FarmingDiaryEntrySerializer(serializers.ModelSerializer):
             return existing
         self.updated_existing = False
         entry = FarmingDiaryEntry.objects.create(entry_date=entry_date, **validated_data)
-        if entry.photo:
+        if scan is not None:
+            self._copy_scan_onto(entry, scan)
+        elif entry.photo:
             self._run_photo_diagnosis(entry)
         return entry
+
+    def _copy_scan_onto(self, entry, scan):
+        """
+        Task 8 -- copies a validated-and-owned ScanHistory's image and
+        diagnosis directly onto `entry`. No CNN re-run here (unlike
+        `_run_photo_diagnosis`): the scan already carried its own
+        diagnosis (`predicted_disease`/`confidence`) from when it was
+        taken, so re-predicting against an image that's just been copied
+        byte-for-byte would be redundant and could even disagree with the
+        diagnosis the farmer is actually looking at on the scan.
+        """
+        entry.photo.save(os.path.basename(scan.image.name), ContentFile(scan.image.read()), save=False)
+        entry.photo_diagnosis_label = scan.predicted_disease.name if scan.predicted_disease else ""
+        entry.photo_diagnosis_confidence = scan.confidence
+        entry.save()
 
     def _run_photo_diagnosis(self, entry):
         """

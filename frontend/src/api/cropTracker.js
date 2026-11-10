@@ -49,3 +49,32 @@ export async function fetchTodaysTasks() {
   const { data } = await api.get("crops/tasks/today/");
   return data;
 }
+
+// Task 15 (frontend) -- thin wrappers over GET /crops/tasks/upcoming/ and
+// GET /crops/tasks/completed/ (Task 14, backend), same style/shape as
+// fetchTodaysTasks above: always resolves 200 with {"tasks": [...]}.
+export async function fetchUpcomingTasks() {
+  const { data } = await api.get("crops/tasks/upcoming/");
+  return data;
+}
+
+export async function fetchCompletedTasks() {
+  const { data } = await api.get("crops/tasks/completed/");
+  return data;
+}
+
+// Task 15 (frontend) -- thin wrapper over POST/DELETE
+// /crops/tasks/<task_id>/complete/?tracker=<id> (Task 14, backend). `done`
+// picks POST (mark complete) vs DELETE (mark not complete); both resolve
+// with a plain {completed: <bool>} so the caller never has to special-case
+// DELETE's 204-empty-body response.
+export async function setTaskCompletion(taskId, trackerId, done) {
+  if (done) {
+    const { data } = await api.post(`crops/tasks/${taskId}/complete/`, null, {
+      params: { tracker: trackerId },
+    });
+    return data;
+  }
+  await api.delete(`crops/tasks/${taskId}/complete/`, { params: { tracker: trackerId } });
+  return { completed: false };
+}

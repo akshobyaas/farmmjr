@@ -11,9 +11,12 @@ export async function uploadScan(file) {
 }
 
 // Phase 12 — paginated, most-recent-first, and (server-side) restricted to
-// only the logged-in farmer's own scans.
-export async function fetchScanHistory(page = 1) {
-  const { data } = await api.get("scans/history/", { params: { page } });
+// only the logged-in farmer's own scans. `crop` (Task 12, Crop Detail's
+// "Recent scans for this crop") is an optional refinement, not required —
+// axios drops an undefined param from the query string, so callers that
+// don't pass it keep getting the unfiltered list exactly as before.
+export async function fetchScanHistory(page = 1, crop) {
+  const { data } = await api.get("scans/history/", { params: { page, crop } });
   return data;
 }
 

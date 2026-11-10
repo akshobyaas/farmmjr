@@ -4,8 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import ScanUploadPage from "./ScanUploadPage";
 import * as scansApi from "../api/scans";
+import * as cropsApi from "../api/crops";
+import * as cropTrackerApi from "../api/cropTracker";
+import * as diaryApi from "../api/diary";
 
 vi.mock("../api/scans");
+vi.mock("../api/crops");
+vi.mock("../api/cropTracker");
+vi.mock("../api/diary");
 
 // jsdom doesn't implement object URLs — stub them so the preview logic
 // (URL.createObjectURL / revokeObjectURL) has something to call.
@@ -214,6 +220,96 @@ describe("ScanUploadPage", () => {
     });
     expect(screen.getByRole("button", { name: /upload photo/i })).toBeDisabled();
     expect(scansApi.uploadScan).not.toHaveBeenCalled();
+  });
+
+  it("shows a Save to Diary button when an active tracker exists for the scanned crop, and saves today's entry with the scan's id", async () => {
+    scansApi.uploadScan.mockResolvedValue({
+      message: "Prediction: Brown Spot (Rice) — 84.8% confidence.",
+      scan: {
+        id: 42,
+        image: "http://localhost:8000/media/scans/2026/09/abc123.jpg",
+        confidence: 0.848,
+        predicted_disease: { id: 6, name: "Brown Spot", crop_name: "Rice" },
+      },
+    });
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([{ id: 9, crop: 3, is_active: true }]);
+    diaryApi.saveDiaryEntry.mockResolvedValue({ id: 100 });
+
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    await selectFile(makeImageFile());
+    await userEvent.click(screen.getByRole("button", { name: /upload photo/i }));
+
+    const saveButton = await screen.findByRole("button", { name: /save to diary/i });
+    await userEvent.click(saveButton);
+
+    await waitFor(() => {
+      // Only { tracker, scan_id } should ever reach the backend for this
+      // action -- no entry_date (the backend always server-sets it to
+      // today and ignores a client value regardless).
+      expect(diaryApi.saveDiaryEntry).toHaveBeenCalledWith(9, { scanId: 42 });
+    });
+  });
+
+  it("does not show a Save to Diary button when there is no active tracker for the scanned crop", async () => {
+    scansApi.uploadScan.mockResolvedValue({
+      message: "Prediction: Brown Spot (Rice) — 84.8% confidence.",
+      scan: {
+        id: 43,
+        image: "http://localhost:8000/media/scans/2026/09/abc123.jpg",
+        confidence: 0.848,
+        predicted_disease: { id: 6, name: "Brown Spot", crop_name: "Rice" },
+      },
+    });
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([]);
+
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    await selectFile(makeImageFile());
+    await userEvent.click(screen.getByRole("button", { name: /upload photo/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Brown Spot — Rice")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /save to diary/i })).not.toBeInTheDocument();
+  });
+
+  it("does not show a Save to Diary button when the matching tracker is inactive (is_active: false)", async () => {
+    scansApi.uploadScan.mockResolvedValue({
+      message: "Prediction: Brown Spot (Rice) — 84.8% confidence.",
+      scan: {
+        id: 44,
+        image: "http://localhost:8000/media/scans/2026/09/abc123.jpg",
+        confidence: 0.848,
+        predicted_disease: { id: 6, name: "Brown Spot", crop_name: "Rice" },
+      },
+    });
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([{ id: 9, crop: 3, is_active: false }]);
+
+    render(
+      <MemoryRouter>
+        <ScanUploadPage />
+      </MemoryRouter>
+    );
+
+    await selectFile(makeImageFile());
+    await userEvent.click(screen.getByRole("button", { name: /upload photo/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Brown Spot — Rice")).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /save to diary/i })).not.toBeInTheDocument();
   });
 
   it("shows a plain-language error and does not crash on a network failure", async () => {

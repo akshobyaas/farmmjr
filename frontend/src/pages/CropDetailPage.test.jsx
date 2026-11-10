@@ -6,10 +6,27 @@ import CropDetailPage from "./CropDetailPage";
 import * as cropsApi from "../api/crops";
 import { fetchTrackers, createTracker, updateTracker } from "../api/cropTracker";
 import { fetchDiaryEntries, saveDiaryEntry } from "../api/diary";
+import { fetchScanHistory } from "../api/scans";
+import { useAuth } from "../context/AuthContext";
 
 vi.mock("../api/crops");
 vi.mock("../api/cropTracker");
 vi.mock("../api/diary");
+vi.mock("../api/scans");
+
+// Fix round 1 (Task 19 review finding): useCropTracker (used by this page)
+// now reads the farmer's onboarding_status via useAuth() so it can flip a
+// successful tracker CREATE to onboarding_status "completed" when the
+// farmer is "in_progress" -- see useCropTracker.js/.test.js. None of this
+// page's own tests are about onboarding, so they get a farmer who is
+// already "completed" (the common case), which keeps that behavior a
+// no-op here -- same partial-mock pattern as ProtectedRoute.test.jsx/
+// WelcomePage.test.jsx (importActual keeps the real AuthContext export;
+// only the useAuth hook itself is replaced).
+vi.mock("../context/AuthContext", async () => {
+  const actual = await vi.importActual("../context/AuthContext");
+  return { ...actual, useAuth: vi.fn() };
+});
 
 const mockCropDetail = {
   id: 1,
@@ -64,6 +81,15 @@ function renderWithRoute(id = "1") {
 describe("CropDetailPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Fix round 1 (Task 19 review finding): default every test to a farmer
+    // who has already completed onboarding, so useCropTracker's new
+    // "flip onboarding_status to completed after a create" behavior is a
+    // no-op here and none of this page's existing tracker-create/update
+    // assertions need to know about onboarding at all.
+    useAuth.mockReturnValue({
+      user: { username: "testfarmer1", onboarding_status: "completed" },
+      updateProfile: vi.fn().mockResolvedValue({}),
+    });
     // Tracker fetching is secondary to the crop detail itself -- default
     // every test to "no tracker yet" so the pre-existing assertions below
     // (written before Task 6) don't need to know about it at all.
@@ -73,6 +99,11 @@ describe("CropDetailPage", () => {
     // before Task 6 (which do end up with a tracker, e.g. the "Track This
     // Crop" tests below) don't need to know about it at all.
     vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
+    // Task 12 -- the "Recent scans for this crop" mini-list only ever
+    // fetches once the crop has loaded. Default every test to "no scans"
+    // so pre-existing assertions (written before Task 12) don't need to
+    // know about it at all.
+    vi.mocked(fetchScanHistory).mockResolvedValue({ count: 0, next: null, previous: null, results: [] });
   });
 
   it("loads and displays full crop detail including nested lifecycle/fertilizer/organic data", async () => {
@@ -276,6 +307,16 @@ describe("CropDetailPage", () => {
           otherActivityNote: "",
           note: "Sprayed neem oil",
           photoFile: null,
+          // Task 11 -- nothing typed into any of the now-visible dynamic
+          // fields (Irrigation shows Duration/Quantity/Unit, Spraying
+          // shows Product name, and Cost is visible for any checked
+          // type), so all six are sent as "".
+          durationMinutes: "",
+          quantity: "",
+          quantityUnit: "",
+          productName: "",
+          costAmount: "",
+          harvestQualityNote: "",
         });
       });
       // The saved entry replaces the prior (empty) state for today rather
@@ -426,6 +467,177 @@ describe("CropDetailPage", () => {
       renderWithRoute("1");
 
       expect(await screen.findByText(/no diary entries yet/i)).toBeInTheDocument();
+    });
+
+    // Final-review fix (F8) -- Task 10 added six optional detail fields
+    // (duration_minutes, quantity, quantity_unit, product_name, cost_amount,
+    // harvest_quality_note) that the diary form (Task 11, see "Dynamic
+    // diary fields" below) lets a farmer capture, but nothing rendered
+    // them back once an entry became part of the historical timeline --
+    // they were saved but silently invisible again after midnight. A
+    // historical entry with all six populated must show all six values.
+    it("shows the Task 10 detail fields (duration/quantity/product/cost/harvest note) on a past entry", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 1, tracker: 7, entry_date: "2026-10-18",
+          did_irrigation: true, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "", photo: null,
+          photo_diagnosis_label: "", ai_analysis: "", ai_analysis_status: "unavailable",
+          duration_minutes: 45, quantity: "12.50", quantity_unit: "liters",
+          product_name: "NeemGuard", cost_amount: "350.00",
+          harvest_quality_note: "Good size, minor blemishes",
+        },
+      ]);
+      renderWithRoute("1");
+
+      await screen.findByText(/NeemGuard/);
+      expect(screen.getByText(/45/)).toBeInTheDocument();
+      expect(screen.getByText(/12\.5.*liters/)).toBeInTheDocument();
+      expect(screen.getByText(/NeemGuard/)).toBeInTheDocument();
+      expect(screen.getByText(/350/)).toBeInTheDocument();
+      expect(screen.getByText(/Good size, minor blemishes/)).toBeInTheDocument();
+    });
+
+    it("renders none of the Task 10 detail fields when they're absent on a past entry", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([
+        {
+          id: 1, tracker: 7, entry_date: "2026-10-18",
+          did_irrigation: true, did_fertilizer: false, did_spraying: false, did_pruning: false,
+          other_activity_note: "", note: "Plain entry", photo: null,
+          photo_diagnosis_label: "", ai_analysis: "", ai_analysis_status: "unavailable",
+          duration_minutes: null, quantity: null, quantity_unit: "",
+          product_name: "", cost_amount: null, harvest_quality_note: "",
+        },
+      ]);
+      renderWithRoute("1");
+
+      await screen.findByText("Plain entry");
+      expect(screen.queryByText(/NeemGuard/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Dynamic diary fields (Task 11)", () => {
+    // Task 10 added six optional fields to FarmingDiaryEntry
+    // (duration_minutes/quantity/quantity_unit/product_name/cost_amount/
+    // harvest_quality_note). This page shows the relevant subset of them
+    // based on which activity checkbox is ticked (spec 7.3) -- "treatment"
+    // maps onto the did_spraying checkbox and "harvest" onto did_pruning,
+    // since the model has no did_treatment/did_harvest flag (see
+    // task-11-report.md).
+    const mockTracker = {
+      id: 7, crop: 1, planting_date: "2026-08-01",
+      current_stage: { id: 2, name: "Flowering" }, stage_confirmed_at: "2026-10-01", is_active: true,
+    };
+
+    beforeEach(() => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockRiceCrop);
+      vi.mocked(fetchTrackers).mockResolvedValue([mockTracker]);
+      vi.mocked(fetchDiaryEntries).mockResolvedValue([]);
+    });
+
+    it("reveals Irrigation's own field group, distinct from Fertilizer's group", async () => {
+      renderWithRoute("1");
+
+      // Nothing checked yet -- none of the dynamic fields exist.
+      expect(screen.queryByLabelText(/duration \(minutes\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/product name/i)).not.toBeInTheDocument();
+
+      await userEvent.click(await screen.findByRole("checkbox", { name: /irrigation/i }));
+
+      expect(screen.getByLabelText(/duration \(minutes\)/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^quantity$/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^unit$/i)).toBeInTheDocument();
+      // Fertilizer's own field (Product name) must NOT appear from
+      // Irrigation alone -- it's a different group.
+      expect(screen.queryByLabelText(/product name/i)).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole("checkbox", { name: /fertilizer/i }));
+
+      expect(screen.getByLabelText(/product name/i)).toBeInTheDocument();
+      // Quantity/Unit are shared by both Irrigation and Fertilizer in the
+      // spec's own mapping -- still exactly one of each, never duplicated.
+      expect(screen.getAllByLabelText(/^quantity$/i)).toHaveLength(1);
+      expect(screen.getAllByLabelText(/^unit$/i)).toHaveLength(1);
+    });
+
+    it("shows a single Cost field for any checked activity type, never duplicated per type", async () => {
+      renderWithRoute("1");
+
+      expect(screen.queryByLabelText(/^cost$/i)).not.toBeInTheDocument();
+
+      await userEvent.click(await screen.findByRole("checkbox", { name: /irrigation/i }));
+      expect(screen.getAllByLabelText(/^cost$/i)).toHaveLength(1);
+
+      await userEvent.click(screen.getByRole("checkbox", { name: /spraying/i }));
+      expect(screen.getAllByLabelText(/^cost$/i)).toHaveLength(1);
+    });
+
+    it("hides a field group on uncheck and never submits its stale typed value", async () => {
+      renderWithRoute("1");
+
+      await userEvent.click(await screen.findByRole("checkbox", { name: /irrigation/i }));
+      await userEvent.type(screen.getByLabelText(/duration \(minutes\)/i), "45");
+      await userEvent.type(screen.getByLabelText(/^quantity$/i), "10");
+      await userEvent.type(screen.getByLabelText(/^unit$/i), "liters");
+
+      // Unchecking Irrigation hides its fields immediately...
+      await userEvent.click(screen.getByRole("checkbox", { name: /irrigation/i }));
+      expect(screen.queryByLabelText(/duration \(minutes\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/^quantity$/i)).not.toBeInTheDocument();
+
+      vi.mocked(saveDiaryEntry).mockResolvedValue({
+        id: 9, entry_date: new Date().toLocaleDateString("en-CA"),
+      });
+      await userEvent.click(screen.getByRole("button", { name: /save entry/i }));
+
+      // ...and the "45"/"10"/"liters" typed before unchecking must never
+      // reach the API -- the stale values are stripped, not silently sent.
+      await waitFor(() => {
+        expect(saveDiaryEntry).toHaveBeenCalledWith(7, expect.objectContaining({
+          durationMinutes: "",
+          quantity: "",
+          quantityUnit: "",
+        }));
+      });
+    });
+  });
+
+  describe("Recent scans for this crop (Task 12)", () => {
+    it("shows a mini-list of recent scans, each as a .list-row, with a link to the full crop-filtered history", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockCropDetail);
+      vi.mocked(fetchScanHistory).mockResolvedValue({
+        count: 2,
+        next: null,
+        previous: null,
+        results: [
+          { id: 9, image: null, disease_name: "Rice Blast", crop_name: "Tomato", confidence: 0.8, created_at: "2026-10-01T00:00:00Z" },
+          { id: 8, image: null, disease_name: null, crop_name: "Tomato", confidence: null, created_at: "2026-09-20T00:00:00Z" },
+        ],
+      });
+      const { container } = renderWithRoute("1");
+
+      await screen.findByText(/recent scans/i);
+      expect(fetchScanHistory).toHaveBeenCalledWith(1, "1");
+      expect(container.querySelectorAll(".list-row")).toHaveLength(2);
+      expect(screen.getByText("Rice Blast")).toBeInTheDocument();
+
+      const viewAllLink = screen.getByRole("link", { name: /view all/i });
+      expect(viewAllLink).toHaveAttribute("href", "/scan/history?crop=1");
+    });
+
+    it("does not render the Recent scans section when the crop has no scans yet", async () => {
+      cropsApi.fetchCropDetail.mockResolvedValue(mockCropDetail);
+      vi.mocked(fetchScanHistory).mockResolvedValue({ count: 0, next: null, previous: null, results: [] });
+      renderWithRoute("1");
+
+      await waitFor(() => {
+        expect(fetchScanHistory).toHaveBeenCalled();
+      });
+      expect(screen.queryByText(/recent scans/i)).not.toBeInTheDocument();
     });
   });
 });

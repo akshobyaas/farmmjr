@@ -1,0 +1,38 @@
+/* Task 19 -- Onboarding Welcome screen. Reuses .auth-page/.auth-card/
+   .auth-logo/.auth-title/.auth-subtitle/.btn-primary from shared.css (the
+   same full-screen centered-card shape as Login/Register) so this one-time
+   screen looks like it belongs to the same app, not a bolted-on extra. This
+   module only adds the few things those shared classes don't cover: the
+   body copy, and the secondary "Skip for now" action. */
+
+.welcome-body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+.welcome-skip {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.welcome-skip:hover:not(:disabled) {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.welcome-skip:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

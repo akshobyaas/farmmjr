@@ -27,24 +27,45 @@ export default function VideosPage() {
       <AppHeader title={t("videos.title")} className="videos-header" />
 
       <main className="app-main">
-        <form className={styles["videos-search-form"]} onSubmit={handleSubmit}>
-          <div className={`field-box ${styles["videos-query-field"]}`}>
-            <label htmlFor="videos-query" className="field-box-label">
-              {t("videos.queryLabel")}
-            </label>
+        {/* Search card restyle -- same merged pill-shaped bar + circular
+            icon-only submit button as LocatorPage's/WeatherPage's own
+            search-card/search-pill, instead of the old boxed-label
+            field-box beside a separate rectangular Search button. The
+            field's accessible label moves to a visually-hidden <label>
+            (shared.css's .sr-only), same as Locator/Weather. */}
+        <div className={styles["search-card"]}>
+          <label htmlFor="videos-query" className="sr-only">
+            {t("videos.queryLabel")}
+          </label>
+          <form className={styles["search-pill"]} onSubmit={handleSubmit}>
             <input
               id="videos-query"
               type="text"
               placeholder={t("videos.queryPlaceholder")}
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
-              className="field-box-input"
+              className={styles["search-pill-input"]}
             />
-          </div>
-          <button type="submit" className="btn-primary" disabled={loading || !queryInput.trim()}>
-            {t("common.search")}
-          </button>
-        </form>
+            {queryInput && (
+              <button
+                type="button"
+                className={styles["search-clear-btn"]}
+                onClick={() => setQueryInput("")}
+                aria-label={t("common.clear")}
+              >
+                <Icon name="close" size={14} />
+              </button>
+            )}
+            <button
+              type="submit"
+              className={styles["search-pill-submit"]}
+              disabled={loading || !queryInput.trim()}
+              aria-label={t("common.search")}
+            >
+              <Icon name="search" size={18} />
+            </button>
+          </form>
+        </div>
 
         {loading && <p className="status-message">{t("videos.loading")}</p>}
         {error && <p className="form-error" role="alert">{error}</p>}

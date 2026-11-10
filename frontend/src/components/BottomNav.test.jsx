@@ -14,7 +14,7 @@ function renderAt(path) {
 describe("BottomNav", () => {
   it("renders all five sections as links with large, labeled tap targets", () => {
     renderAt("/dashboard");
-    ["Home", "Crops", "Scan", "Weather", "Profile"].forEach((label) => {
+    ["Home", "My Farm", "Scan", "Weather", "Profile"].forEach((label) => {
       expect(screen.getByRole("link", { name: new RegExp(label, "i") })).toBeInTheDocument();
     });
   });
@@ -30,7 +30,7 @@ describe("BottomNav", () => {
 
   it("keeps the Crops tab active on a crop's detail page, not just the list", () => {
     renderAt("/crops/42");
-    expect(screen.getByRole("link", { name: /crops/i })).toHaveClass("active");
+    expect(screen.getByRole("link", { name: /my farm/i })).toHaveClass("active");
   });
 
   it("does not mark Home active on nested routes -- only on the dashboard itself", () => {

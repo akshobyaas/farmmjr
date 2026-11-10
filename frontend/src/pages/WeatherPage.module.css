@@ -115,7 +115,7 @@
   background: var(--color-primary);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.28);
+  box-shadow: 0 4px 14px rgba(36, 92, 58, 0.28);
 }
 .search-pill-submit:disabled {
   background: var(--color-primary-light);
@@ -312,7 +312,7 @@
 .hourly-chip-current {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px rgba(47, 158, 68, 0.2), 0 10px 22px rgba(47, 158, 68, 0.3);
+  box-shadow: 0 0 0 1px rgba(36, 92, 58, 0.2), 0 10px 22px rgba(36, 92, 58, 0.3);
 }
 .hourly-chip-current .hourly-time,
 .hourly-chip-current .hourly-temp {

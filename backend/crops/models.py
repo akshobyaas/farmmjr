@@ -167,6 +167,21 @@ class FarmingDiaryEntry(models.Model):
     ai_analysis_status = models.CharField(
         max_length=20, choices=AnalysisStatus.choices, default=AnalysisStatus.UNAVAILABLE,
     )
+    # Task 10 -- optional activity-specific detail fields (UI redesign). All
+    # six are nullable/blank with no explicit default beyond what Django
+    # already supplies for a nullable/blank field (None for the numeric
+    # fields, "" for the CharFields), so existing rows created before this
+    # migration load with safe defaults rather than erroring. Task 11
+    # (frontend) is what actually reads/writes these day to day -- an
+    # irrigation/fertilizer/spraying entry's duration and quantity, an
+    # optional product name and cost for a purchased input, and a free-text
+    # note on harvest quality.
+    duration_minutes = models.IntegerField(null=True, blank=True)
+    quantity = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    quantity_unit = models.CharField(max_length=20, blank=True)
+    product_name = models.CharField(max_length=150, blank=True)
+    cost_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    harvest_quality_note = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -221,6 +236,25 @@ class CropTask(models.Model):
 
     def __str__(self):
         return f"{self.crop.name} — {self.stage.name}: {self.get_category_display()}"
+
+
+# Records that a farmer's tracker has completed a given CropTask. Task 14's
+# toggle endpoint creates/deletes these rows (get_or_create for POST, so a
+# second POST is idempotent rather than erroring on the unique constraint
+# below); Task 13 only defines the model itself. Kept as its own completion
+# table rather than a boolean on CropTask so completion is scoped per
+# tracker -- the same CropTask is shared across every farmer growing that
+# crop, and one farmer's progress must never mark it done for another's.
+class CropTaskCompletion(models.Model):
+    tracker = models.ForeignKey(FarmerCropTracker, on_delete=models.CASCADE, related_name="task_completions")
+    task = models.ForeignKey(CropTask, on_delete=models.CASCADE, related_name="completions")
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("tracker", "task")
+
+    def __str__(self):
+        return f"{self.tracker} — {self.task} (completed)"
 
 
 class OrganicManureMethod(models.Model):

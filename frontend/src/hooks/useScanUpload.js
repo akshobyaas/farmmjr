@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { uploadScan } from "../api/scans";
+import { useActiveTrackerForCrop } from "./useActiveTrackerForCrop";
+import { useSaveScanToDiary } from "./useSaveScanToDiary";
 
 // Server-side validation (scans/serializers.py) enforces the real limits;
 // this is just a fast, friendly client-side check so a farmer doesn't wait
@@ -100,6 +102,13 @@ export function useScanUpload() {
     setError("");
   };
 
+  // Task 9 -- "Save to Diary" button. Only shown when the farmer has an
+  // active tracker for the crop this scan predicted; the scan and the save
+  // both happen the same day, so (unlike ScanHistoryDetailPage) there's no
+  // date-naming subtlety to the confirmation copy here.
+  const activeTracker = useActiveTrackerForCrop(result?.scan?.predicted_disease?.crop_name);
+  const { status: diarySaveStatus, handleSaveToDiary } = useSaveScanToDiary(activeTracker, result?.scan?.id);
+
   return {
     file,
     previewUrl,
@@ -109,5 +118,8 @@ export function useScanUpload() {
     handleFileChange,
     handleSubmit,
     handleScanAnother,
+    activeTracker,
+    diarySaveStatus,
+    handleSaveToDiary,
   };
 }

@@ -1,11 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ScanHistoryPage from "./ScanHistoryPage";
 import * as scansApi from "../api/scans";
 
 vi.mock("../api/scans");
+
+// Task 12 fix round 1 -- same renderWithRoute(initialPath) pattern as
+// VideosPage.test.jsx, needed here so useSearchParams() inside the page
+// actually sees a ?crop= query string from the URL.
+function renderWithRoute(initialPath = "/scan/history") {
+  return render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <Routes>
+        <Route path="/scan/history" element={<ScanHistoryPage />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
 
 const scan1 = {
   id: 5,
@@ -120,6 +133,39 @@ describe("ScanHistoryPage", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/could not load your scan history/i);
+    });
+  });
+
+  describe("crop filter from the URL (Task 12 fix round 1)", () => {
+    // Regression test for the reviewed finding: CropDetailPage's "View all"
+    // link navigates to /scan/history?crop=<id>, but this page used to
+    // never read that param, so it silently rendered the farmer's entire
+    // unfiltered history instead of the crop-filtered one.
+    it("reads ?crop= from the URL and passes it through to the scan history fetch", async () => {
+      scansApi.fetchScanHistory.mockResolvedValue({ count: 0, next: null, previous: null, results: [] });
+
+      renderWithRoute("/scan/history?crop=5");
+
+      await waitFor(() => {
+        expect(scansApi.fetchScanHistory).toHaveBeenCalled();
+      });
+      // useSearchParams().get("crop") naturally yields a string, not a
+      // number -- asserting the real type rather than guessing.
+      expect(scansApi.fetchScanHistory).toHaveBeenCalledWith(1, "5");
+    });
+
+    it("fetches the unfiltered history (no crop arg) when there is no ?crop= param", async () => {
+      scansApi.fetchScanHistory.mockResolvedValue({ count: 0, next: null, previous: null, results: [] });
+
+      renderWithRoute("/scan/history");
+
+      await waitFor(() => {
+        expect(scansApi.fetchScanHistory).toHaveBeenCalled();
+      });
+      // No second argument at all here -- matching fetchScanHistory's own
+      // backward-compatible default (crop undefined -> dropped from the
+      // query string), same as every pre-existing call in this file.
+      expect(scansApi.fetchScanHistory).toHaveBeenCalledWith(1);
     });
   });
 });

@@ -36,6 +36,27 @@
   width: 100%;
   margin-top: 8px;
 }
+/* Task 11 -- Dynamic Diary Fields (spec 7.3). Wraps the activity-specific
+   .field-box groups (global shared.css pattern, same boxes FindAccountPage/
+   RegisterPage use) that appear/disappear based on which activity
+   checkbox is ticked. Only this wrapper's own spacing is page-specific --
+   each .field-box inside it already gets shared.css's "+ .field-box"
+   sibling margin, and the preceding element here is a checkbox label
+   (.form-checkbox-label, not .field-box), so that sibling rule doesn't
+   reach this wrapper's own top edge on its own. */
+.diary-dynamic-fields {
+  margin: 6px 0 14px;
+}
+/* Task 12 -- "Recent scans for this crop". Items are plain shared.css
+   .list-row elements (same as ScanHistoryPage) -- this wrapper only
+   stacks them with a small gap, same spacing convention as
+   .diary-timeline below. */
+.recent-scans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
 /* ===== Crop Detail page redesign (same polish-pass language as Weather) =====
    Top info card -- a grouped icon-row list (list-row/daily-list shape:
    icon badge, hairline divider between rows) in place of the previous

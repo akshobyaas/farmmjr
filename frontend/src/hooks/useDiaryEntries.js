@@ -20,7 +20,55 @@ const emptyDiaryForm = {
   otherActivityNote: "",
   note: "",
   photoFile: null,
+  // Task 11 -- Dynamic Diary Fields (UI redesign spec 7.3). Kept as
+  // strings (not numbers) even for the numeric model fields
+  // (duration_minutes/quantity/cost_amount) so a <input type="number">
+  // can stay a fully controlled component through an empty value -- the
+  // conversion to "send as empty => backend stores null" happens for free
+  // over multipart FormData (see api/diary.js), no parseFloat needed here.
+  durationMinutes: "",
+  quantity: "",
+  quantityUnit: "",
+  productName: "",
+  costAmount: "",
+  harvestQualityNote: "",
 };
+
+// Task 11 -- which of the six Task 10 fields the diary form should show,
+// given the CURRENT checked activity boxes. Centralized here (not
+// duplicated in CropDetailPage.jsx) because both the page (what to
+// render) and handleDiarySubmit below (what to actually send) need the
+// exact same answer.
+//
+// The design spec (UI_REDESIGN_DESIGN.md 7.3) maps these onto four
+// conceptual activity types -- irrigation, fertilizer, "treatment" and
+// "harvest" -- but FarmingDiaryEntry (Task 10) only has the four
+// pre-existing boolean flags: did_irrigation/did_fertilizer/did_spraying/
+// did_pruning. There is no did_treatment or did_harvest. Spraying
+// (applying a pesticide/fungicide) is the closest fit for "treatment";
+// pruning is the one remaining flag and stands in for "harvest" (see
+// task-11-report.md for the full reasoning -- this is a judgment call,
+// not something confirmed against a did_harvest/did_treatment field that
+// doesn't exist).
+//
+// Several fields are deliberately shared across more than one type in
+// the spec itself (quantity/quantity_unit cover irrigation, fertilizer
+// AND harvest; product_name covers fertilizer AND treatment; cost_amount
+// is explicitly "available for any checked type"). Each field here is
+// therefore an OR across every type that uses it, so a farmer who ticks
+// two overlapping types (e.g. Irrigation + Fertilizer) sees ONE Quantity
+// box, never two -- same non-duplication rule the brief calls out for
+// cost_amount, applied uniformly to every shared field rather than just
+// that one.
+export function getDiaryFieldVisibility(form) {
+  return {
+    showDuration: form.didIrrigation,
+    showQuantity: form.didIrrigation || form.didFertilizer || form.didPruning,
+    showProductName: form.didFertilizer || form.didSpraying,
+    showCost: form.didIrrigation || form.didFertilizer || form.didSpraying || form.didPruning,
+    showHarvestNote: form.didPruning,
+  };
+}
 
 export function useDiaryEntries(tracker) {
   const { t } = useTranslation();
@@ -46,6 +94,16 @@ export function useDiaryEntries(tracker) {
         otherActivityNote: todayEntry.other_activity_note || "",
         note: todayEntry.note || "",
         photoFile: null,
+        // Task 11 -- prefilled from whatever was actually saved,
+        // regardless of today's checkbox state: if the farmer re-ticks
+        // Irrigation later on the same visit, the field group that
+        // reappears shows the value already on file instead of a blank.
+        durationMinutes: todayEntry.duration_minutes != null ? String(todayEntry.duration_minutes) : "",
+        quantity: todayEntry.quantity != null ? String(todayEntry.quantity) : "",
+        quantityUnit: todayEntry.quantity_unit || "",
+        productName: todayEntry.product_name || "",
+        costAmount: todayEntry.cost_amount != null ? String(todayEntry.cost_amount) : "",
+        harvestQualityNote: todayEntry.harvest_quality_note || "",
       });
     } else {
       setDiaryForm(emptyDiaryForm);
@@ -75,6 +133,16 @@ export function useDiaryEntries(tracker) {
     setDiaryError("");
     setDiarySubmitting(true);
     try {
+      // Task 11 -- strip-at-submit: whatever is typed into a now-hidden
+      // field group (e.g. a Duration the farmer typed before unchecking
+      // Irrigation) is replaced with "" here, using the SAME visibility
+      // this render pass used to decide what to show -- so a stale value
+      // sitting in React state from before an uncheck is never silently
+      // sent. "" (not omitted) is sent deliberately, same as
+      // otherActivityNote just below: it's what actually clears an
+      // already-saved same-day value on the backend's merge path, not
+      // just "don't resend the new unsaved one."
+      const visibility = getDiaryFieldVisibility(diaryForm);
       const saved = await saveDiaryEntry(tracker.id, {
         didIrrigation: diaryForm.didIrrigation,
         didFertilizer: diaryForm.didFertilizer,
@@ -83,6 +151,12 @@ export function useDiaryEntries(tracker) {
         otherActivityNote: diaryForm.didOther ? diaryForm.otherActivityNote : "",
         note: diaryForm.note,
         photoFile: diaryForm.photoFile,
+        durationMinutes: visibility.showDuration ? diaryForm.durationMinutes : "",
+        quantity: visibility.showQuantity ? diaryForm.quantity : "",
+        quantityUnit: visibility.showQuantity ? diaryForm.quantityUnit : "",
+        productName: visibility.showProductName ? diaryForm.productName : "",
+        costAmount: visibility.showCost ? diaryForm.costAmount : "",
+        harvestQualityNote: visibility.showHarvestNote ? diaryForm.harvestQualityNote : "",
       });
       const updatedEntries = [
         saved,

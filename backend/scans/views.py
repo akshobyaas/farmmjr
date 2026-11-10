@@ -77,10 +77,23 @@ class ScanHistoryListView(generics.ListAPIView):
     pagination_class = ScanHistoryPagination
 
     def get_queryset(self):
-        return (
+        queryset = (
             ScanHistory.objects.filter(user=self.request.user)
             .select_related("predicted_disease", "predicted_disease__crop")
         )
+        # `?crop=<id>` (Phase 12 Crop Detail link-out) is a refinement
+        # param, not a required one like the diary's `?tracker=` --
+        # missing or non-int just falls back to the unfiltered list
+        # rather than a 400.
+        crop_param = self.request.query_params.get("crop")
+        if crop_param is not None:
+            try:
+                crop_id = int(crop_param)
+            except (TypeError, ValueError):
+                crop_id = None
+            if crop_id is not None:
+                queryset = queryset.filter(predicted_disease__crop_id=crop_id)
+        return queryset
 
 
 class ScanHistoryDetailView(generics.RetrieveAPIView):

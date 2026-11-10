@@ -38,7 +38,11 @@ describe("Phase 18 — language switching (UI chrome)", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("Crop Guidance")).toBeInTheDocument();
+    // "My Farm" now appears twice on this page -- once as the bottom
+    // nav's label (nav.crops) and once as the dashboard quick-link's
+    // label (dashboard.links.crops) -- since Task 6 gave them the same
+    // English value, so this asserts both are present rather than one.
+    expect(screen.getAllByText("My Farm")).toHaveLength(2);
     expect(screen.getByText("Log Out")).toBeInTheDocument();
   });
 
@@ -55,7 +59,8 @@ describe("Phase 18 — language switching (UI chrome)", () => {
       await i18n.changeLanguage("kn");
     });
 
-    expect(screen.getByText("ಬೆಳೆ ಮಾರ್ಗದರ್ಶನ")).toBeInTheDocument();
+    // Same dual-occurrence note as the English test above.
+    expect(screen.getAllByText("ನನ್ನ ಹೊಲ")).toHaveLength(2);
     expect(screen.getByText("ಲಾಗ್ ಔಟ್")).toBeInTheDocument();
   });
 
@@ -72,7 +77,8 @@ describe("Phase 18 — language switching (UI chrome)", () => {
       await i18n.changeLanguage("hi");
     });
 
-    expect(screen.getByText("फसल मार्गदर्शन")).toBeInTheDocument();
+    // Same dual-occurrence note as the English test above.
+    expect(screen.getAllByText("मेरा खेत")).toHaveLength(2);
     expect(screen.getByText("लॉग आउट")).toBeInTheDocument();
   });
 
@@ -105,7 +111,8 @@ describe("Phase 18 — language switching (UI chrome)", () => {
       await i18n.changeLanguage("fr");
     });
 
-    expect(screen.getByText("Crop Guidance")).toBeInTheDocument();
+    // Same dual-occurrence note as the English test above.
+    expect(screen.getAllByText("My Farm")).toHaveLength(2);
     expect(screen.queryByText("dashboard.links.crops")).not.toBeInTheDocument();
   });
 });

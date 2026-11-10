@@ -1,0 +1,90 @@
+/* Task 15 -- Tasks page (Today/Upcoming/Completed). Tab pills reuse the
+   shared .chip pill shape (shared.css) the way AdvisoryPage's admin
+   filter tabs already prove out, just promoted to the real shared class
+   instead of that page's own bespoke .advisory-toggle-btn -- this module
+   only adds the active-state override and button resets .chip itself
+   doesn't carry (it's normally a static <span>, not a <button>). */
+.tasks-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tasks-tabs {
+  display: flex;
+  gap: 8px;
+}
+.tasks-tab {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+.tasks-tab-active {
+  background: var(--color-primary);
+  color: #fff;
+}
+.tasks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* .list-row (shared.css) is a flex row shaped for an icon + title/
+   subtitle; here its first child is a checkbox instead of an icon badge,
+   so the whole row is wrapped in a <label> -- tapping anywhere on the row
+   (not just the small checkbox hit-area) toggles it, which matters for
+   this app's target audience (UI_REDESIGN_DESIGN.md's elderly/non-tech-
+   savvy farmer persona) the same way BottomNav's large tap targets do. */
+.tasks-row {
+  cursor: pointer;
+  /* Make the row grow to fit, not shrink to fit -- align-items: center
+     (inherited from .list-row) otherwise vertically centers a short
+     one-line row, which looks odd once the override below lets a long
+     instruction wrap to several lines. */
+  align-items: flex-start;
+}
+/* .list-row-title (shared.css) is built for a short single-line title
+   (overflow: hidden; white-space: nowrap; text-overflow: ellipsis) -- the
+   right fit for a disease name or a scan date, but CropTask.instruction
+   is often a full multi-sentence advisory (see seed_demo_data.py's
+   CROP_TASK_DEFS), so that global rule would silently truncate most real
+   task text to one line. The descendant selector here (specificity 0,2,0)
+   reliably wins over the plain .list-row-title rule (0,1,0) regardless of
+   stylesheet load order, restoring normal multi-line wrapping just for
+   task rows -- without touching list-row-title's behavior anywhere else
+   that still wants the one-line truncation (ScanHistoryPage, VideosPage,
+   LocatorPage, CropListPage).  */
+.tasks-row :global(.list-row-title) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.4;
+}
+.tasks-checkbox {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.tasks-category {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+/* Completed vs pending must stay visibly distinct at a glance (user
+   feedback: "keep upcoming and completed easy to distinguish") -- a
+   muted/tinted row plus struck-through instruction text, on top of the
+   checkbox's own checked state, so the difference reads even without
+   looking closely at the checkbox itself. */
+.tasks-row-completed {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+.tasks-instruction-done {
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}

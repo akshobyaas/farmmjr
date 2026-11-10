@@ -23,6 +23,8 @@
     "roleAdmin": "Admin",
     "quickActionsTitle": "Quick Actions",
     "tasksCardTitle": "Today's Tasks",
+    "tasksViewAll": "View all",
+    "tasksEmpty": "No tasks due today.",
     "highlights": {
       "weatherTitle": "Today's Weather",
       "weatherDesc": "See current conditions for your area",
@@ -44,8 +46,8 @@
     "links": {
       "profile": "My Profile",
       "profileDesc": "Update your details and preferences",
-      "crops": "Crop Guidance",
-      "cropsDesc": "Soil, climate & lifecycle guidance",
+      "crops": "My Farm",
+      "cropsDesc": "Track your crops and growth stages",
       "scan": "Scan a Crop",
       "scanDesc": "Detect crop diseases instantly",
       "scanHistory": "Scan History",
@@ -102,6 +104,14 @@
     "lastName": "Last Name",
     "phoneNumber": "Phone Number",
     "homeLocation": "Home Location",
+    "areaUnit": "Area Unit",
+    "weightUnit": "Weight Unit",
+    "units": {
+      "acre": "Acres",
+      "hectare": "Hectares",
+      "kg": "Kilograms",
+      "tonne": "Tonnes"
+    },
     "emailNote": "Email ({{email}}) cannot be changed here.",
     "deleteAccount": "Delete Account",
     "deleteAccountWarning": "This permanently deletes your account and all your data. This cannot be undone.",
@@ -111,7 +121,7 @@
     "cancel": "Cancel"
   },
   "crops": {
-    "title": "Crop Guidance",
+    "title": "Your Farm",
     "searchPlaceholder": "Search crops (e.g. Tomato)",
     "searchButton": "Search",
     "loadingCrops": "Loading crops…",
@@ -122,6 +132,11 @@
     "watchVideos": "Watch related videos about {{name}}",
     "grownWithTitle": "Grown With",
     "grownWithIntro": "This region traditionally grows {{name}} alongside:",
+    "recentScans": {
+      "sectionTitle": "Recent scans for this crop",
+      "viewAllLink": "View all"
+    },
+    "cropHealthLink": "View Crop Health",
     "lifecycleTitle": "Lifecycle",
     "fertilizerTitle": "Fertilizer & Irrigation",
     "organicTitle": "Organic Manure Methods",
@@ -153,6 +168,13 @@
       "otherNotePlaceholder": "Briefly describe what else you did",
       "notePlaceholder": "Any notes about today? (optional)",
       "photoLabel": "Photo (optional)",
+      "durationMinutesLabel": "Duration (minutes)",
+      "quantityLabel": "Quantity",
+      "quantityUnitLabel": "Unit",
+      "quantityUnitPlaceholder": "e.g. liters, kg",
+      "productNameLabel": "Product name",
+      "costAmountLabel": "Cost",
+      "harvestQualityNoteLabel": "Notes on this activity",
       "submitButton": "Save Entry",
       "saveError": "Could not save your diary entry. Please try again.",
       "timelineTitle": "Past Entries",
@@ -164,7 +186,7 @@
   "nav": {
     "label": "Main navigation",
     "home": "Home",
-    "crops": "Crops",
+    "crops": "My Farm",
     "scan": "Scan",
     "weather": "Weather",
     "profile": "Profile"
@@ -192,7 +214,7 @@
   },
   "chatbot": {
     "title": "Chatbot",
-    "greeting": "Hi! Ask me about scanning crops, weather, crop guidance, learning videos, or nearby agri services.",
+    "greeting": "Hi! Ask me about scanning crops, weather, your farm, learning videos, or nearby agri services.",
     "thinking": "Thinking…",
     "connectionError": "Could not reach the server. Please check your connection and try again.",
     "inputLabel": "Type a message",
@@ -253,7 +275,12 @@
     "detailLoading": "Loading scan…",
     "predictionUnavailableDetail": "Prediction unavailable for this scan.",
     "lowConfidenceWarning": "We're not very sure about this one. An expert can help confirm it.",
-    "lowConfidenceQuestionPrefill": "My crop scan predicted {{disease}} but with only {{pct}}% confidence. Can you help confirm what's wrong?"
+    "lowConfidenceQuestionPrefill": "My crop scan predicted {{disease}} but with only {{pct}}% confidence. Can you help confirm what's wrong?",
+    "saveToDiaryButton": "Save to Diary",
+    "savingToDiary": "Saving…",
+    "savedToDiary": "Added to today's diary.",
+    "savedToDiaryWithDate": "Added to today's diary — photo from {{date}}.",
+    "saveToDiaryError": "Could not save to your diary. Please try again."
   },
   "videos": {
     "title": "Learning Videos",
@@ -278,5 +305,42 @@
     "introBody": "Search a place to see the forecast and field conditions.",
     "recentLabel": "Recent searches",
     "useMyLocation": "Use My Location"
+  },
+  "tasks": {
+    "title": "My Tasks",
+    "tabToday": "Today",
+    "tabUpcoming": "Upcoming",
+    "tabCompleted": "Completed",
+    "loadError": "Could not load your tasks. Please try again.",
+    "toggleError": "Could not update that task. Please try again.",
+    "emptyToday": "No tasks for today.",
+    "emptyUpcoming": "No upcoming tasks yet.",
+    "emptyCompleted": "You haven't completed any tasks yet."
+  },
+  "welcome": {
+    "title": "Welcome to Smart Farming!",
+    "body": "Let's get your first crop set up so we can start tracking its growth stages, reminders, and health together.",
+    "getStarted": "Get Started",
+    "skip": "Skip for now",
+    "startError": "Could not start onboarding. Please try again.",
+    "skipError": "Could not skip onboarding. Please try again."
+  },
+  "cropHealth": {
+    "title": "Crop Health",
+    "demoBadge": "Demo indicator",
+    "demoNote": "This status is a simple built-in signal from your scans and alerts for this demo app, not a professionally validated diagnosis.",
+    "statusLevel": {
+      "good": "No disease detected",
+      "watch": "Worth watching",
+      "concern": "Needs attention",
+      "unknown": "Not enough data yet"
+    },
+    "activeRiskAlert": "Active weather risk alert: {{disease}}",
+    "latestScanTitle": "Latest scan",
+    "noScanMessage": "No scan yet for this crop. Scan a leaf to see a status here.",
+    "scanHistoryTitle": "Scan history",
+    "diaryTitle": "Relevant diary entries",
+    "noDiaryEntries": "No diary entries yet for this crop.",
+    "backToCrop": "Back to Crop Detail"
   }
 }

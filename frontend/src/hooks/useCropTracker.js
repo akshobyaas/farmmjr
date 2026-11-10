@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { fetchTrackers, createTracker, updateTracker } from "../api/cropTracker";
+import { useAuth } from "../context/AuthContext";
 
 // Extracted from CropDetailPage.jsx's tracker state/effect/handlers (Task 6
 // of the USP crop-tracker feature), as part of the frontend structure
@@ -29,6 +30,7 @@ import { fetchTrackers, createTracker, updateTracker } from "../api/cropTracker"
 // "does not re-fetch trackers when only the UI language changes" test.
 export function useCropTracker(cropId) {
   const { t } = useTranslation();
+  const { user, updateProfile } = useAuth();
 
   const [tracker, setTracker] = useState(null);
   const [showTrackerForm, setShowTrackerForm] = useState(false);
@@ -69,6 +71,10 @@ export function useCropTracker(cropId) {
     e.preventDefault();
     setTrackerError("");
     setTrackerSubmitting(true);
+    // Captured before the awaits below so it reflects whether this call is
+    // creating a brand-new tracker vs. updating an existing one, regardless
+    // of what `tracker` state becomes afterwards.
+    const isCreatingNewTracker = !tracker;
     try {
       let saved;
       if (tracker) {
@@ -83,6 +89,18 @@ export function useCropTracker(cropId) {
       }
       setTracker(saved);
       setShowTrackerForm(false);
+
+      // Fix round 1 (Task 19 review finding): a farmer is only left
+      // "in_progress" by WelcomePage's "Get Started" (see WelcomePage.jsx)
+      // until THIS -- actually creating a tracker -- happens. This must
+      // not fire for an update to an already-existing tracker (that is not
+      // the onboarding milestone), and must not fire for a farmer who is
+      // already "completed"/"skipped"/"not_started" (nothing to flip).
+      // Fire-and-forget: a failure here shouldn't undo the tracker that
+      // was just successfully created.
+      if (isCreatingNewTracker && user?.onboarding_status === "in_progress") {
+        updateProfile({ onboarding_status: "completed" }).catch(() => {});
+      }
     } catch (err) {
       const data = err.response?.data;
       if (data && typeof data === "object") {

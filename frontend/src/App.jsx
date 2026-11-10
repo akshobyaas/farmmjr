@@ -4,9 +4,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import WelcomePage from "./pages/WelcomePage";
 import ProfilePage from "./pages/ProfilePage";
 import CropListPage from "./pages/CropListPage";
 import CropDetailPage from "./pages/CropDetailPage";
+import CropHealthPage from "./pages/CropHealthPage";
 import ScanUploadPage from "./pages/ScanUploadPage";
 import ScanHistoryPage from "./pages/ScanHistoryPage";
 import ScanHistoryDetailPage from "./pages/ScanHistoryDetailPage";
@@ -15,6 +17,7 @@ import VideosPage from "./pages/VideosPage";
 import LocatorPage from "./pages/LocatorPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import AdvisoryPage from "./pages/AdvisoryPage";
+import TasksPage from "./pages/TasksPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import FindAccountPage from "./pages/FindAccountPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -44,6 +47,21 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Task 19 -- one-time onboarding Welcome screen. Wrapped in
+              ProtectedRoute like every other authenticated page (a
+              logged-out visitor should never see it), whose own
+              onboarding gate (see ProtectedRoute.jsx) is what actually
+              routes a not-yet-onboarded farmer here from any other
+              protected route -- this route exists so that redirect target
+              resolves to a real page instead of a 404. */}
+          <Route
+            path="/welcome"
+            element={
+              <ProtectedRoute>
+                <WelcomePage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/profile"
             element={
@@ -65,6 +83,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CropDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/crops/:id/health"
+            element={
+              <ProtectedRoute>
+                <CropHealthPage />
               </ProtectedRoute>
             }
           />
@@ -129,6 +155,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdvisoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <TasksPage />
               </ProtectedRoute>
             }
           />

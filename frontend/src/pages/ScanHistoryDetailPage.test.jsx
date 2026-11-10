@@ -1,10 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import ScanHistoryDetailPage from "./ScanHistoryDetailPage";
 import * as scansApi from "../api/scans";
+import * as cropsApi from "../api/crops";
+import * as cropTrackerApi from "../api/cropTracker";
+import * as diaryApi from "../api/diary";
 
 vi.mock("../api/scans");
+vi.mock("../api/crops");
+vi.mock("../api/cropTracker");
+vi.mock("../api/diary");
 
 const mockScan = {
   id: 5,
@@ -77,6 +84,58 @@ describe("ScanHistoryDetailPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/prediction unavailable for this scan/i)).toBeInTheDocument();
     });
+  });
+
+  it("shows a Save to Diary button for an active tracker's crop, and names the scan's OWN date in the confirmation (not today's)", async () => {
+    scansApi.fetchScanDetail.mockResolvedValue(mockScan); // created_at: 2026-09-10
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([{ id: 9, crop: 3, is_active: true }]);
+    diaryApi.saveDiaryEntry.mockResolvedValue({ id: 101 });
+
+    renderWithRoute("5");
+
+    const saveButton = await screen.findByRole("button", { name: /save to diary/i });
+    await userEvent.click(saveButton);
+
+    await waitFor(() => {
+      // Same call shape as ScanUploadPage -- still today's entry, just
+      // a different crop-side button triggering it.
+      expect(diaryApi.saveDiaryEntry).toHaveBeenCalledWith(9, { scanId: 5 });
+    });
+
+    // The confirmation must name the scan's OWN date (Sep 10, 2026), never
+    // implying the diary entry itself is backdated -- the backend always
+    // writes it under today regardless of this scan's date.
+    await waitFor(() => {
+      expect(screen.getByText(/Sep 10, 2026/)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/today/i)).toBeInTheDocument();
+  });
+
+  it("does not show a Save to Diary button when there is no active tracker for the scan's crop", async () => {
+    scansApi.fetchScanDetail.mockResolvedValue(mockScan);
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([]);
+
+    renderWithRoute("5");
+
+    await waitFor(() => {
+      expect(screen.getByText(/Brown Spot — Rice/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /save to diary/i })).not.toBeInTheDocument();
+  });
+
+  it("does not show a Save to Diary button when the matching tracker is inactive (is_active: false)", async () => {
+    scansApi.fetchScanDetail.mockResolvedValue(mockScan);
+    cropsApi.fetchCrops.mockResolvedValue([{ id: 3, name: "Rice" }]);
+    cropTrackerApi.fetchTrackers.mockResolvedValue([{ id: 9, crop: 3, is_active: false }]);
+
+    renderWithRoute("5");
+
+    await waitFor(() => {
+      expect(screen.getByText(/Brown Spot — Rice/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /save to diary/i })).not.toBeInTheDocument();
   });
 
   it("treats a 404 as 'not found' without leaking whose scan it is", async () => {

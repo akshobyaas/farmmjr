@@ -39,7 +39,7 @@
 }
 .crop-search-submit:hover {
   background-color: var(--color-primary-dark);
-  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.32);
+  box-shadow: 0 4px 14px rgba(36, 92, 58, 0.32);
 }
 .crop-search-submit:active {
   transform: scale(0.97);

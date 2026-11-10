@@ -8,11 +8,12 @@ No test behavior changed -- same classes, same assertions, just regrouped.
 """
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from .models import Crop, CropStage, CropTask, FarmerCropTracker
+from .models import Crop, CropStage, CropTask, CropTaskCompletion, FarmerCropTracker
 
 User = get_user_model()
 
@@ -33,6 +34,31 @@ class CropTaskModelTests(TestCase):
         self.assertEqual(task.instruction, "Irrigate the nursery beds every second day.")
         self.assertEqual(task.source_citation, "ICAR-CPCRI Kasaragod crop advisory.")
         self.assertIn(task, stage.tasks.all())
+
+
+class CropTaskCompletionModelTests(TestCase):
+    """
+    Task 13 -- CropTaskCompletion records that a given tracker has completed
+    a given task. unique_together("tracker", "task") is what Task 14's
+    idempotent-POST toggle endpoint (get_or_create) will rely on to never
+    create duplicate completion rows for the same tracker/task pair.
+    """
+
+    def setUp(self):
+        self.crop = Crop.objects.create(name="Arecanut")
+        self.stage = CropStage.objects.create(crop=self.crop, name="Nursery", order=1)
+        self.task = CropTask.objects.create(
+            crop=self.crop, stage=self.stage, category="irrigation",
+            instruction="Irrigate the nursery beds every second day.",
+            source_citation="ICAR-CPCRI Kasaragod crop advisory.",
+        )
+        self.farmer = User.objects.create_user(username="completion_farmer", password="x")
+        self.tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.crop)
+
+    def test_completion_is_unique_per_tracker_and_task(self):
+        CropTaskCompletion.objects.create(tracker=self.tracker, task=self.task)
+        with self.assertRaises(IntegrityError):
+            CropTaskCompletion.objects.create(tracker=self.tracker, task=self.task)
 
 
 
@@ -107,7 +133,16 @@ class TodaysTasksViewTests(APITestCase):
         self.client.force_authenticate(self.farmer)
         response = self.client.get(self.url)
         task = response.data["tasks"][0]
-        self.assertEqual(set(task.keys()), {"id", "category", "instruction"})
+        # Task 13 -- "completed" added to CropTaskSerializer (defaults to
+        # False here since TodaysTasksView doesn't pass completion context
+        # yet; Task 14 wires the real per-tracker value).
+        # Final-review fix (F2) -- "crop" added so the frontend can resolve
+        # which of a multi-tracker farmer's trackers a given task actually
+        # belongs to, instead of guessing "the first active tracker" (see
+        # useTasks.js and task-15-report.md).
+        self.assertEqual(set(task.keys()), {"id", "category", "instruction", "completed", "crop"})
+        self.assertEqual(task["completed"], False)
+        self.assertEqual(task["crop"], self.rice.id)
 
     def test_tracker_with_no_current_stage_contributes_no_tasks(self):
         FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=None)
@@ -163,6 +198,26 @@ class TodaysTasksViewTests(APITestCase):
         instructions = {t["instruction"] for t in response.data["tasks"]}
         self.assertEqual(instructions, {"Rice task.", "Arecanut task."})
 
+    def test_a_completed_task_is_reported_completed_directly_from_this_endpoint(self):
+        # Final-review fix (F4) -- TodaysTasksView never passed a
+        # `completed_task_ids` context into CropTaskSerializer, so
+        # `completed` was always False here, even for a task the farmer
+        # had genuinely already marked done (the frontend used to paper
+        # over this with an extra request to /completed/ and a client-side
+        # merge -- see useTasks.js's old mergeCompletedOverride). It must
+        # now come back correctly from THIS endpoint directly.
+        self.tracker = FarmerCropTracker.objects.create(
+            farmer=self.farmer, crop=self.rice, current_stage=self.flowering
+        )
+        task = CropTask.objects.create(
+            crop=self.rice, stage=self.flowering, category="irrigation",
+            instruction="Irrigate every 3 days.", source_citation="x" * 20
+        )
+        CropTaskCompletion.objects.create(tracker=self.tracker, task=task)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.data["tasks"][0]["completed"], True)
+
     def test_multiple_trackers_do_not_cross_match_mismatched_crop_stage_pairs(self):
         """
         Regression test for a bug caught in self-review (no independent
@@ -203,3 +258,199 @@ class TodaysTasksViewTests(APITestCase):
         instructions = {t["instruction"] for t in response.data["tasks"]}
         self.assertEqual(instructions, {"Rice task.", "Arecanut task."})
         self.assertNotIn("MISMATCHED - must never appear.", instructions)
+
+
+class UpcomingTasksViewTests(APITestCase):
+    """
+    Task 14 -- GET /crops/tasks/upcoming/. Same reverse()-via-name and
+    force_authenticate pattern as TodaysTasksViewTests above.
+    """
+
+    def setUp(self):
+        self.rice = Crop.objects.create(name="Rice")
+        self.stage1 = CropStage.objects.create(crop=self.rice, name="Germination", order=1)
+        self.stage2 = CropStage.objects.create(crop=self.rice, name="Vegetative", order=2)
+        self.stage3 = CropStage.objects.create(crop=self.rice, name="Flowering", order=3)
+        self.stage4 = CropStage.objects.create(crop=self.rice, name="Harvest", order=4)
+        self.farmer = User.objects.create_user(username="upcoming_tasks_farmer", password="x")
+        self.url = reverse("upcoming-tasks")
+
+    def test_upcoming_tasks_excludes_current_and_past_stages(self):
+        # Tracker at stage 2 of 4 -- only stage 3+ tasks should come back.
+        FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=self.stage2)
+        CropTask.objects.create(
+            crop=self.rice, stage=self.stage1, category="irrigation",
+            instruction="Past stage task.", source_citation="x" * 20
+        )
+        CropTask.objects.create(
+            crop=self.rice, stage=self.stage2, category="irrigation",
+            instruction="Current stage task.", source_citation="x" * 20
+        )
+        CropTask.objects.create(
+            crop=self.rice, stage=self.stage3, category="irrigation",
+            instruction="Upcoming stage 3 task.", source_citation="x" * 20
+        )
+        CropTask.objects.create(
+            crop=self.rice, stage=self.stage4, category="spraying",
+            instruction="Upcoming stage 4 task.", source_citation="x" * 20
+        )
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instructions = {t["instruction"] for t in response.data["tasks"]}
+        self.assertEqual(instructions, {"Upcoming stage 3 task.", "Upcoming stage 4 task."})
+
+    def test_no_current_stage_contributes_no_upcoming_tasks(self):
+        FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=None)
+        CropTask.objects.create(
+            crop=self.rice, stage=self.stage4, category="irrigation",
+            instruction="Should not appear.", source_citation="x" * 20
+        )
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.data["tasks"], [])
+
+    def test_a_completed_task_is_reported_completed_directly_from_this_endpoint(self):
+        # Final-review fix (F4) -- same gap as TodaysTasksView: UpcomingTasksView
+        # never passed completion context either, so an upcoming task the
+        # farmer had already completed ahead of time still came back False
+        # directly from this endpoint.
+        tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=self.stage2)
+        task = CropTask.objects.create(
+            crop=self.rice, stage=self.stage3, category="irrigation",
+            instruction="Upcoming stage 3 task.", source_citation="x" * 20
+        )
+        CropTaskCompletion.objects.create(tracker=tracker, task=task)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.data["tasks"][0]["completed"], True)
+
+
+class CompletedTasksViewTests(APITestCase):
+    """
+    Task 14 -- GET /crops/tasks/completed/.
+    """
+
+    def setUp(self):
+        self.rice = Crop.objects.create(name="Rice")
+        self.stage = CropStage.objects.create(crop=self.rice, name="Flowering", order=1)
+        self.task_a = CropTask.objects.create(
+            crop=self.rice, stage=self.stage, category="irrigation",
+            instruction="Task A.", source_citation="x" * 20
+        )
+        self.task_b = CropTask.objects.create(
+            crop=self.rice, stage=self.stage, category="spraying",
+            instruction="Task B.", source_citation="x" * 20
+        )
+        self.farmer = User.objects.create_user(username="completed_tasks_farmer", password="x")
+        self.other_farmer = User.objects.create_user(username="completed_tasks_other_farmer", password="x")
+        self.tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=self.stage)
+        self.other_tracker = FarmerCropTracker.objects.create(
+            farmer=self.other_farmer, crop=self.rice, current_stage=self.stage
+        )
+        self.url = reverse("completed-tasks")
+
+    def test_completed_tasks_only_shows_this_trackers_completions(self):
+        # Two trackers (different farmers), two different completions --
+        # the authenticated farmer's /completed/ response must show only
+        # their own tracker's completion, never the other farmer's.
+        CropTaskCompletion.objects.create(tracker=self.tracker, task=self.task_a)
+        CropTaskCompletion.objects.create(tracker=self.other_tracker, task=self.task_b)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        instructions = {t["instruction"] for t in response.data["tasks"]}
+        self.assertEqual(instructions, {"Task A."})
+        for task in response.data["tasks"]:
+            self.assertTrue(task["completed"])
+
+    def test_no_completions_returns_empty_list_not_error(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["tasks"], [])
+
+
+class TaskCompletionToggleViewTests(APITestCase):
+    """
+    Task 14 -- POST/DELETE /crops/tasks/<task_id>/complete/?tracker=<id>.
+    """
+
+    def setUp(self):
+        self.rice = Crop.objects.create(name="Rice")
+        self.stage = CropStage.objects.create(crop=self.rice, name="Flowering", order=1)
+        self.task = CropTask.objects.create(
+            crop=self.rice, stage=self.stage, category="irrigation",
+            instruction="Irrigate every 3 days.", source_citation="x" * 20
+        )
+        self.farmer = User.objects.create_user(username="toggle_tasks_farmer", password="x")
+        self.other_farmer = User.objects.create_user(username="toggle_tasks_other_farmer", password="x")
+        self.tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.rice, current_stage=self.stage)
+        self.other_tracker = FarmerCropTracker.objects.create(
+            farmer=self.other_farmer, crop=self.rice, current_stage=self.stage
+        )
+        self.url = reverse("task-completion-toggle", kwargs={"task_id": self.task.id})
+
+    def test_marking_another_users_tracker_task_complete_is_rejected(self):
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(f"{self.url}?tracker={self.other_tracker.id}")
+        self.assertIn(response.status_code, (status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND))
+        self.assertFalse(
+            CropTaskCompletion.objects.filter(tracker=self.other_tracker, task=self.task).exists()
+        )
+
+    def test_marking_complete_twice_does_not_error_or_duplicate(self):
+        self.client.force_authenticate(self.farmer)
+        url = f"{self.url}?tracker={self.tracker.id}"
+        response1 = self.client.post(url)
+        self.assertIn(response1.status_code, (status.HTTP_200_OK, status.HTTP_201_CREATED))
+        response2 = self.client.post(url)
+        self.assertIn(response2.status_code, (status.HTTP_200_OK, status.HTTP_201_CREATED))
+        self.assertEqual(
+            CropTaskCompletion.objects.filter(tracker=self.tracker, task=self.task).count(), 1
+        )
+
+    def test_delete_removes_the_completion(self):
+        self.client.force_authenticate(self.farmer)
+        CropTaskCompletion.objects.create(tracker=self.tracker, task=self.task)
+        response = self.client.delete(f"{self.url}?tracker={self.tracker.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            CropTaskCompletion.objects.filter(tracker=self.tracker, task=self.task).exists()
+        )
+
+    # Final-review fix (F2) -- a farmer's own, legitimately-owned tracker
+    # for a DIFFERENT crop than the task being toggled must still be
+    # rejected. Before this fix, `_get_owned_tracker` only checked that the
+    # tracker belonged to the authenticated farmer -- it never checked that
+    # the tracker's crop actually matched the task's crop, so a malformed
+    # or mismatched `?tracker=` could silently record a completion against
+    # the wrong tracker.
+    def test_toggling_a_task_against_a_tracker_for_a_different_crop_is_rejected(self):
+        arecanut = Crop.objects.create(name="Arecanut")
+        arecanut_stage = CropStage.objects.create(crop=arecanut, name="Flowering", order=1)
+        arecanut_tracker = FarmerCropTracker.objects.create(
+            farmer=self.farmer, crop=arecanut, current_stage=arecanut_stage
+        )
+        self.client.force_authenticate(self.farmer)
+        # self.task belongs to self.rice -- arecanut_tracker is this SAME
+        # farmer's own tracker, just for the wrong crop.
+        response = self.client.post(f"{self.url}?tracker={arecanut_tracker.id}")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(
+            CropTaskCompletion.objects.filter(tracker=arecanut_tracker, task=self.task).exists()
+        )
+
+    def test_toggling_a_task_against_the_matching_tracker_still_works(self):
+        # Same farmer, same two trackers as above -- but this time posting
+        # with the tracker that actually matches the task's own crop (Rice)
+        # must still succeed exactly as before.
+        arecanut = Crop.objects.create(name="Arecanut")
+        arecanut_stage = CropStage.objects.create(crop=arecanut, name="Flowering", order=1)
+        FarmerCropTracker.objects.create(farmer=self.farmer, crop=arecanut, current_stage=arecanut_stage)
+        self.client.force_authenticate(self.farmer)
+        response = self.client.post(f"{self.url}?tracker={self.tracker.id}")
+        self.assertIn(response.status_code, (status.HTTP_200_OK, status.HTTP_201_CREATED))
+        self.assertTrue(
+            CropTaskCompletion.objects.filter(tracker=self.tracker, task=self.task).exists()
+        )

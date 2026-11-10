@@ -29,6 +29,8 @@ const mockProfile = {
   phone_number: "",
   home_location: "",
   preferred_language: "en",
+  units_area: "acre",
+  units_weight: "kg",
   role: "farmer",
   is_verified: true,
 };
@@ -75,6 +77,8 @@ describe("ProfilePage", () => {
         last_name: "",
         phone_number: "",
         home_location: "",
+        units_area: "acre",
+        units_weight: "kg",
       });
     });
     const sentPayload = mockUpdate.mock.calls[0][0];
@@ -126,6 +130,47 @@ describe("ProfilePage", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/profile updated successfully/i)).toBeInTheDocument();
+    });
+  });
+
+  it("shows area and weight unit selects, defaulting to acre and kilograms", async () => {
+    const mockGet = vi.fn().mockResolvedValue(mockProfile);
+    useAuth.mockReturnValue({ getProfile: mockGet, updateProfile: vi.fn(), logout: vi.fn() });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>
+    );
+
+    const areaSelect = await screen.findByLabelText(/area unit/i);
+    const weightSelect = screen.getByLabelText(/weight unit/i);
+    expect(areaSelect.tagName).toBe("SELECT");
+    expect(areaSelect).toHaveValue("acre");
+    expect(weightSelect.tagName).toBe("SELECT");
+    expect(weightSelect).toHaveValue("kg");
+  });
+
+  it("saves both unit selections together with the other editable fields", async () => {
+    const mockGet = vi.fn().mockResolvedValue(mockProfile);
+    const mockUpdate = vi.fn().mockResolvedValue({ ...mockProfile, units_area: "hectare", units_weight: "tonne" });
+    useAuth.mockReturnValue({ getProfile: mockGet, updateProfile: mockUpdate, logout: vi.fn() });
+
+    render(
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByLabelText(/area unit/i));
+    await userEvent.selectOptions(screen.getByLabelText(/area unit/i), "hectare");
+    await userEvent.selectOptions(screen.getByLabelText(/weight unit/i), "tonne");
+    await userEvent.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ units_area: "hectare", units_weight: "tonne" })
+      );
     });
   });
 

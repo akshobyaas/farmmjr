@@ -156,7 +156,16 @@ export default function DashboardPage() {
 
         {!isAdmin && todaysTasks.length > 0 && (
           <div className={styles["dashboard-tasks-card"]} data-testid="dashboard-tasks-card">
-            <h2 className={styles["dashboard-section-title"]}>{t("dashboard.tasksCardTitle")}</h2>
+            <div className={styles["dashboard-tasks-card-header"]}>
+              <h2 className={styles["dashboard-section-title"]}>{t("dashboard.tasksCardTitle")}</h2>
+              {/* Task 15 -- links to the new /tasks page (Today/Upcoming/
+                  Completed tabs), so this card stays the quick "what's
+                  due today" glance it always was, without needing to grow
+                  its own tab UI. The card's own list below is untouched. */}
+              <Link to="/tasks" className={styles["dashboard-tasks-view-all"]}>
+                {t("dashboard.tasksViewAll")}
+              </Link>
+            </div>
             <ul className={styles["dashboard-task-list"]}>
               {todaysTasks.map((task) => (
                 <li key={task.id} className={styles["dashboard-task-item"]}>
@@ -167,6 +176,28 @@ export default function DashboardPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Fix round 1 (review finding 3) -- the card above (and its only
+            "View all" link to /tasks) used to be the sole in-app entry
+            point to the Tasks page, and it was gated entirely behind
+            todaysTasks.length > 0. A farmer with zero tasks due today had
+            no way to reach /tasks at all. This minimal fallback keeps a
+            "View all" link reachable in that case too, without growing
+            the main card above (and without disturbing the existing
+            `dashboard-tasks-card` test, which asserts that one specific
+            card is absent when there are no tasks -- this is a distinct
+            element). */}
+        {!isAdmin && todaysTasks.length === 0 && (
+          <div className={styles["dashboard-tasks-card"]} data-testid="dashboard-tasks-empty">
+            <div className={styles["dashboard-tasks-card-header"]}>
+              <h2 className={styles["dashboard-section-title"]}>{t("dashboard.tasksCardTitle")}</h2>
+              <Link to="/tasks" className={styles["dashboard-tasks-view-all"]}>
+                {t("dashboard.tasksViewAll")}
+              </Link>
+            </div>
+            <p className={styles["dashboard-task-instruction"]}>{t("dashboard.tasksEmpty")}</p>
           </div>
         )}
 

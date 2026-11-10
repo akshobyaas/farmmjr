@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useScanHistory } from "../hooks/useScanHistory";
 import AppHeader from "../components/AppHeader";
@@ -16,7 +16,12 @@ function formatDate(isoString) {
 
 export default function ScanHistoryPage() {
   const { t } = useTranslation();
-  const { results, count, page, setPage, hasNext, hasPrevious, loading, error } = useScanHistory();
+  // Task 12 fix round 1 -- the "View all" link on a crop's detail page
+  // navigates here as /scan/history?crop=<id>; read it so the fetch below
+  // actually filters instead of silently showing everything.
+  const [searchParams] = useSearchParams();
+  const cropFilter = searchParams.get("crop");
+  const { results, count, page, setPage, hasNext, hasPrevious, loading, error } = useScanHistory(cropFilter);
 
   return (
     <div className="dashboard-page">

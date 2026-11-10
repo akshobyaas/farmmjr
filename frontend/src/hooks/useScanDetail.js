@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { fetchScanDetail } from "../api/scans";
+import { useActiveTrackerForCrop } from "./useActiveTrackerForCrop";
+import { useSaveScanToDiary } from "./useSaveScanToDiary";
 
 // Extracted verbatim from ScanHistoryDetailPage.jsx's state/effect, as
 // part of the frontend structure cleanup (Sub-project 1). See
@@ -27,5 +29,12 @@ export function useScanDetail(id) {
       });
   }, [id, t]);
 
-  return { scan, error };
+  // Task 9 -- "Save to Diary" button. Unlike ScanUploadPage, this scan may
+  // be any age, so the page itself is responsible for naming the scan's
+  // own date in the confirmation copy -- the save always still targets
+  // TODAY's entry (see the amendment on Task 9's brief).
+  const activeTracker = useActiveTrackerForCrop(scan?.predicted_disease?.crop_name);
+  const { status: diarySaveStatus, handleSaveToDiary } = useSaveScanToDiary(activeTracker, scan?.id);
+
+  return { scan, error, activeTracker, diarySaveStatus, handleSaveToDiary };
 }

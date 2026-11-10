@@ -293,7 +293,7 @@
   /* Elevate Minimal: a subtle accent-coloured shadow under the primary
      CTA -- common "the main action has weight" pattern in current UIs,
      kept inside the existing green family rather than a neutral grey. */
-  box-shadow: 0 2px 8px rgba(47, 158, 68, 0.25);
+  box-shadow: 0 2px 8px rgba(36, 92, 58, 0.25);
   transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 .btn-primary:disabled {
@@ -306,7 +306,7 @@
    shown on a cursor-driven screen (the phone-frame demo mockup included). */
 .btn-primary:not(:disabled):hover {
   background-color: var(--color-primary-dark);
-  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.32);
+  box-shadow: 0 4px 14px rgba(36, 92, 58, 0.32);
 }
 .btn-primary:not(:disabled):active {
   transform: scale(0.97);
@@ -847,7 +847,7 @@
    original comment described, just naming the wrong element as the fix.
    Left unchanged by the minimal theme pass -- this is presentation-device
    chrome for desktop demo viewing, not part of the app's own visual system. */
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   body {
     min-height: 100vh;
     display: flex;

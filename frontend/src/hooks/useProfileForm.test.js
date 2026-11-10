@@ -17,6 +17,8 @@ const mockProfile = {
   phone_number: "9999999999",
   home_location: "Mysuru",
   preferred_language: "en",
+  units_area: "acre",
+  units_weight: "kg",
 };
 
 describe("useProfileForm", () => {
@@ -63,6 +65,8 @@ describe("useProfileForm", () => {
       last_name: "K",
       phone_number: "9999999999",
       home_location: "Mysuru",
+      units_area: "acre",
+      units_weight: "kg",
     });
     expect(result.current.success).toBe(true);
   });
@@ -87,6 +91,16 @@ describe("useProfileForm", () => {
       await result.current.handleSubmit({ preventDefault: () => {} });
     });
     expect(result.current.isDirty).toBe(false);
+  });
+
+  test("isDirty becomes true when a unit selection changes", async () => {
+    const getProfile = vi.fn().mockResolvedValue(mockProfile);
+    useAuth.mockReturnValue({ getProfile, updateProfile: vi.fn() });
+    const { result } = renderHook(() => useProfileForm());
+    await act(async () => {});
+
+    act(() => result.current.handleChange({ target: { name: "units_area", value: "hectare" } }));
+    expect(result.current.isDirty).toBe(true);
   });
 
   test("isDirty stays false when a field is changed back to its original value", async () => {

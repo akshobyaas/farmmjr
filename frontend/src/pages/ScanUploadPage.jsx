@@ -9,8 +9,19 @@ import styles from "./ScanUploadPage.module.css";
 
 export default function ScanUploadPage() {
   const { t } = useTranslation();
-  const { file, previewUrl, error, result, submitting, handleFileChange, handleSubmit, handleScanAnother } =
-    useScanUpload();
+  const {
+    file,
+    previewUrl,
+    error,
+    result,
+    submitting,
+    handleFileChange,
+    handleSubmit,
+    handleScanAnother,
+    activeTracker,
+    diarySaveStatus,
+    handleSaveToDiary,
+  } = useScanUpload();
 
   return (
     <div className="dashboard-page">
@@ -97,6 +108,26 @@ export default function ScanUploadPage() {
             )}
 
             <LowConfidenceNudge scan={result.scan} />
+
+            {activeTracker && (
+              <div style={{ marginTop: 16 }}>
+                {diarySaveStatus === "saved" ? (
+                  <p className="status-message">{t("scan.savedToDiary")}</p>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleSaveToDiary}
+                    disabled={diarySaveStatus === "saving"}
+                  >
+                    {diarySaveStatus === "saving" ? t("scan.savingToDiary") : t("scan.saveToDiaryButton")}
+                  </button>
+                )}
+                {diarySaveStatus === "error" && (
+                  <p className="form-error" role="alert">{t("scan.saveToDiaryError")}</p>
+                )}
+              </div>
+            )}
 
             <button type="button" className="btn-secondary" onClick={handleScanAnother} style={{ marginTop: 16 }}>
               {t("scan.scanAnotherButton")}

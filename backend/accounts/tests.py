@@ -269,6 +269,90 @@ class ProfileAuthorizationTests(APITestCase):
     def test_home_location_defaults_to_blank(self):
         self.assertEqual(self.user.home_location, "")
 
+    def test_profile_serializer_accepts_units_and_onboarding_fields(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(
+            self.own_url,
+            {"units_area": "hectare", "units_weight": "tonne", "onboarding_status": "in_progress"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.units_area, "hectare")
+        self.assertEqual(self.user.units_weight, "tonne")
+        self.assertEqual(self.user.onboarding_status, "in_progress")
+
+    def test_units_and_onboarding_status_default_values(self):
+        self.assertEqual(self.user.units_area, "acre")
+        self.assertEqual(self.user.units_weight, "kg")
+        self.assertEqual(self.user.onboarding_status, "not_started")
+
+
+class OnboardingStatusBackfillTests(APITestCase):
+    """
+    UI_REDESIGN_DESIGN.md section 7.6: a farmer account that already has at
+    least one active crop tracker at migration time must be backfilled to
+    onboarding_status="completed" (they've effectively already onboarded),
+    not left at the "not_started" schema default.
+
+    This project has no existing `RunPython` data-migration test precedent
+    anywhere under backend/*/migrations/ (checked: none of the existing
+    migrations use RunPython), so there is no prior pattern in this
+    codebase's test suite to mirror. By the time this TestCase runs,
+    Django has already applied every migration -- including this one's own
+    RunPython step -- against an empty test database, so there is nothing
+    for the backfill to have backfilled yet (no Profiles/trackers existed
+    at migration time). Re-running the migration forward via Django's
+    migration-rollback-and-reapply test utilities would work but is heavy
+    machinery for one data-shaping function and would churn the shared test
+    DB's migration state for every other test in the suite.
+
+    Instead, this imports the migration module directly (by its dotted
+    module path, same as Django's own migration loader does internally)
+    and calls its `backfill_onboarding_status(apps, schema_editor)` function
+    directly against freshly created rows -- proving the backfill *logic*
+    itself is correct, independent of whether the migration framework
+    chooses to run it. `schema_editor` is unused by a pure data migration,
+    so it is passed as None.
+    """
+
+    MIGRATION_MODULE = "accounts.migrations.0003_profile_units_onboarding"
+
+    def _run_backfill(self):
+        import importlib
+
+        from django.apps import apps as real_apps
+
+        migration_module = importlib.import_module(self.MIGRATION_MODULE)
+        migration_module.backfill_onboarding_status(real_apps, None)
+
+    def test_migration_backfills_onboarding_status_completed_for_farmers_with_active_tracker(self):
+        from crops.models import Crop, FarmerCropTracker
+
+        farmer_with_tracker = make_user(username="farmer_with_tracker", email="tracker@example.com")
+        farmer_without = make_user(username="farmer_without", email="notracker@example.com")
+        crop = Crop.objects.create(name="Tomato")
+        FarmerCropTracker.objects.create(farmer=farmer_with_tracker, crop=crop, is_active=True)
+
+        self._run_backfill()
+
+        farmer_with_tracker.refresh_from_db()
+        farmer_without.refresh_from_db()
+        self.assertEqual(farmer_with_tracker.onboarding_status, "completed")
+        self.assertEqual(farmer_without.onboarding_status, "not_started")
+
+    def test_migration_does_not_backfill_farmers_with_only_an_inactive_tracker(self):
+        from crops.models import Crop, FarmerCropTracker
+
+        farmer_with_inactive_tracker = make_user(username="farmer_inactive", email="inactive@example.com")
+        crop = Crop.objects.create(name="Rice")
+        FarmerCropTracker.objects.create(farmer=farmer_with_inactive_tracker, crop=crop, is_active=False)
+
+        self._run_backfill()
+
+        farmer_with_inactive_tracker.refresh_from_db()
+        self.assertEqual(farmer_with_inactive_tracker.onboarding_status, "not_started")
+
 
 class AccountDeleteTests(APITestCase):
     """

@@ -20,7 +20,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from .diary_ai import generate_diary_analysis
 from .serializers_diary import diary_today
-from .models import Crop, FarmerCropTracker, FarmingDiaryEntry
+from .models import Crop, Disease, FarmerCropTracker, FarmingDiaryEntry
+from scans.models import ScanHistory
 
 User = get_user_model()
 
@@ -207,6 +208,37 @@ class FarmingDiaryEntryAPITests(APITestCase):
         mock_generate.assert_called_once()
         _entry_arg, recent_entries_arg = mock_generate.call_args[0]
         self.assertEqual([e.entry_date for e in recent_entries_arg], sorted(dates)[-5:])
+
+    def test_create_entry_with_irrigation_duration_and_quantity(self):
+        # Task 10 -- `entry_date` is read-only/server-set (diary_today()),
+        # so it isn't posted here and the created entry is looked up by
+        # diary_today() rather than a hardcoded date, same as every other
+        # create test above.
+        response = self.client.post(
+            "/api/crops/diary/",
+            {
+                "tracker": self.tracker.id, "did_irrigation": True,
+                "duration_minutes": 45, "quantity": "120.50", "quantity_unit": "liters",
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        entry = FarmingDiaryEntry.objects.get(tracker=self.tracker, entry_date=diary_today())
+        self.assertEqual(entry.duration_minutes, 45)
+        self.assertEqual(str(entry.quantity), "120.50")
+
+    def test_existing_entry_without_new_fields_still_loads(self):
+        # `pre_migration_entry` stands in for a row created before this
+        # migration added the six new fields: a plain ORM create with none
+        # of them set, the way every pre-existing diary row actually
+        # looks. Created locally (not in setUp) so it doesn't add an extra
+        # row to every other test in this class, several of which assert
+        # exact entry counts.
+        self.pre_migration_entry = FarmingDiaryEntry.objects.create(
+            tracker=self.tracker, entry_date=date(2026, 10, 1), note="before the new fields existed",
+        )
+        entry = FarmingDiaryEntry.objects.get(pk=self.pre_migration_entry.pk)
+        self.assertIsNone(entry.duration_minutes)
+        self.assertEqual(entry.product_name, "")
 
 
 # GEMINI_API_KEY blanked for the same reason as FarmingDiaryEntryAPITests.
@@ -410,6 +442,48 @@ class FarmingDiaryPhotoDiagnosisTests(APITestCase):
         self.assertIsNone(entry.photo_diagnosis_confidence)
 
 
+
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT, GEMINI_API_KEY="")
+class FarmingDiaryScanCopyTests(APITestCase):
+    """
+    Task 8 -- `scan_id` on the diary create/update endpoint: a farmer can
+    point a diary entry at one of their own past scans instead of
+    re-uploading a photo, and the entry's `photo`,
+    `photo_diagnosis_label`/`photo_diagnosis_confidence` are copied from
+    that scan server-side (see FarmingDiaryEntrySerializer.validate/create).
+    """
+
+    def setUp(self):
+        self.crop = Crop.objects.create(name="Rice")
+        self.disease = Disease.objects.create(crop=self.crop, name="Rice Blast")
+        self.farmer = User.objects.create_user(username="farmer1", password="x")
+        self.other_farmer = User.objects.create_user(username="farmer2", password="x")
+        self.tracker = FarmerCropTracker.objects.create(farmer=self.farmer, crop=self.crop)
+        self.client.force_authenticate(user=self.farmer)
+
+    def test_create_with_scan_id_copies_photo_and_diagnosis_onto_entry(self):
+        scan = ScanHistory.objects.create(
+            user=self.farmer, image=make_test_image(), predicted_disease=self.disease, confidence=0.87,
+        )
+        response = self.client.post(
+            "/api/crops/diary/",
+            {"tracker": self.tracker.id, "entry_date": "2026-11-10", "scan_id": scan.id},
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        entry = FarmingDiaryEntry.objects.get(tracker=self.tracker, entry_date=diary_today())
+        self.assertTrue(entry.photo)
+        self.assertEqual(entry.photo_diagnosis_label, self.disease.name)
+        self.assertEqual(entry.photo_diagnosis_confidence, 0.87)
+
+    def test_create_with_another_users_scan_id_is_rejected(self):
+        other_users_scan = ScanHistory.objects.create(user=self.other_farmer, image=make_test_image())
+        response = self.client.post(
+            "/api/crops/diary/",
+            {"tracker": self.tracker.id, "entry_date": "2026-11-10", "scan_id": other_users_scan.id},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(FarmingDiaryEntry.objects.count(), 0)
 
 
 class DiaryAiTests(TestCase):

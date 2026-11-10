@@ -22,7 +22,25 @@ export function AuthProvider({ children }) {
   const fetchMe = useCallback(async () => {
     try {
       const { data } = await api.get("auth/me/");
-      setUser(data);
+      // Task 19 -- onboarding_status (Task 16) lives on ProfileSerializer
+      // only, not on UserPublicSerializer (what /auth/me/ returns), so it
+      // is never "already on" this response -- a second call merges it
+      // in. ProtectedRoute's onboarding gate needs this on every login
+      // AND every session-restore (page reload), not only once the
+      // farmer happens to visit their Profile page, which is the only
+      // other place that hits this endpoint today.
+      try {
+        const { data: profile } = await api.get(`auth/profile/${data.id}/`);
+        setUser({ ...data, onboarding_status: profile.onboarding_status });
+      } catch {
+        // A transient failure fetching the profile shouldn't block
+        // sign-in -- fall back to the /auth/me/ data alone.
+        // onboarding_status stays undefined, which ProtectedRoute's gate
+        // (an explicit allow-list of "not_started"/"in_progress") simply
+        // never matches, so this never wrongly traps an existing farmer
+        // on /welcome because of a one-off network blip.
+        setUser(data);
+      }
     } catch {
       setUser(null);
       tokenStorage.clear();

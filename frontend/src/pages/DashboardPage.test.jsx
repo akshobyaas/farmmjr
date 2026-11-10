@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import DashboardPage from "./DashboardPage";
@@ -329,6 +329,26 @@ describe("DashboardPage", () => {
     expect(screen.getByText(/apply balanced npk feed/i)).toBeInTheDocument();
     expect(screen.getByText("Irrigation")).toBeInTheDocument();
     expect(screen.getByText("Fertilizer")).toBeInTheDocument();
+  });
+
+  // Fix round 1 (review finding 3) -- the Today's Tasks card (and its
+  // only "View all" link) used to be gated entirely behind
+  // todaysTasks.length > 0, leaving a farmer with zero tasks due today
+  // with no in-app way to reach /tasks at all.
+  it("still offers a way to reach /tasks when there are zero tasks due today", async () => {
+    useAuth.mockReturnValue({ user: farmerUser, logout: vi.fn() });
+    vi.mocked(fetchTodaysTasks).mockResolvedValue({ tasks: [] });
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(fetchTodaysTasks).toHaveBeenCalled());
+
+    const link = await screen.findByRole("link", { name: /view all/i });
+    expect(link).toHaveAttribute("href", "/tasks");
   });
 
   it("falls back without crashing if fetchTodaysTasks rejects", async () => {

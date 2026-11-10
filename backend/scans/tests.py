@@ -19,6 +19,8 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from crops.models import Crop, Disease
+
 from .models import ScanHistory
 
 User = get_user_model()
@@ -129,3 +131,50 @@ class ScanHistoryAuthorizationTests(APITestCase):
     def test_unauthenticated_history_access_is_rejected(self):
         response = self.client.get(reverse("scan-history-list"))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
+class ScanHistoryCropFilterTests(APITestCase):
+    """
+    Phase 12 (Task 12 follow-up) -- Crop Detail's "Recent scans for this
+    crop" links out to `/scan/history?crop=<id>`, backed by this
+    `?crop=` query param on the list endpoint. Unlike the diary's
+    `?tracker=` (required, 400 on missing/invalid), this is a refinement
+    param: missing or non-int just falls back to the unfiltered list,
+    never a 400.
+    """
+
+    def setUp(self):
+        self.farmer = make_user()
+        self.rice = Crop.objects.create(name="Rice")
+        self.pepper = Crop.objects.create(name="Black Pepper")
+        self.rice_disease = Disease.objects.create(crop=self.rice, name="Rice Blast")
+        self.pepper_disease = Disease.objects.create(crop=self.pepper, name="Pepper Wilt")
+
+    def test_scan_history_list_filters_by_crop_query_param(self):
+        matching = ScanHistory.objects.create(user=self.farmer, predicted_disease=self.rice_disease, image=make_test_image())
+        other = ScanHistory.objects.create(user=self.farmer, predicted_disease=self.pepper_disease, image=make_test_image())
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get(f"/api/scans/history/?crop={self.rice_disease.crop_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [r["id"] for r in response.data["results"]]
+        self.assertIn(matching.id, ids)
+        self.assertNotIn(other.id, ids)
+
+    def test_invalid_crop_query_param_is_ignored_not_a_400(self):
+        scan = ScanHistory.objects.create(user=self.farmer, predicted_disease=self.rice_disease, image=make_test_image())
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get("/api/scans/history/?crop=not-a-number")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [r["id"] for r in response.data["results"]]
+        self.assertIn(scan.id, ids)
+
+    def test_missing_crop_query_param_returns_unfiltered_list(self):
+        rice_scan = ScanHistory.objects.create(user=self.farmer, predicted_disease=self.rice_disease, image=make_test_image())
+        pepper_scan = ScanHistory.objects.create(user=self.farmer, predicted_disease=self.pepper_disease, image=make_test_image())
+        self.client.force_authenticate(self.farmer)
+        response = self.client.get("/api/scans/history/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [r["id"] for r in response.data["results"]]
+        self.assertIn(rice_scan.id, ids)
+        self.assertIn(pepper_scan.id, ids)

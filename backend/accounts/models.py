@@ -30,5 +30,42 @@ class User(AbstractUser):
         help_text="Set to True once the user confirms their email address."
     )
 
+    class UnitsArea(models.TextChoices):
+        ACRE = "acre", "Acre"
+        HECTARE = "hectare", "Hectare"
+
+    class UnitsWeight(models.TextChoices):
+        KG = "kg", "Kilogram"
+        TONNE = "tonne", "Tonne"
+
+    class OnboardingStatus(models.TextChoices):
+        NOT_STARTED = "not_started", "Not started"
+        IN_PROGRESS = "in_progress", "In progress"
+        COMPLETED = "completed", "Completed"
+        SKIPPED = "skipped", "Skipped"
+
+    units_area = models.CharField(
+        max_length=10,
+        choices=UnitsArea.choices,
+        default=UnitsArea.ACRE,
+    )
+    units_weight = models.CharField(
+        max_length=10,
+        choices=UnitsWeight.choices,
+        default=UnitsWeight.KG,
+    )
+    onboarding_status = models.CharField(
+        max_length=15,
+        choices=OnboardingStatus.choices,
+        default=OnboardingStatus.NOT_STARTED,
+        help_text=(
+            "Tracks the /welcome guided onboarding flow per-account (not "
+            "localStorage) so it is completed only once, including across "
+            "devices. A farmer who already had an active crop tracker at "
+            "migration time is backfilled to 'completed' instead of "
+            "'not_started'."
+        ),
+    )
+
     def __str__(self):
         return f"{self.username} ({self.role})"

@@ -1,0 +1,21 @@
+/* UI Redesign -- the confidence reading is a shared .stat-tile-value
+   (shared.css sets its base 22px/800 type). This row is left-aligned with a
+   hairline border-bottom above the disease details, matching the page's
+   other left-aligned result text (not WeatherPage's centered border-top
+   row). The value is reduced to body-size emphasis so it reads as
+   metadata, not a headline. :global() is needed because the class is the
+   unhashed shared.css one. */
+.scan-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.1);
+}
+.scan-meta :global(.stat-tile-value) {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}

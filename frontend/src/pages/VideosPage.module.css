@@ -1,27 +1,76 @@
-.videos-search-form {
-  display: flex;
-  gap: 8px;
+/* Search card restyle -- same merged pill-shaped bar as LocatorPage's/
+   WeatherPage's .search-card/.search-pill, replacing the old field-box
+   beside a separate rectangular Search button. Existing tokens only,
+   copied as-is from LocatorPage.module.css. Note: the old field-box +
+   .btn-primary layout here previously needed an explicit
+   `:global(.btn-primary) { width: auto; ... }` override (a real
+   width-collapse bug documented in PROJECT_STATUS.md section 4.34) --
+   that override is dropped, not forgotten: this restyle's submit button
+   is the icon-only .search-pill-submit below, not .btn-primary, so
+   .btn-primary no longer appears anywhere in this page's markup and the
+   override would be dead CSS. LocatorPage's own module.css dropped the
+   same override for the same reason when it made this identical move. */
+.search-card {
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
+  background: var(--color-primary-tint);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 14px rgba(17, 24, 39, 0.05);
 }
-/* Pre-existing layout bug, surfaced (not introduced) by the UI Polish Pass:
-   .btn-primary defaults to width:100% for its normal standalone use, which
-   -- unchecked inside this flex row -- claimed the whole row and squeezed
-   the field box down to a sliver. Same fix WeatherPage.module.css already
-   carries for its identical search-row layout; see its own note on why
-   this override belongs on the page, not in shared.css. */
-.videos-search-form :global(.btn-primary) {
-  width: auto;
-  min-width: 100px;
-  flex-shrink: 0;
-  margin-top: 0;
+.search-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, var(--color-primary-tint) 0%, var(--color-bg) 65%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 4px 4px 4px 16px;
 }
-/* UI Polish Pass -- the input itself is now the shared .field-box /
-   .field-box-input (shared.css); this just flexes the box to fill the row
-   next to the Search button, same role the old bespoke input class had. */
-.videos-query-field {
+.search-pill-input {
   flex: 1;
   min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+  min-height: 26px;
+}
+.search-clear-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+.search-clear-btn:hover {
+  color: var(--color-text);
+}
+.search-pill-submit {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(36, 92, 58, 0.28);
+}
+.search-pill-submit:disabled {
+  background: var(--color-primary-light);
+  box-shadow: none;
+  cursor: default;
 }
 /* UI Polish Pass -- each result is now the shared .list-row (shared.css,
    its icon-badge slot showing the video thumbnail when present, same

@@ -7,7 +7,9 @@ import { useAuth } from "../context/AuthContext";
 // the always-visible AppHeader LanguageSwitcher is now the only place that
 // changes it, and already PATCHes it itself (see LanguageSwitcher.jsx) --
 // so this is also exactly the set of fields "isDirty" compares.
-const EDITABLE_FIELDS = ["first_name", "last_name", "phone_number", "home_location"];
+const EDITABLE_FIELDS = [
+  "first_name", "last_name", "phone_number", "home_location", "units_area", "units_weight",
+];
 
 // Extracted verbatim from ProfilePage.jsx's state/effect/handlers, as
 // part of the frontend structure cleanup (Sub-project 1). See
@@ -55,6 +57,8 @@ export function useProfileForm() {
         last_name: form.last_name,
         phone_number: form.phone_number,
         home_location: form.home_location,
+        units_area: form.units_area,
+        units_weight: form.units_weight,
       });
       setSuccess(true);
       setSavedForm(form);
