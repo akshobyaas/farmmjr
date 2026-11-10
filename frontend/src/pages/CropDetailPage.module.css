@@ -76,6 +76,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* .field-box-input's default min-height (26px, sized for a single-line
+   input) reads cramped for a multi-line notes field -- same field-box
+   shell, just taller and vertically resizable. */
+.diary-note-textarea {
+  min-height: 70px;
+  resize: vertical;
+}
 .diary-photo-input {
   position: absolute;
   width: 1px;

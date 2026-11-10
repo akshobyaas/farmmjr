@@ -278,7 +278,7 @@ describe("CropDetailPage", () => {
         expect(screen.getByRole("checkbox", { name: /irrigation/i })).toBeChecked();
       });
       expect(screen.getByRole("checkbox", { name: /fertilizer/i })).not.toBeChecked();
-      expect(screen.getByPlaceholderText(/any notes about today/i)).toHaveValue("watered");
+      expect(screen.getByLabelText(/any notes about today/i)).toHaveValue("watered");
       expect(fetchDiaryEntries).toHaveBeenCalledWith(7);
     });
 
@@ -295,7 +295,7 @@ describe("CropDetailPage", () => {
 
       await userEvent.click(await screen.findByRole("checkbox", { name: /irrigation/i }));
       await userEvent.click(screen.getByRole("checkbox", { name: /spraying/i }));
-      await userEvent.type(screen.getByPlaceholderText(/any notes about today/i), "Sprayed neem oil");
+      await userEvent.type(screen.getByLabelText(/any notes about today/i), "Sprayed neem oil");
       await userEvent.click(screen.getByRole("button", { name: /save entry/i }));
 
       await waitFor(() => {
@@ -381,7 +381,7 @@ describe("CropDetailPage", () => {
         await screen.findByText("yesterday's note");
         // ...but the form is blank for the new IST day.
         expect(screen.getByRole("checkbox", { name: /irrigation/i })).not.toBeChecked();
-        expect(screen.getByPlaceholderText(/any notes about today/i)).toHaveValue("");
+        expect(screen.getByLabelText(/any notes about today/i)).toHaveValue("");
       } finally {
         vi.useRealTimers();
         vi.mocked(Date.prototype.toLocaleDateString).mockRestore();

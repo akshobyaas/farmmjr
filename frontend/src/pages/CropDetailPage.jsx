@@ -445,23 +445,33 @@ export default function CropDetailPage() {
                 />
                 {t("crops.diary.otherLabel")}
               </label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder={t("crops.diary.otherNotePlaceholder")}
-                value={diaryForm.otherActivityNote}
-                disabled={!diaryForm.didOther}
-                onChange={(e) =>
-                  setDiaryForm((f) => ({ ...f, otherActivityNote: e.target.value }))
-                }
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="diary_other_note">
+                  {t("crops.diary.otherNotePlaceholder")}
+                </label>
+                <input
+                  id="diary_other_note"
+                  type="text"
+                  className="field-box-input"
+                  value={diaryForm.otherActivityNote}
+                  disabled={!diaryForm.didOther}
+                  onChange={(e) =>
+                    setDiaryForm((f) => ({ ...f, otherActivityNote: e.target.value }))
+                  }
+                />
+              </div>
 
-              <textarea
-                className="form-input"
-                placeholder={t("crops.diary.notePlaceholder")}
-                value={diaryForm.note}
-                onChange={(e) => setDiaryForm((f) => ({ ...f, note: e.target.value }))}
-              />
+              <div className="field-box">
+                <label className="field-box-label" htmlFor="diary_note">
+                  {t("crops.diary.notePlaceholder")}
+                </label>
+                <textarea
+                  id="diary_note"
+                  className={`field-box-input ${styles["diary-note-textarea"]}`}
+                  value={diaryForm.note}
+                  onChange={(e) => setDiaryForm((f) => ({ ...f, note: e.target.value }))}
+                />
+              </div>
 
               <label className="form-label" htmlFor="diary_photo">
                 {t("crops.diary.photoLabel")}
