@@ -10,6 +10,18 @@ export default defineConfig({
     // Host header on every request. Dev-server-only setting; irrelevant to
     // the production build (vite build / preview don't use this config).
     allowedHosts: true,
+    // Lets a single ngrok tunnel (on this port, 5173) serve both the
+    // frontend and the API: Vite forwards anything under /api or /media
+    // to the local Django dev server itself, so the browser never talks
+    // to the backend directly -- no second tunnel, no CORS, no Django
+    // ALLOWED_HOSTS entry needed for the tunnel's domain at all, since as
+    // far as Django's concerned the request is just from localhost. Only
+    // relevant when VITE_API_BASE_URL is set to a relative path (e.g.
+    // "/api/") instead of a full URL -- see .env.example.
+    proxy: {
+      '/api': { target: 'http://localhost:8000', changeOrigin: true },
+      '/media': { target: 'http://localhost:8000', changeOrigin: true },
+    },
   },
   test: {
     environment: 'jsdom',
