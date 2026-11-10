@@ -1,8 +1,46 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      // Only generate/register the service worker in production builds
+      // (npm run build / preview) -- leaving it off for `npm run dev`
+      // means Vite's own HMR keeps working normally instead of fighting
+      // a service worker that's caching stale assets underneath it.
+      devOptions: { enabled: false },
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.png'],
+      manifest: {
+        name: 'Smart Farming',
+        short_name: 'Smart Farming',
+        description: 'AI-based crop disease detection and smart farming guidance',
+        theme_color: '#245C3A',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        // Caches the built app shell (JS/CSS/HTML/icons) so the UI loads
+        // offline/on a flaky connection. Deliberately does NOT cache API
+        // responses (/api/..., /media/...) -- crop data, diary entries,
+        // etc. always come from the network, same as before this existed.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+      },
+    }),
+  ],
   server: {
     // Vite rejects any request whose Host header isn't localhost/127.0.0.1/
     // an explicitly listed host, which blocks a tunnel (ngrok, etc.)
