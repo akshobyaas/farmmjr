@@ -210,8 +210,12 @@ class PasswordResetRequestView(APIView):
 class FindAccountView(APIView):
     """
     'Forgot username' entry point.
-    ALWAYS returns the same generic message, whether or not the email
-    exists -- same anti-enumeration shape as PasswordResetRequestView.
+    Deliberately tells the caller whether the email has an account --
+    unlike PasswordResetRequestView, which stays generic on purpose. A
+    reset link is a credential-adjacent secret (it can change the
+    account's password); a username on its own isn't, so the clearer,
+    more honest message was chosen here instead of anti-enumeration
+    protection.
     """
     permission_classes = [permissions.AllowAny]
     throttle_classes = [PasswordResetRateThrottle]
@@ -224,13 +228,11 @@ class FindAccountView(APIView):
         try:
             user = User.objects.get(email__iexact=email)
             send_account_found_email(user)
+            detail = "We've sent the username for this email to your inbox."
         except User.DoesNotExist:
-            pass
+            detail = "No account is associated with this email address."
 
-        return Response(
-            {"detail": "If an account with that email exists, the username has been sent to it."},
-            status=status.HTTP_200_OK,
-        )
+        return Response({"detail": detail}, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(APIView):

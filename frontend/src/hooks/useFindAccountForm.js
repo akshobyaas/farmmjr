@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-// Mirrors useForgotPasswordForm.js's shape -- "find my account" and "forgot
-// password" are the same flow (take an email, always say "if it exists...",
-// never surface whether the account is real).
+// Mirrors useForgotPasswordForm.js's shape, with one deliberate difference:
+// the backend tells us plainly whether the email has an account (a
+// username on its own isn't sensitive enough to warrant hiding that, unlike
+// a password-reset link), so we show whatever message it sends back rather
+// than a hardcoded one.
 export function useFindAccountForm() {
   const { findAccount } = useAuth();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -16,7 +19,8 @@ export function useFindAccountForm() {
     setError("");
     setSubmitting(true);
     try {
-      await findAccount(email);
+      const data = await findAccount(email);
+      setResultMessage(data.detail);
       setSubmitted(true);
     } catch (err) {
       if (err.response?.status === 429) {
@@ -29,5 +33,5 @@ export function useFindAccountForm() {
     }
   };
 
-  return { email, setEmail, submitted, error, submitting, handleSubmit };
+  return { email, setEmail, submitted, resultMessage, error, submitting, handleSubmit };
 }

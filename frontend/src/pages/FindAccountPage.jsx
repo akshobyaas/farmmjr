@@ -4,7 +4,7 @@ import { useFindAccountForm } from "../hooks/useFindAccountForm";
 // Mirrors ForgotPasswordPage.jsx's shape -- same flow, different field it
 // recovers (username instead of a password reset link).
 export default function FindAccountPage() {
-  const { email, setEmail, submitted, error, submitting, handleSubmit } = useFindAccountForm();
+  const { email, setEmail, submitted, resultMessage, error, submitting, handleSubmit } = useFindAccountForm();
 
   return (
     <div className="auth-page">
@@ -14,10 +14,7 @@ export default function FindAccountPage() {
 
         {submitted ? (
           <div className="status-card status-ok">
-            <p className="status-message">
-              If an account with that email exists, the username has been sent to it.
-              Please check your inbox.
-            </p>
+            <p className="status-message">{resultMessage}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>

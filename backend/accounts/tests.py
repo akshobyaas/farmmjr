@@ -554,12 +554,14 @@ class FindAccountTests(APITestCase):
         self.user = make_user()
         self.url = reverse("find-account")
 
-    def test_find_account_gives_identical_generic_message_for_real_and_fake_emails(self):
+    def test_find_account_gives_distinct_messages_for_real_and_fake_emails(self):
         real = self.client.post(self.url, {"email": "ravi@example.com"}, format="json")
         fake = self.client.post(self.url, {"email": "nobody@example.com"}, format="json")
         self.assertEqual(real.status_code, status.HTTP_200_OK)
         self.assertEqual(fake.status_code, status.HTTP_200_OK)
-        self.assertEqual(real.data["detail"], fake.data["detail"])
+        self.assertNotEqual(real.data["detail"], fake.data["detail"])
+        self.assertIn("sent", real.data["detail"].lower())
+        self.assertIn("no account", fake.data["detail"].lower())
 
     def test_find_account_emails_the_username_when_the_account_exists(self):
         from django.core import mail

@@ -19,8 +19,10 @@ describe("FindAccountPage", () => {
     vi.clearAllMocks();
   });
 
-  it("shows the same generic success message regardless of whether the email exists", async () => {
-    const mockFindAccount = vi.fn().mockResolvedValue({ message: "generic message" });
+  it("shows the backend's message when the account exists", async () => {
+    const mockFindAccount = vi.fn().mockResolvedValue({
+      detail: "We've sent the username for this email to your inbox.",
+    });
     useAuth.mockReturnValue({ findAccount: mockFindAccount });
 
     render(
@@ -33,9 +35,29 @@ describe("FindAccountPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /send username/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/if an account with that email exists/i)).toBeInTheDocument();
+      expect(screen.getByText(/we've sent the username/i)).toBeInTheDocument();
     });
     expect(mockFindAccount).toHaveBeenCalledWith("anyone@test.com");
+  });
+
+  it("shows the backend's message when no account matches the email", async () => {
+    const mockFindAccount = vi.fn().mockResolvedValue({
+      detail: "No account is associated with this email address.",
+    });
+    useAuth.mockReturnValue({ findAccount: mockFindAccount });
+
+    render(
+      <MemoryRouter>
+        <FindAccountPage />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/email/i), "nobody@test.com");
+    await userEvent.click(screen.getByRole("button", { name: /send username/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/no account is associated/i)).toBeInTheDocument();
+    });
   });
 
   it("shows a rate-limit message on 429 without leaking technical details", async () => {
