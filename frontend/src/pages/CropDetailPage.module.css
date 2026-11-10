@@ -31,10 +31,61 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
 }
 .crop-section {
   width: 100%;
   margin-top: 8px;
+}
+/* Visual pass -- the Daily Log form used to render with no container at
+   all (bare .crop-section is just width/margin, see above), so it read
+   as unstyled sitting directly below the card-treated "Current Stage"
+   section. Same white/border/shadow card language as .crop-info-card
+   below and status-card elsewhere -- only the <form> itself gets the
+   card; the "Daily Log" <h2> and the read-only timeline stay outside it,
+   same split .crop-info-card uses with its own section heading. */
+.diary-form-card {
+  display: block;
+  width: 100%;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+  margin-top: 4px;
+}
+/* Same "label wearing .btn-secondary, real <input type=file> visually
+   hidden but still reachable" pattern ScanUploadPage's camera-capture
+   button uses (.scan-upload-camera-btn / .scan-upload-input) -- a native
+   file input can't be styled directly in any browser, so every upload
+   control in this app hides the real input and triggers it from a
+   styled label instead. */
+.diary-photo-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+  text-decoration: none;
+  overflow: hidden;
+}
+.diary-photo-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.diary-photo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 /* Task 11 -- Dynamic Diary Fields (spec 7.3). Wraps the activity-specific
    .field-box groups (global shared.css pattern, same boxes FindAccountPage/

@@ -168,6 +168,7 @@
       "otherNotePlaceholder": "Briefly describe what else you did",
       "notePlaceholder": "Any notes about today? (optional)",
       "photoLabel": "Photo (optional)",
+      "choosePhoto": "Choose a photo",
       "durationMinutesLabel": "Duration (minutes)",
       "quantityLabel": "Quantity",
       "quantityUnitLabel": "Unit",

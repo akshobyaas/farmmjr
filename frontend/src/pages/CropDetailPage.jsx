@@ -269,7 +269,7 @@ export default function CropDetailPage() {
           <section className={styles["crop-section"]}>
             <h2 className="crop-section-title">{t("crops.diary.sectionTitle")}</h2>
 
-            <form onSubmit={handleDiarySubmit} noValidate>
+            <form onSubmit={handleDiarySubmit} noValidate className={styles["diary-form-card"]}>
               <label className={styles["form-checkbox-label"]}>
                 <input
                   type="checkbox"
@@ -466,11 +466,17 @@ export default function CropDetailPage() {
               <label className="form-label" htmlFor="diary_photo">
                 {t("crops.diary.photoLabel")}
               </label>
+              <label htmlFor="diary_photo" className={`btn-secondary ${styles["diary-photo-trigger"]}`}>
+                <Icon name="imageSearch" size={18} />
+                <span className={styles["diary-photo-trigger-text"]}>
+                  {diaryForm.photoFile ? diaryForm.photoFile.name : t("crops.diary.choosePhoto")}
+                </span>
+              </label>
               <input
                 id="diary_photo"
                 name="photo"
                 type="file"
-                className="form-input"
+                className={styles["diary-photo-input"]}
                 accept="image/jpeg,image/png"
                 onChange={(e) =>
                   setDiaryForm((f) => ({ ...f, photoFile: e.target.files?.[0] || null }))
