@@ -10,9 +10,18 @@ import { tokenStorage } from "./tokenStorage";
 // which only resolves correctly against a baseURL that already ends in one.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/";
 
+// ngrok's free tier serves an HTML "Visit Site" interstitial to any request
+// that looks like it's from a browser, instead of forwarding it -- this
+// header is ngrok's own documented way to opt a request out of that page.
+// Harmless against a non-ngrok backend (plain localhost ignores unknown
+// headers), so it's left on unconditionally rather than gated behind an
+// env check.
+const NGROK_SKIP_HEADER = { "ngrok-skip-browser-warning": "true" };
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 8000,
+  headers: NGROK_SKIP_HEADER,
 });
 
 // Attach the access token to every outgoing request automatically.
@@ -68,9 +77,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(`${API_BASE_URL}auth/login/refresh/`, {
-          refresh: refreshToken,
-        });
+        const { data } = await axios.post(
+          `${API_BASE_URL}auth/login/refresh/`,
+          { refresh: refreshToken },
+          { headers: NGROK_SKIP_HEADER }
+        );
         tokenStorage.setTokens(data.access, data.refresh);
         resolveQueue(data.access, null);
         originalRequest.headers.Authorization = `Bearer ${data.access}`;
