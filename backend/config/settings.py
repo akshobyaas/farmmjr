@@ -8,6 +8,7 @@ and secure image upload.
 from pathlib import Path
 from datetime import timedelta
 import environ
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -141,6 +142,15 @@ CORS_ALLOWED_ORIGINS = env.list(
     default=[env('FRONTEND_URL', default='http://localhost:5173')],
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# Setting CORS_ALLOW_HEADERS replaces django-cors-headers' default allow-list
+# entirely rather than adding to it, so the frontend's standard headers
+# (Authorization, Content-Type, etc.) have to be re-listed alongside the one
+# extra header it also sends: ngrok-skip-browser-warning, which opts out of
+# ngrok's free-tier browser-warning interstitial. Without this, the browser's
+# CORS preflight for that header succeeds (200) but then refuses to send the
+# real request at all, since the server never declared it an allowed header.
+CORS_ALLOW_HEADERS = list(default_headers) + ['ngrok-skip-browser-warning']
 
 # ---------------------------------------------------------------------------
 # Django REST Framework
