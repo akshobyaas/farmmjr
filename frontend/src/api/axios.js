@@ -1,8 +1,17 @@
 import axios from "axios";
 import { tokenStorage } from "./tokenStorage";
 
+// Overridable via VITE_API_BASE_URL (see .env.example) -- e.g. pointing at
+// an ngrok tunnel to the backend instead of the local dev server. Falls
+// back to the same localhost default every page has always used, so
+// normal local dev needs no .env file at all. Must end with a trailing
+// slash, same as the hardcoded value this replaces -- every call site
+// below passes a path with no leading slash (api.post("auth/login/")),
+// which only resolves correctly against a baseURL that already ends in one.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/";
+
 const api = axios.create({
-  baseURL: "http://localhost:8000/api/",
+  baseURL: API_BASE_URL,
   timeout: 8000,
 });
 
@@ -59,7 +68,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post("http://localhost:8000/api/auth/login/refresh/", {
+        const { data } = await axios.post(`${API_BASE_URL}auth/login/refresh/`, {
           refresh: refreshToken,
         });
         tokenStorage.setTokens(data.access, data.refresh);

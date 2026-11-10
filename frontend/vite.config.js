@@ -3,6 +3,14 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    // Vite rejects any request whose Host header isn't localhost/127.0.0.1/
+    // an explicitly listed host, which blocks a tunnel (ngrok, etc.)
+    // proxying to this dev server -- the tunnel's domain is a different
+    // Host header on every request. Dev-server-only setting; irrelevant to
+    // the production build (vite build / preview don't use this config).
+    allowedHosts: true,
+  },
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',

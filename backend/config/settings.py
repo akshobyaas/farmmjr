@@ -130,11 +130,16 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # ---------------------------------------------------------------------------
-# CORS — only allow the React dev server, never wildcard
+# CORS — only allow explicitly listed origins, never wildcard. Comma-
+# separated via CORS_ALLOWED_ORIGINS so a second origin (e.g. an ngrok
+# tunnel to the frontend) can be added in .env without touching code;
+# defaults to just FRONTEND_URL alone when unset, same single-origin
+# behavior this replaces.
 # ---------------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = [
-    env('FRONTEND_URL', default='http://localhost:5173'),
-]
+CORS_ALLOWED_ORIGINS = env.list(
+    'CORS_ALLOWED_ORIGINS',
+    default=[env('FRONTEND_URL', default='http://localhost:5173')],
+)
 CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------------------------------------------------------
